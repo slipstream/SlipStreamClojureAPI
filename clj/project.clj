@@ -18,7 +18,7 @@
                  [superstring "2.1.0"]
                  [clj-json "0.5.3"]]
 
-  :resource-paths ["src" "test/resources"]
+  :resource-paths ["src/resources" "test/resources"]
 
   :plugins [[lein-environ "1.0.0"]
             [lein-kibit "0.1.2"]]
