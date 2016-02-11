@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>SlipStreamClientAPI</artifactId>
+  <packaging>pom</packaging>
+  <version>2.23-SNAPSHOT</version>
+  <name>SlipStreamClientAPI - POM</name>
+  <description>SlipStream Client API</description>
+  <url>http://sixsq.com</url>
+
+  <parent>
+    <groupId>com.sixsq.slipstream</groupId>
+    <artifactId>SlipStream</artifactId>
+    <version>2.23-SNAPSHOT</version>
+    <relativePath>../SlipStream</relativePath>
+  </parent>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+    </license>
+  </licenses>
+
+  <modules>
+    <module>clj</module>
+  </modules>
+
+  <profiles>
+    <profile>
+      <id>build-api-client-rpm</id>
+      <activation>
+        <file>
+          <exists>/usr/bin/rpmbuild</exists>
+        </file>
+      </activation>
+      <modules>
+        <module>rpm</module>
+      </modules>
+    </profile>
+  </profiles>
+
+  <scm>
+    <connection>${scm.read}/SlipStreamClientAPI.git</connection>
+    <developerConnection>${scm.write}/SlipStreamClientAPI.git</developerConnection>
+    <url>${scm.public}/SlipStreamClientAPI</url>
+    <tag>HEAD</tag>
+  </scm>
+
+</project>
+

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>SlipStreamClientAPI-rpm</artifactId>
+    <packaging>pom</packaging>
+    <name>SlipStreamClientAPI - RPM</name>
+    <description>SlipStream Clojure Client API (RPM)</description>
+
+    <url>http://sixsq.com</url>
+    <parent>
+        <groupId>com.sixsq.slipstream</groupId>
+        <artifactId>SlipStreamClientAPI</artifactId>
+        <version>2.23-SNAPSHOT</version>
+    </parent>
+
+    <properties>
+        <installation.dir>/opt/slipstream/downloads</installation.dir>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.sixsq.slipstream</groupId>
+            <artifactId>SlipStreamClientAPI-jar</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
+            <classifier>jar-with-dependencies</classifier>
+        </dependency>
+    </dependencies>
+
+    <build>
+
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+
+                <executions>
+
+                    <execution>
+                        <id>copy-jar</id>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <stripVersion>true</stripVersion>
+                            <stripClassifier>true</stripClassifier>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.sixsq.slipstream</groupId>
+                                    <artifactId>SlipStreamClientAPI-jar</artifactId>
+                                    <type>jar</type>
+                                    <classifier>jar-with-dependencies</classifier>
+                                    <destFileName>clj-ss-client.jar</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>rpm-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <classifier>${package.os}</classifier>
+                    <release>${BUILD_NUMBER}.${package.os}</release>
+                    <summary>SlipStream Clojure Client API</summary>
+                    <name>slipstream-client-clojure${slipstream.edition}</name>
+                    <group>System</group>
+                    <vendor>SlipStream</vendor>
+                    <packager>SlipStream</packager>
+                    <license>Apache 2.0</license>
+                    <url>http://sixsq.com</url>
+                    <needarch>noarch</needarch>
+                    <description>
+                        SlipStream Clojure Client API
+                    </description>
+                    <requires>
+                        <require>slipstream-useradd${slipstream.edition}</require>
+                    </requires>
+
+                    <defaultDirmode>755</defaultDirmode>
+                    <defaultFilemode>644</defaultFilemode>
+                    <defaultGroupname>slipstream</defaultGroupname>
+                    <defaultUsername>slipstream</defaultUsername>
+
+                    <mappings>
+                        <mapping>
+                            <directory>${installation.dir}</directory>
+                            <directoryIncluded>false</directoryIncluded>
+                            <sources>
+                                <source>
+                                    <location>${project.build.directory}/clj-ss-client.jar</location>
+                                </source>
+                            </sources>
+                        </mapping>
+                    </mappings>
+
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>attach-rpm</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attached-rpm</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+            </plugin>
+
+        </plugins>
+
+    </build>
+
+</project>
