@@ -5,8 +5,9 @@
     [superstring.core :as s]
     [clojure.tools.logging  :as log]
     [clj-http.client :as http]
-    [clj-json.core :as json])
-  (:use [slingshot.slingshot :only [try+]]))
+    [clj-json.core :as json]
+    [clojure.data.xml :as xml])
+  (:use [slingshot.slingshot :only [try+ throw+]]))
 
 ; Add cookie store. Example:
 ; (with-connection-pool {:timeout 5 :threads 4 :insecure? false :default-per-route 10}
@@ -63,7 +64,9 @@
 (defn get-node-ids
   "IDs of the node as list."
   [node-name]
-  (->> (-> (get-rtp node-name nil "ids")
+  (->> (-> (try+
+             (get-rtp node-name nil "ids")
+             (catch [:status 412] {}  ""))
            (u/split  #",")
            (sort))
        (remove #(= (count %) 0))))
@@ -73,13 +76,14 @@
   []
   (not (empty? (get-abort))))
 
-; TODO: process XML and extract "scalable" attribute of the root element.
 (defn scalable?
   []
-  ;(http/get
-  ;  ru/run-url
-  ;  scale-req-params)
-  true)
+  (-> (http/get ru/run-url scale-req-params)
+      :body
+      xml/parse-str
+      :attrs
+      :mutable
+      read-string))
 
 (defn- in-final-states?
   ([]
@@ -87,6 +91,7 @@
   ([state]
    (u/in? state ru/non-scalable-final-states)))
 
+; TODO: use single call to get run and work on it.
 (defn can-scale?
   []
   (and
@@ -113,35 +118,42 @@
 
 (defn scale-up
   "Scale up node-name by n. Allow to set rtps RTPs on the new node instances.
+  Returns list of added node instance names qualified with IDs.
   "
   ([node-name n]
-    (http/post
-      (ru/build-node-url node-name)
-      (merge scale-req-params {:body (str "n=" n)})))
+   (u/split (:body (http/post
+                     (ru/build-node-url node-name)
+                     (merge scale-req-params {:body (str "n=" n)})))
+            #","))
   ([node-name n rtps]
     (let [added-node-instances (scale-up node-name n)]
       (doseq [[k v] rtps]
         (doseq [id (ru/extract-ids added-node-instances)]
-          (set-rtp node-name id k v)))
+          (do
+            (println "Setting RTP" node-name id k v)
+            (set-rtp node-name id k v))))
       added-node-instances)))
 
 (defn scale-down
   "Scale down node-name by terminating node instances defined by ids vector.
   "
   [node-name ids]
-  (http/delete
-    (ru/build-node-url node-name)
-    (merge scale-req-params {:body (str "ids=" (s/join "," ids))})))
+  (:body (http/delete
+           (ru/build-node-url node-name)
+           (merge scale-req-params {:body (str "ids=" (s/join "," ids))}))))
 
 (defn- wait-state
-  [state & [{:keys [timeout-s interval-s] :or {timeout-s 60 interval-s 5}}]]
+  [state & [& {:keys [timeout-s interval-s]
+               :or {timeout-s 60 interval-s 5}}]]
   (log/debug "Waiting for" state "state for" timeout-s "sec.")
   (u/wait-for #(= state (get-state)) timeout-s interval-s))
 
 (defn wait-ready
   "Waits for Ready state on the run. Returns true on success."
-  [& [{:keys [timeout-s] :or {timeout-s 600}}]]
-  (wait-state "Ready" :timeout-s timeout-s :interval-s 5))
+  ([]
+   (wait-state "Ready" :timeout-s 600 :interval-s 5))
+  ([timeout-s]
+   (wait-state "Ready" :timeout-s timeout-s :interval-s 5)))
 
 ;; Composite actions.
 (def action-success "success")
@@ -160,36 +172,50 @@
       u/keywordize-keys
       reason-from-error))
 
-(def action-result
+(def ^:private body-409
+  "{\"error\": {
+                \"code\": \"409\",
+                \"reason\": \"Conflict\",
+                \"detail\": \"Abort flag raised!\"}}")
+
+(defn- throw-409
+  []
+  (throw+ {:status  409
+           :headers {}
+           :body    body-409}))
+
+(defn- run-scale-action
+  [a node-name n [& rtps]]
+  (cond
+    (= a "up") (scale-up node-name n rtps)
+    ;; HACK: If run is aborted, server returns html - not json or xml.
+    (= a "down") (if (aborted?) (throw-409) (scale-down node-name n))
+    :else (throw (Exception. (str "Wrong scale action requested: " a)))))
+
+(def ^:private action-result
   {:state action-success
    :reason nil
    :action nil
    :node-name nil
    :multiplicity nil})
 
-(defn- run-scale-action
-  [a node-name n [& rtps]]
-  (cond
-    (= a "up") (scale-up node-name n rtps)
-    (= a "down") (scale-down node-name n)
-    :else (throw (Exception. (str "Wrong scale action requested: " a)))))
-
 (defn- action-scale
   "Call scale action by name."
-  [a node-name n & [{:keys [rtps timeout-s] :or {rtps {} timeout-s 600}}]]
+  [a node-name n & [& {:keys [rtps timeout-s]
+                       :or {rtps {} timeout-s 600}}]]
   (let [res (assoc action-result
-              :action "scale-up"
+              :action (format "scale-%s" a)
               :node-name node-name)]
     (log/info (format "Scaling %s." a) node-name n rtps)
     (try+
       (let [ret (run-scale-action a node-name n rtps)
             _   (wait-ready timeout-s)]
-        (log/info (format "Success. Finished scaling ." a) node-name n rtps)
+        (log/info (format "Success. Finished scaling %s." a) node-name n rtps)
         (assoc res
           :reason ret
           :multiplicity (get-node-multiplicity node-name)))
       (catch Object o
-        (log/error (format "Failure. Finished scaling %s." a) node-name n rtps o)
+        (log/error (format "Failure scaling %s." a) node-name n rtps o)
         (assoc res
           :state action-failure
           :reason (reason-from-exc o))))))
@@ -198,12 +224,15 @@
   "Scale up node-name by n VMs and wait for the action completion.
   Optionally provide map of RTPs as rtps.
   "
-  [node-name n & [{:keys [rtps timeout-s] :or {rtps {} timeout-s 600}}]]
+  [node-name n & [& {:keys [rtps timeout-s]
+                     :or {rtps {} timeout-s 600}}]]
   (action-scale "up" node-name n :rtps rtps :timeout-s timeout-s))
 
 (defn action-scale-down-by
   "Scale down node-name by n VMs and wait for the action completion.
   "
-  [node-name n & [{:keys [timeout-s] :or {timeout-s 600}}]]
-  (action-scale "down" node-name n :timeout-s timeout-s))
+  [node-name n & [& {:keys [timeout-s]
+                     :or {timeout-s 600}}]]
+  (let [ids (take-last n (get-node-ids node-name))]
+    (action-scale "down" node-name ids :timeout-s timeout-s)))
 
