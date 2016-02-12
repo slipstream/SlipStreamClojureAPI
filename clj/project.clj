@@ -18,6 +18,9 @@
                  [superstring "2.1.0"]
                  [clj-json "0.5.3"]
                  [org.clojure/data.xml "0.0.8"]
+                 ;;Environment settings
+                 ;[environ                                   "1.0.0"]
+                 ]
 
   :resource-paths ["src/resources" "test/resources"]
 
