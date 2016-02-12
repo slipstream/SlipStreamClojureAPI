@@ -16,7 +16,8 @@
                  [clojure-ini "0.0.2"]
                  [slingshot "0.12.2"]
                  [superstring "2.1.0"]
-                 [clj-json "0.5.3"]]
+                 [clj-json "0.5.3"]
+                 [org.clojure/data.xml "0.0.8"]
 
   :resource-paths ["src/resources" "test/resources"]
 
