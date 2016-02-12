@@ -29,7 +29,7 @@
 (def ^:private resource-context
   (if-let [f (io/resource context-fn)] (.getPath f)))
 
-(defn context-file-paths
+(defn- context-file-paths
   []
   (->> context-file-locs
        (map (partial u/path-append context-fn))
