@@ -10,7 +10,7 @@
 (defn- now-ms []
   (System/currentTimeMillis))
 
-(defn now-s
+(defn now-sec
   []
   (quot (now-ms) 1000))
 
@@ -31,13 +31,13 @@
 (defn wait-for
   "Wait for 'predicate' for 'timeout' seconds with 'interval' seconds."
   [predicate timeout interval]
-  (let [stop-time (+ timeout (now-s))]
+  (let [stop-time (+ timeout (now-sec))]
     (loop []
       (if-let [result (predicate)]
         result
         (do
           (Thread/sleep (* interval 1000))
-          (if (< (now-s) stop-time)
+          (if (< (now-sec) stop-time)
             (recur)))))))
 
 (defn url-join

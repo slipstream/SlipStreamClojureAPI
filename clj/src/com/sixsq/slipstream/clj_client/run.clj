@@ -25,54 +25,46 @@
   "
   (:require
     [com.sixsq.slipstream.clj-client.utils :as u]
-    [com.sixsq.slipstream.clj-client.run-util :as ru]
+    [com.sixsq.slipstream.clj-client.run-impl :as ri]
     [superstring.core :as s]
     [clojure.tools.logging :as log]
     [clj-http.client :as http]
-    [clj-json.core :as json]
     [clojure.data.xml :as xml])
-  (:use [slingshot.slingshot :only [try+ throw+]]))
-
-;; Default set of request parameters.
-(def ^:private rtp-req-params (conj
-                                ru/base-req-params
-                                {:content-type "text/plain"
-                                 :accept       "text/plain;charset=utf-8"
-                                 :query-params {:ignoreabort "true"}}))
-(def ^:private scale-req-params (assoc rtp-req-params :accept "application/json"))
+  (:use [slingshot.slingshot :only [try+]]))
 
 ;;
 ;; Public library API.
 
+;; Getters and setters of component, component instance and global RTPs.
 (defn get-rtp
   "Get runtime parameter 'param' of application component instance 'name.id'.
   When 'id' is nil, gets runtime parameter of the application component as 'name:param'."
   [name id param]
   (:body
     (http/get
-      (ru/build-rtp-url name id param)
-      rtp-req-params)))
+      (ri/build-rtp-url name id param)
+      ri/rtp-req-params)))
 
 (defn set-rtp
   "Set runtime parameter 'param' to 'value' on application component instance 'name.id'."
   [name id param value]
   (http/put
-    (ru/build-rtp-url name id param)
-    (merge rtp-req-params {:body value})))
+    (ri/build-rtp-url name id param)
+    (merge ri/rtp-req-params {:body value})))
 
 (defn get-state
   "Get state of the run."
   []
   (:body
     (http/get
-      ru/run-state-url
-      rtp-req-params)))
+      ri/run-state-url
+      ri/rtp-req-params)))
 
 (defn get-abort
   "Get abort message."
   []
   (try+
-    (:body (http/get ru/run-abort-url rtp-req-params))
+    (:body (http/get ri/run-abort-url ri/rtp-req-params))
     (catch [:status 412] {} "")))
 
 (defn get-multiplicity
@@ -83,12 +75,12 @@
 (defn get-instance-ids
   "Get list of instance IDs of application component 'name'."
   [name]
-  (->> (-> (try+
-             (get-rtp name nil "ids")
-             (catch [:status 412] {} ""))
-           (u/split #",")
-           (sort))
-       (remove #(= (count %) 0))))
+  (remove #(= (count %) 0)
+          (-> (try+
+                (get-rtp name nil "ids")
+                (catch [:status 412] {} ""))
+              (u/split #",")
+              (sort))))
 
 ;; Predicates.
 (defn aborted?
@@ -99,19 +91,12 @@
 (defn scalable?
   "Check if run is scalable."
   []
-  (-> (http/get ru/run-url scale-req-params)
+  (-> (http/get ri/run-url ri/scale-req-params)
       :body
       xml/parse-str
       :attrs
       :mutable
       read-string))
-
-(defn- in-final-states?
-  "Check if run is in any of the final states."
-  ([]
-   (in-final-states? (get-state)))
-  ([state]
-   (u/in? state ru/non-scalable-final-states)))
 
 (defn can-scale?
   "Check if it's possible to scale the run."
@@ -121,22 +106,22 @@
   (and
     (scalable?)
     (not (aborted?))
-    (u/in? (get-state) ru/scalable-states)))
+    (u/in? (get-state) ri/scalable-states)))
 
 ;; Actions on the run.
 (defn cancel-abort
   "Cancel abort on the run."
   []
   (http/delete
-    ru/run-abort-url
-    rtp-req-params))
+    ri/run-abort-url
+    ri/rtp-req-params))
 
 (defn terminate
   "Terminate the run."
   []
   (http/delete
-    ru/run-url
-    ru/base-req-params))
+    ri/run-url
+    ri/base-req-params))
 
 (defn scale-up
   "Scale up application component 'name' by 'n' instances. Allow to set runtime
@@ -144,13 +129,13 @@
   instance names qualified with IDs."
   ([name n]
    (u/split (:body (http/post
-                     (ru/build-node-url name)
-                     (merge scale-req-params {:body (str "n=" n)})))
+                     (ri/build-node-url name)
+                     (merge ri/scale-req-params {:body (str "n=" n)})))
             #","))
   ([name n rtps]
    (let [added-instances (scale-up name n)]
      (doseq [[k v] rtps]
-       (doseq [id (ru/extract-ids added-instances)]
+       (doseq [id (ri/extract-ids added-instances)]
          (set-rtp name id k v)))
      added-instances)))
 
@@ -159,8 +144,8 @@
   'ids' vector."
   [node-name ids]
   (:body (http/delete
-           (ru/build-node-url node-name)
-           (merge scale-req-params {:body (str "ids=" (s/join "," ids))}))))
+           (ri/build-node-url node-name)
+           (merge ri/scale-req-params {:body (str "ids=" (s/join "," ids))}))))
 
 (defn- wait-state
   "Waits for state 'state' for 'timeout' seconds using 'interval' seconds."
@@ -180,39 +165,16 @@
 (def action-success "success")
 (def action-failure "failure")
 
-(defn- reason-from-error
-  [error]
-  (let [e (:error error)]
-    (format "%s. %s. %s" (:code e) (:reason e) (:detail e))))
-(defn- reason-from-exc
-  [ex]
-  (-> ex
-      :body
-      json/parse-string
-      u/keywordize-keys
-      reason-from-error))
-
-(def ^:private body-409
-  "{\"error\": {
-                \"code\": \"409\",
-                \"reason\": \"Conflict\",
-                \"detail\": \"Abort flag raised!\"}}")
-
-(defn- throw-409
-  []
-  (throw+ {:status  409
-           :headers {}
-           :body    body-409}))
 
 (defn- run-scale-action
   [a node-name n [& rtps]]
   (cond
     (= a "up") (scale-up node-name n rtps)
     ; FIXME: If run is aborted, server returns html - not json or xml.
-    (= a "down") (if (aborted?) (throw-409) (scale-down node-name n))
-    :else (throw (Exception. (str "Wrong scale action requested: " a)))))
+    (= a "down") (if (aborted?) (ri/throw-409) (scale-down node-name n))
+    :else (throw (Exception. (str "Unknown scale action requested: " a)))))
 
-(def ^:private action-result
+(def action-result
   {:state        action-success
    :reason       nil
    :action       nil
@@ -238,7 +200,12 @@
         (log/error (format "Failure scaling %s." a) name n rtps o)
         (assoc res
           :state action-failure
-          :reason (reason-from-exc o))))))
+          :reason (ri/reason-from-exc o))))))
+
+(defn action-success?
+  "Given the 'result' returned by an action, check if it was successfull."
+  [result]
+  (= action-scale (:state result)))
 
 (defn action-scale-up
   "Scale application component name by n instances up.  Wait for the
