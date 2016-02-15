@@ -1,12 +1,11 @@
 "Prerequisites.
 
-1. Define a single component SlipStream application deployment and
-start it in a scalable mode.
+1. Define a single component SlipStream application and deploy it in a scalable mode.
 
 2. Obtain the context file from a VM of the component that will be scaled
 ssh -l root <ip> cat /opt/slipstream/client/sbin/slipstream.context > ~/slipstream.context
 
-3. The functions in the demo are intended be manully run in REPL.
+3. The functions in the demo are intended to be manully run in REPL.
 For examaple, go to clj/ directory of the project and start REPL with
  lein repl
 
@@ -56,8 +55,9 @@ Now you should be ready to proceed.
 (r/get-multiplicity comp-name)
 (r/get-instance-ids comp-name)
 
-; Scale down by IDs
+; Scale down by IDs. Manual wait.
 (r/scale-down comp-name '(4 1))
+(r/wait-ready 900)
 (r/get-multiplicity comp-name)
 (r/get-instance-ids comp-name)
 
