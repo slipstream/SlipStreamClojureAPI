@@ -14,11 +14,11 @@
 
 (deftest test-get-node-ids
   (with-redefs-fn {#'com.sixsq.slipstream.clj-client.run/get-rtp (fn [a b c] "")}
-    #(is (= '() (get-node-ids "foo"))))
+    #(is (= '() (get-instance-ids "foo"))))
 
   (with-redefs-fn {#'com.sixsq.slipstream.clj-client.run/get-rtp (fn [a b c] "1,2,3")}
-    #(is (= '("1" "2" "3") (get-node-ids "foo"))))
+    #(is (= '("1" "2" "3") (get-instance-ids "foo"))))
 
   (with-redefs-fn {#'com.sixsq.slipstream.clj-client.run/get-rtp (fn [a b c] "30,10,21")}
-    #(is (= '("10" "21" "30") (get-node-ids "foo")))))
+    #(is (= '("10" "21" "30") (get-instance-ids "foo")))))
 
