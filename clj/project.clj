@@ -25,7 +25,8 @@
   :resource-paths ["src/resources" "test/resources"]
 
   :plugins [[lein-environ "1.0.0"]
-            [lein-kibit "0.1.2"]]
+            [lein-kibit "0.1.2"]
+            [lein-codox "0.9.4"]]
 
   :jar-name "clj-ss-client-%s.jar"
   :uberjar-name "clj-ss-client-%s-standalone.jar")

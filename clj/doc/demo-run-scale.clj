@@ -1,9 +1,22 @@
-; Start SlipStream deployment.
-; Get context file from VM of the type that will be scaled:
-; ssh -l root <ip> cat /opt/slipstream/client/sbin/slipstream.context > ~/slipstream.context
+"Prerequisites.
 
+1. Define a single component SlipStream application deployment and
+start it in a scalable mode.
+
+2. Obtain the context file from a VM of the component that will be scaled
+ssh -l root <ip> cat /opt/slipstream/client/sbin/slipstream.context > ~/slipstream.context
+
+3. The functions in the demo are intended be manully run in REPL.
+For examaple, go to clj/ directory of the project and start REPL with
+ lein repl
+
+Now you should be ready to proceed.
+"
+
+; Loading the namespace should find and read ~/slipstream.context
 (require '[com.sixsq.slipstream.clj-client.run :as r] :reload)
 
+; Wait in case the deployment is still provisining.
 (r/wait-ready 1200)
 
 ; Queries.
@@ -11,13 +24,13 @@
 
 (r/scalable?)
 
-; Set to the name of the node used for scaling.
-(def node-name "testvm")
+; Define to the name of the deployed component to be used for scaling.
+(def comp-name "testvm")
 ; Cloud releated instance type. Used below in diagonal scale up action.
 (def test-instance-type "Tiny")
 
-(r/get-node-multiplicity node-name)
-(r/get-node-ids node-name)
+(r/get-multiplicity comp-name)
+(r/get-instance-ids comp-name)
 
 (r/can-scale?)
 
@@ -31,41 +44,46 @@
 (r/can-scale?)
 
 ; Scale up. No wait.
-(r/scale-up node-name 1)
-(r/get-node-multiplicity node-name)
-(r/get-node-ids node-name)
+(r/scale-up comp-name 1)
+(r/get-multiplicity comp-name)
+(r/get-instance-ids comp-name)
 
 (r/can-scale?)
 
 ; Scale up. Manual wait.
-(r/scale-up node-name 3)
+(r/scale-up comp-name 3)
 (r/wait-ready 900)
-(r/get-node-multiplicity node-name)
-(r/get-node-ids node-name)
+(r/get-multiplicity comp-name)
+(r/get-instance-ids comp-name)
 
 ; Scale down by IDs
-(r/scale-down node-name '(4 1))
-(r/get-node-multiplicity node-name)
-(r/get-node-ids node-name)
+(r/scale-down comp-name '(4 1))
+(r/get-multiplicity comp-name)
+(r/get-instance-ids comp-name)
 
 ; Scale up action. Provide RTP. Use internal wait.
-(def cloudservice (r/get-rtp node-name 1 "cloudservice"))
-(def key-instance-type (format "%s.instance.type" cloudservice))
-(r/action-scale-up node-name 2
+(def cloudservice (r/get-rtp comp-name 1 "cloudservice"))
+(def key-instance-type (str cloudservice ".instance.type"))
+(r/action-scale-up comp-name 2
                    :rtps {key-instance-type test-instance-type}
-                   :timeout-s 1200)
-(r/get-node-multiplicity node-name)
-(r/get-node-ids node-name)
-(doseq [id (r/get-node-ids node-name)]
+                   :timeout 1200)
+(r/get-multiplicity comp-name)
+(r/get-instance-ids comp-name)
+(doseq [id (r/get-instance-ids comp-name)]
   (println (format "%s = %s"
-                   id (r/get-rtp node-name id key-instance-type))))
+                   id (r/get-rtp comp-name id key-instance-type))))
 
-; Scale down action. Use internal wait.
-(r/action-scale-down-by node-name 3 :timeout-s 1200)
-(r/get-node-multiplicity node-name)
-(r/get-node-ids node-name)
+; Scale down action. Remove instances 2, 3 and 6.  Use internal wait.
+(r/action-scale-down-at comp-name '(2 3 6) :timeout 1200)
+(r/get-multiplicity comp-name)
+(r/get-instance-ids comp-name)
 
-; Termination.
+; Scale down action. Remove to instances. Use internal wait.
+(r/action-scale-down-by comp-name 2 :timeout 1200)
+(r/get-multiplicity comp-name)
+(r/get-instance-ids comp-name)
+
+; Terminate run.
 (r/terminate)
 
 ; Validation.

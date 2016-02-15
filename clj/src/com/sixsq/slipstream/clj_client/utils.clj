@@ -29,14 +29,15 @@
   (str paths File/separator path))
 
 (defn wait-for
-  [predicate timeout-s interval-s]
-  (let [stop-time-s (+ timeout-s (now-s))]
+  "Wait for 'predicate' for 'timeout' seconds with 'interval' seconds."
+  [predicate timeout interval]
+  (let [stop-time (+ timeout (now-s))]
     (loop []
       (if-let [result (predicate)]
         result
         (do
-          (Thread/sleep (* interval-s 1000))
-          (if (< (now-s) stop-time-s)
+          (Thread/sleep (* interval 1000))
+          (if (< (now-s) stop-time)
             (recur)))))))
 
 (defn url-join
