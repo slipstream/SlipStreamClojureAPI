@@ -75,7 +75,7 @@
 (defn get-instance-ids
   "Get list of instance IDs of application component 'name'."
   [name]
-  (remove #(= (count %) 0)
+  (remove #(zero? (count %))
           (-> (try+
                 (get-rtp name nil "ids")
                 (catch [:status 412] {} ""))
@@ -86,7 +86,7 @@
 (defn aborted?
   "Check if run is in \"Aborted\" state."
   []
-  (not (empty? (get-abort))))
+  (s/blank? (get-abort)))
 
 (defn scalable?
   "Check if run is scalable."
