@@ -23,7 +23,7 @@ Now you should be ready to proceed.
 
 (r/scalable?)
 
-; Define to the name of the deployed component to be used for scaling.
+; Define the name of the deployed component to be used for scaling.
 (def comp-name "testvm")
 ; Cloud releated instance type. Used below in diagonal scale up action.
 (def test-instance-type "Tiny")

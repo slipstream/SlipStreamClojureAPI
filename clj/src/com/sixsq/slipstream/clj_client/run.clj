@@ -109,6 +109,8 @@
     (u/in? (get-state) ri/scalable-states)))
 
 ;; Actions on the run.
+(def wait-timeout-default 600)
+
 (defn cancel-abort
   "Cancel abort on the run."
   []
@@ -157,14 +159,13 @@
 (defn wait-ready
   "Waits for Ready state on the run. Returns true on success."
   ([]
-   (wait-state "Ready" :timeout 600 :interval 5))
+   (wait-state "Ready" :timeout wait-timeout-default :interval 5))
   ([timeout]
    (wait-state "Ready" :timeout timeout :interval 5)))
 
 ;; Composite actions.
 (def action-success "success")
 (def action-failure "failure")
-
 
 (defn- run-scale-action
   [a node-name n [& rtps]]
@@ -184,7 +185,7 @@
 (defn- action-scale
   "Call scale action by name."
   [a name n & [& {:keys [rtps timeout]
-                  :or   {rtps {} timeout 600}}]]
+                  :or   {rtps {} timeout wait-timeout-default}}]]
   (let [res (assoc action-result
               :action (format "scale-%s" a)
               :node-name name)]
@@ -212,7 +213,7 @@
   completion of the action. Optionally provide map of RTPs as rtps.
   "
   [name n & [& {:keys [rtps timeout]
-                :or   {rtps {} timeout 600}}]]
+                :or   {rtps {} timeout wait-timeout-default}}]]
   (action-scale "up" name n :rtps rtps :timeout timeout))
 
 (defn- take-last-n-ids
@@ -224,7 +225,7 @@
   "Scale down application component 'name' by 'n' instances. Wait for
   the completion of the action."
   [name n & [& {:keys [timeout]
-                :or   {timeout 600}}]]
+                :or   {timeout wait-timeout-default}}]]
   (action-scale "down" name
                 (take-last-n-ids name n)
                 :timeout timeout))
@@ -234,6 +235,6 @@
   instances identified by IDs in 'ids'. Wait for the completion of the action.
   "
   [name ids & [& {:keys [timeout]
-                  :or   {timeout 600}}]]
+                  :or   {timeout wait-timeout-default}}]]
   (action-scale "down" name ids :timeout timeout))
 
