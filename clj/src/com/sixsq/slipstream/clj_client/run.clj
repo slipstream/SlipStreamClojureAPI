@@ -1,27 +1,26 @@
 (ns com.sixsq.slipstream.clj-client.run
-  "The 'run' namespace contains functions for interacting with SlipStream run.
+  "The `run` namespace contains functions for interacting with SlipStream run.
 
   It allows to
-  * scale the components of the running application up and down,
-  * query state of the run,
-  * query and set runtime parameters (RTPs) of the application components and
-    their instances,
-  * query RTPs from global namespace (ss:),
-  * terminate the run.
-
-  Below is the terminology on examples.
-
-  Application component: webapp
-  Application component runtime parameter: webapp:ids
-  Application component instance: webapp.1
-  Application component instance runtime parameter: webapp.1:hostname
-
-  RTP - runtime parameter. There are three types of RTPs
-  * global RTP - ss:tags
-  * application component RTP - webapp:ids
-  * application component instance RTP - webapp.1:hostname
+   * scale the components of the running application up and down,
+   * query state of the run,
+   * query and set parameters of the application components and their instances,
+   * query parameters from global namespace (`ss:`),
+   * terminate the run.
 
   Timeouts and intervals are in seconds.
+
+  Below is the terminology with examples.
+
+  There are three types of parameters on a run
+   * global parameter - `ss:tags`
+   * application component parameter - `webapp:ids`
+   * application component instance parameter - `webapp.1:hostname`
+  where
+   * `ss` is the global namespace of the run,
+   * `webapp` is the name of the application component, which is refered to as `comp`
+     in the API,
+   * `webapp.1` is the name of the instance `1` of the application component `webapp`.
   "
   (:require
     [com.sixsq.slipstream.clj-client.utils :as u]
@@ -32,25 +31,32 @@
     [clojure.data.xml :as xml])
   (:use [slingshot.slingshot :only [try+]]))
 
+
 ;;
 ;; Public library API.
 
-;; Getters and setters of component, component instance and global RTPs.
-(defn get-rtp
-  "Get runtime parameter 'param' of application component instance 'name.id'.
-  When 'id' is nil, gets runtime parameter of the application component as 'name:param'."
-  [name id param]
+
+;; Getters and setters of component, component instance and global parameters.
+(defn get-param
+  "Get parameter 'param' of application component instance 'comp.id' as 'comp.id:param'.
+  When 'id' is nil, gets parameter of the application component as 'comp:param'."
+  [comp id param]
   (:body
     (http/get
-      (ri/build-rtp-url name id param)
-      ri/rtp-req-params)))
+      (ri/build-param-url comp id param)
+      ri/param-req-params)))
 
-(defn set-rtp
-  "Set runtime parameter 'param' to 'value' on application component instance 'name.id'."
-  [name id param value]
+(defn set-param
+  "Set parameter 'param' to 'value' on application component instance 'comp.id'."
+  [comp id param value]
   (http/put
-    (ri/build-rtp-url name id param)
-    (merge ri/rtp-req-params {:body value})))
+    (ri/build-param-url comp id param)
+    (merge ri/param-req-params {:body value})))
+
+(defn get-scale-state
+  "Get scale state of the component instance."
+  [comp id]
+  (get-param comp id "scale.state"))
 
 (defn get-state
   "Get state of the run."
@@ -58,35 +64,36 @@
   (:body
     (http/get
       ri/run-state-url
-      ri/rtp-req-params)))
+      ri/param-req-params)))
 
 (defn get-abort
   "Get abort message."
   []
   (try+
-    (:body (http/get ri/run-abort-url ri/rtp-req-params))
+    (:body (http/get ri/run-abort-url ri/param-req-params))
     (catch [:status 412] {} "")))
 
 (defn get-multiplicity
-  "Get multiplicity of application component 'name'."
-  [name]
-  (Integer/parseInt (get-rtp name nil "multiplicity")))
+  "Get multiplicity of application component 'comp'."
+  [comp]
+  (Integer/parseInt (get-param comp nil "multiplicity")))
 
-(defn get-instance-ids
-  "Get list of instance IDs of application component 'name'."
-  [name]
+(defn get-comp-ids
+  "Get list of instance IDs of application component 'comp'."
+  [comp]
   (remove #(zero? (count %))
           (-> (try+
-                (get-rtp name nil "ids")
+                (get-param comp nil "ids")
                 (catch [:status 412] {} ""))
               (u/split #",")
               (sort))))
+
 
 ;; Predicates.
 (defn aborted?
   "Check if run is in \"Aborted\" state."
   []
-  (s/blank? (get-abort)))
+  (not (s/blank? (get-abort))))
 
 (defn scalable?
   "Check if run is scalable."
@@ -108,6 +115,16 @@
     (not (aborted?))
     (u/in? (get-state) ri/scalable-states)))
 
+(defn get-run-info
+  []
+  {:url       ri/run-url
+   :state     (get-state)
+   :scalable  (scalable?)
+   :can-scale (can-scale?)
+   :aborted   (aborted?)
+   :abort-msg (get-abort)})
+
+
 ;; Actions on the run.
 (def wait-timeout-default 600)
 
@@ -116,37 +133,37 @@
   []
   (http/delete
     ri/run-abort-url
-    ri/rtp-req-params))
+    ri/param-req-params))
 
 (defn terminate
   "Terminate the run."
   []
   (http/delete
     ri/run-url
-    ri/base-req-params))
+    ri/base-http-params))
 
 (defn scale-up
-  "Scale up application component 'name' by 'n' instances. Allow to set runtime
-  parameters 'rtps' on the new component instances. Returns list of added component
+  "Scale up application component 'comp' by 'n' instances. Allow to set parameters
+  'params' on the new component instances. Returns list of added component
   instance names qualified with IDs."
-  ([name n]
+  ([comp n]
    (u/split (:body (http/post
-                     (ri/build-node-url name)
+                     (ri/build-component-url comp)
                      (merge ri/scale-req-params {:body (str "n=" n)})))
             #","))
-  ([name n rtps]
+  ([name n params]
    (let [added-instances (scale-up name n)]
-     (doseq [[k v] rtps]
+     (doseq [[k v] params]
        (doseq [id (ri/extract-ids added-instances)]
-         (set-rtp name id k v)))
+         (set-param name id k v)))
      added-instances)))
 
 (defn scale-down
-  "Scale down application component 'name' by terminating instances defined by
+  "Scale down application component 'comp' by terminating instances defined by
   'ids' vector."
-  [node-name ids]
+  [comp ids]
   (:body (http/delete
-           (ri/build-node-url node-name)
+           (ri/build-component-url comp)
            (merge ri/scale-req-params {:body (str "ids=" (s/join "," ids))}))))
 
 (defn- wait-state
@@ -163,42 +180,43 @@
   ([timeout]
    (wait-state "Ready" :timeout timeout :interval 5)))
 
+
 ;; Composite actions.
 (def action-success "success")
 (def action-failure "failure")
 
 (defn- run-scale-action
-  [a node-name n [& rtps]]
+  [act comp n [& params]]
   (cond
-    (= a "up") (scale-up node-name n rtps)
+    (= act "up") (scale-up comp n params)
     ; FIXME: If run is aborted, server returns html - not json or xml.
-    (= a "down") (if (aborted?) (ri/throw-409) (scale-down node-name n))
-    :else (throw (Exception. (str "Unknown scale action requested: " a)))))
+    (= act "down") (if (aborted?) (ri/throw-409) (scale-down comp n))
+    :else (throw (Exception. (str "Unknown scale action requested: " act)))))
 
 (def action-result
   {:state        action-success
    :reason       nil
    :action       nil
-   :node-name    nil
+   :comp-name    nil
    :multiplicity nil})
 
 (defn- action-scale
-  "Call scale action by name."
-  [a name n & [& {:keys [rtps timeout]
-                  :or   {rtps {} timeout wait-timeout-default}}]]
+  "Call scale action on 'comp' by action comp 'act'."
+  [act comp n & [& {:keys [params timeout]
+                  :or   {params {} timeout wait-timeout-default}}]]
   (let [res (assoc action-result
-              :action (format "scale-%s" a)
-              :node-name name)]
-    (log/debug (format "Scaling %s." a) name n rtps)
+              :action (format "scale-%s" act)
+              :comp-name comp)]
+    (log/debug (format "Scaling %s." act) comp n params)
     (try+
-      (let [ret (run-scale-action a name n rtps)
+      (let [ret (run-scale-action act comp n params)
             _   (wait-ready timeout)]
-        (log/debug (format "Success. Finished scaling %s." a) name n rtps)
+        (log/debug (format "Success. Finished scaling %s." act) comp n params)
         (assoc res
           :reason ret
-          :multiplicity (get-multiplicity name)))
+          :multiplicity (get-multiplicity comp)))
       (catch Object o
-        (log/error (format "Failure scaling %s." a) name n rtps o)
+        (log/error (format "Failure scaling %s." act) comp n params o)
         (assoc res
           :state action-failure
           :reason (ri/reason-from-exc o))))))
@@ -206,35 +224,34 @@
 (defn action-success?
   "Given the 'result' returned by an action, check if it was successfull."
   [result]
-  (= action-scale (:state result)))
+  (= action-success (:state result)))
 
 (defn action-scale-up
-  "Scale application component name by n instances up.  Wait for the
-  completion of the action. Optionally provide map of RTPs as rtps.
-  "
-  [name n & [& {:keys [rtps timeout]
-                :or   {rtps {} timeout wait-timeout-default}}]]
-  (action-scale "up" name n :rtps rtps :timeout timeout))
+  "Scale application component 'comp' by 'n' instances up.  Wait for the
+  completion of the action. Optionally provide map of parameters as 'params'."
+  [comp n & [& {:keys [params timeout]
+                :or   {params {} timeout wait-timeout-default}}]]
+  (action-scale "up" comp n :params params :timeout timeout))
 
 (defn- take-last-n-ids
-  "Returns the last 'n' IDs of the running application component instances."
-  [name n]
-  (take-last n (get-instance-ids name)))
+  "Returns the last 'n' IDs of the currently running instances of application
+  component 'comp'."
+  [comp n]
+  (take-last n (get-comp-ids comp)))
 
 (defn action-scale-down-by
-  "Scale down application component 'name' by 'n' instances. Wait for
+  "Scale down application component 'comp' by 'n' instances. Wait for
   the completion of the action."
-  [name n & [& {:keys [timeout]
+  [comp n & [& {:keys [timeout]
                 :or   {timeout wait-timeout-default}}]]
-  (action-scale "down" name
-                (take-last-n-ids name n)
+  (action-scale "down" comp
+                (take-last-n-ids comp n)
                 :timeout timeout))
 
 (defn action-scale-down-at
-  "Scale down application component 'name' by terminating the component
-  instances identified by IDs in 'ids'. Wait for the completion of the action.
-  "
-  [name ids & [& {:keys [timeout]
+  "Scale down application component 'comp' by terminating the component
+  instances identified by IDs in 'ids'. Wait for the completion of the action."
+  [comp ids & [& {:keys [timeout]
                   :or   {timeout wait-timeout-default}}]]
-  (action-scale "down" name ids :timeout timeout))
+  (action-scale "down" comp ids :timeout timeout))
 

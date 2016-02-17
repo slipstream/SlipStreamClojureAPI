@@ -11,5 +11,5 @@
              ["2"] "node.1.2"
              ["3"] "node, node.3"))
 
-(deftest test-build-rtp-url
-  (is (= "http://example.com/run/123/foo.1:bar" (build-rtp-url "foo" 1 "bar"))))
+(deftest test-build-param-url
+  (is (= "http://example.com/run/123/foo.1:bar" (build-param-url "foo" 1 "bar"))))

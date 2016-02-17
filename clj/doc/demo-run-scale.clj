@@ -29,12 +29,12 @@ Now you should be ready to proceed.
 (def test-instance-type "Tiny")
 
 (r/get-multiplicity comp-name)
-(r/get-instance-ids comp-name)
+(r/get-comp-ids comp-name)
 
 (r/can-scale?)
 
 ; Artificially abort the run and then recover from the abort.
-(r/get-rtp "foo" 0 "bar")
+(r/get-param "foo" 0 "bar")
 (r/can-scale?)
 (r/aborted?)
 (r/get-abort)
@@ -45,7 +45,7 @@ Now you should be ready to proceed.
 ; Scale up. No wait.
 (r/scale-up comp-name 1)
 (r/get-multiplicity comp-name)
-(r/get-instance-ids comp-name)
+(r/get-comp-ids comp-name)
 
 (r/can-scale?)
 
@@ -53,35 +53,35 @@ Now you should be ready to proceed.
 (r/scale-up comp-name 3)
 (r/wait-ready 900)
 (r/get-multiplicity comp-name)
-(r/get-instance-ids comp-name)
+(r/get-comp-ids comp-name)
 
 ; Scale down by IDs. Manual wait.
 (r/scale-down comp-name '(4 1))
 (r/wait-ready 900)
 (r/get-multiplicity comp-name)
-(r/get-instance-ids comp-name)
+(r/get-comp-ids comp-name)
 
-; Scale up action. Provide RTP. Use internal wait.
-(def cloudservice (r/get-rtp comp-name 1 "cloudservice"))
+; Scale up action. Provide parameters. Use internal wait.
+(def cloudservice (r/get-param comp-name 1 "cloudservice"))
 (def key-instance-type (str cloudservice ".instance.type"))
 (r/action-scale-up comp-name 2
-                   :rtps {key-instance-type test-instance-type}
+                   :params {key-instance-type test-instance-type}
                    :timeout 1200)
 (r/get-multiplicity comp-name)
-(r/get-instance-ids comp-name)
-(doseq [id (r/get-instance-ids comp-name)]
+(r/get-comp-ids comp-name)
+(doseq [id (r/get-comp-ids comp-name)]
   (println (format "%s = %s"
-                   id (r/get-rtp comp-name id key-instance-type))))
+                   id (r/get-param comp-name id key-instance-type))))
 
 ; Scale down action. Remove instances 2, 3 and 6.  Use internal wait.
 (r/action-scale-down-at comp-name '(2 3 6) :timeout 1200)
 (r/get-multiplicity comp-name)
-(r/get-instance-ids comp-name)
+(r/get-comp-ids comp-name)
 
 ; Scale down action. Remove to instances. Use internal wait.
 (r/action-scale-down-by comp-name 2 :timeout 1200)
 (r/get-multiplicity comp-name)
-(r/get-instance-ids comp-name)
+(r/get-comp-ids comp-name)
 
 ; Terminate run.
 (r/terminate)
