@@ -94,6 +94,7 @@ RAM            - value for RAM. Default: 2
              #(list (str comp-name "." %) (r/get-scale-state comp-name %))
              ids)))
 
+; FIXME: remove when https://github.com/slipstream/SlipStreamClient/issues/230 is fixed.
 (defn action-sleep
   [& [timeout]]
   (let [t (or timeout 5)]
