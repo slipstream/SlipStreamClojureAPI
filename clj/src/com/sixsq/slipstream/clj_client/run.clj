@@ -32,8 +32,10 @@
     [clojure.data.xml :as xml])
   (:use [slingshot.slingshot :only [try+]]))
 
+
 ;;
 ;; Public library API.
+
 
 ;; Getters and setters of component, component instance and global RTPs.
 (defn get-rtp
@@ -51,6 +53,11 @@
   (http/put
     (ri/build-rtp-url name id param)
     (merge ri/rtp-req-params {:body value})))
+
+(defn get-scale-state
+  "Get 'scale.state' paramter of component instance."
+  [name id]
+  (get-rtp name id "scale.state"))
 
 (defn get-state
   "Get state of the run."
@@ -82,11 +89,12 @@
               (u/split #",")
               (sort))))
 
+
 ;; Predicates.
 (defn aborted?
   "Check if run is in \"Aborted\" state."
   []
-  (s/blank? (get-abort)))
+  (not (s/blank? (get-abort))))
 
 (defn scalable?
   "Check if run is scalable."
@@ -107,6 +115,16 @@
     (scalable?)
     (not (aborted?))
     (u/in? (get-state) ri/scalable-states)))
+
+(defn get-run-info
+  []
+  {:url       ri/run-url
+   :state     (get-state)
+   :scalable  (scalable?)
+   :can-scale (can-scale?)
+   :aborted   (aborted?)
+   :abort-msg (get-abort)})
+
 
 ;; Actions on the run.
 (def wait-timeout-default 600)
@@ -163,6 +181,7 @@
   ([timeout]
    (wait-state "Ready" :timeout timeout :interval 5)))
 
+
 ;; Composite actions.
 (def action-success "success")
 (def action-failure "failure")
@@ -206,7 +225,7 @@
 (defn action-success?
   "Given the 'result' returned by an action, check if it was successfull."
   [result]
-  (= action-scale (:state result)))
+  (= action-success (:state result)))
 
 (defn action-scale-up
   "Scale application component name by n instances up.  Wait for the
