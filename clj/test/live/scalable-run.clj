@@ -94,13 +94,6 @@ RAM            - value for RAM. Default: 2
              #(list (str comp-name "." %) (r/get-scale-state comp-name %))
              ids)))
 
-; FIXME: remove when https://github.com/slipstream/SlipStreamClient/issues/230 is fixed.
-(defn action-sleep
-  [& [timeout]]
-  (let [t (or timeout 5)]
-    (action "Sleep for" t "sec for run to enter consistent state.")
-    (Thread/sleep (* t 1000))))
-
 
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -137,9 +130,6 @@ RAM            - value for RAM. Default: 2
   (error "Failed cancelling the abort flag."))
 (check-can-scale)
 
-; debug
-(prn-inst-scale-states '(1))
-
 
 (action "Scale up. Manual wait.")
 (let [exp-inst-names (inst-names-range 2 4)
@@ -151,11 +141,6 @@ RAM            - value for RAM. Default: 2
 (check-instance-ids '(1 2 3))
 (check-can-scale)
 
-; debug
-(prn-inst-scale-states '(1 2 3))
-(action-sleep)
-(prn-inst-scale-states '(1 2 3))
-
 
 (action "Scale down by IDs. Manual wait.")
 (if-not (nil? (r/scale-down comp-name '(3 1)))
@@ -165,10 +150,6 @@ RAM            - value for RAM. Default: 2
 (check-instance-ids '(2))
 (check-can-scale)
 
-; debug
-(prn-inst-scale-states '(1 2 3))
-(action-sleep)
-(prn-inst-scale-states '(1 2 3))
 
 (action "Diagonal scale up action (with internal wait). Providing VM size RTPs.")
 (def cloudservice (r/get-rtp comp-name 1 "cloudservice"))
@@ -187,10 +168,6 @@ RAM            - value for RAM. Default: 2
                 id (r/get-rtp comp-name id key-instance-type))))
 (check-can-scale)
 
-; debug
-(prn-inst-scale-states '(1 2 3 4 5))
-(action-sleep)
-(prn-inst-scale-states '(1 2 3 4 5))
 
 (def inst-down '(2 4))
 (action "Scale down action (with internal wait). Remove instances by ids:" inst-down)
@@ -201,10 +178,6 @@ RAM            - value for RAM. Default: 2
 (check-instance-ids '(5))
 (check-can-scale)
 
-; debug
-(prn-inst-scale-states '(1 2 3 4 5))
-(action-sleep)
-(prn-inst-scale-states '(1 2 3 4 5))
 
 (action "Scale down action (with internal wait). Remove a number of instances.")
 (let [res (r/action-scale-down-by comp-name 1 :timeout 1200)]
@@ -214,8 +187,6 @@ RAM            - value for RAM. Default: 2
 (check-instance-ids '())
 (check-can-scale)
 
-; debug
-(prn-inst-scale-states '(1 2 3 4 5))
 
 (action "Termintating run.")
 ; FIXME: run/terminate should return run/action-result map
