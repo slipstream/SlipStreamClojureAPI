@@ -1,22 +1,26 @@
 (ns com.sixsq.slipstream.clj-client.run
-  "The `run` namespace contains functions for interacting with SlipStream run.
+  "The `run` namespace contains functions for interacting with SlipStream runs.
 
-  It allows to
-   * scale the components of the running application up and down,
-   * query state of the run,
-   * query and set parameters of the application components and their instances,
-   * query parameters from global namespace (`ss:`),
-   * terminate the run.
+  It allows users to
+
+   * Scale the components of the running application up and down,
+   * Query the state of the run,
+   * Query and set parameters of the application components and their instances,
+   * Query parameters from global namespace (`ss:`), and
+   * Terminate the run.
 
   Timeouts and intervals are in seconds.
 
   Below is the terminology with examples.
 
   There are three types of parameters on a run
-   * global parameter - `ss:tags`
-   * application component parameter - `webapp:ids`
-   * application component instance parameter - `webapp.1:hostname`
+
+   * Global parameter - `ss:tags`
+   * Application component parameter - `webapp:ids`
+   * Application component instance parameter - `webapp.1:hostname`
+
   where
+
    * `ss` is the global namespace of the run,
    * `webapp` is the name of the application component, which is refered to as `comp`
      in the API,
@@ -91,7 +95,7 @@
 
 ;; Predicates.
 (defn aborted?
-  "Check if run is in \"Aborted\" state."
+  "Check if run is in 'Aborted' state."
   []
   (not (s/blank? (get-abort))))
 
