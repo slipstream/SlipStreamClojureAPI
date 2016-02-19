@@ -29,7 +29,8 @@
     [clojure.tools.logging :as log]
     [clj-http.client :as http]
     [clojure.data.xml :as xml])
-  (:use [slingshot.slingshot :only [try+]]))
+  (:use [slingshot.slingshot :only [try+]]
+        [clojure.walk :only [stringify-keys]]))
 
 
 ;;
@@ -52,6 +53,14 @@
   (http/put
     (ri/build-param-url comp id param)
     (merge ri/param-req-params {:body value})))
+
+(defn set-params
+  "Given a map of parameters 'params', set them on application component
+  instance 'comp.id'."
+  [comp id params]
+  (->> params
+       stringify-keys
+       (run! (fn [[p v]] (set-param comp id p v)))))
 
 (defn get-scale-state
   "Get scale state of the component instance."
@@ -144,18 +153,17 @@
 
 (defn scale-up
   "Scale up application component 'comp' by 'n' instances. Allow to set parameters
-  'params' on the new component instances. Returns list of added component
+  from 'params' map on the new component instances. Returns list of added component
   instance names qualified with IDs."
   ([comp n]
    (u/split (:body (http/post
                      (ri/build-component-url comp)
                      (merge ri/scale-req-params {:body (str "n=" n)})))
             #","))
-  ([name n params]
-   (let [added-instances (scale-up name n)]
-     (doseq [[k v] params]
-       (doseq [id (ri/extract-ids added-instances)]
-         (set-param name id k v)))
+  ([comp n params]
+   (let [added-instances (scale-up comp n)
+         ids             (ri/extract-ids added-instances)]
+     (run! #(set-params comp % params) ids)
      added-instances)))
 
 (defn scale-down
@@ -203,7 +211,7 @@
 (defn- action-scale
   "Call scale action on 'comp' by action comp 'act'."
   [act comp n & [& {:keys [params timeout]
-                  :or   {params {} timeout wait-timeout-default}}]]
+                    :or   {params {} timeout wait-timeout-default}}]]
   (let [res (assoc action-result
               :action (format "scale-%s" act)
               :comp-name comp)]
