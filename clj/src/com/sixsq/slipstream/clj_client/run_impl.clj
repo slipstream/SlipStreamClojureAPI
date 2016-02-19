@@ -8,43 +8,46 @@
 
 (def ^:const run-uri "run")
 (def ^:const global-ns "ss")
-(def ^:const node-mult-sep ".")
+(def ^:const comp-mult-sep ".")
 
-(def ^:const node-prop-sep ":")
-(def ^:const state-rtp (str global-ns node-prop-sep "state"))
-(def ^:const abort-rtp (str global-ns node-prop-sep "abort"))
+(def ^:const comp-prop-sep ":")
+(def ^:const state-param (str global-ns comp-prop-sep "state"))
+(def ^:const abort-param (str global-ns comp-prop-sep "abort"))
 (def ^:const non-scalable-final-states ["Finalizing" "Done"])
 (def ^:const scalable-states ["Ready"])
 
 (def config (:contextualization (c/get-config)))
 (def cookie (:cookie config))
 (def run-url (u/url-join [(:serviceurl config) run-uri (:diid config)]))
-(def run-state-url (u/url-join [run-url state-rtp]))
-(def run-abort-url (u/url-join [run-url abort-rtp]))
+(def run-state-url (u/url-join [run-url state-param]))
+(def run-abort-url (u/url-join [run-url abort-param]))
 
-;; Default set of request parameters.
-(def base-req-params {:insecure? true
-                      :headers   {:cookie cookie}})
-(def rtp-req-params (conj
-                      base-req-params
+;; Default set of http request parameters.
+(def base-http-params {:insecure? true
+                      :headers    {:cookie cookie}})
+(def param-req-params (conj
+                      base-http-params
                       {:content-type "text/plain"
                        :accept       "text/plain;charset=utf-8"
                        :query-params {:ignoreabort "true"}}))
-(def scale-req-params (assoc rtp-req-params :accept "application/json"))
+(def scale-req-params (assoc param-req-params :accept "application/json"))
 
-(defn build-rtp
-  [node-name id param]
+(defn build-param
+  "Retruns parameter as 'comp.id:param' or 'comp:param' if 'id' is nil."
+  [comp id param]
   (if id
-    (str node-name node-mult-sep id node-prop-sep param)
-    (str node-name node-prop-sep param)))
+    (str comp comp-mult-sep id comp-prop-sep param)
+    (str comp comp-prop-sep param)))
 
-(defn build-rtp-url
-  [node-name id param]
-  (u/url-join [run-url (build-rtp node-name id param)]))
+(defn build-param-url
+  "Returns parameter full URL as 'comp.id:param' or
+  'comp:param if 'id' is nil."
+  [comp id param]
+  (u/url-join [run-url (build-param comp id param)]))
 
-(defn build-node-url
-  [node-name]
-  (u/url-join [run-url node-name]))
+(defn build-component-url
+  [comp]
+  (u/url-join [run-url comp]))
 
 (defn- extract-id
   [s]
