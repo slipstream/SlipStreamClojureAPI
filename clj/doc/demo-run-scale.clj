@@ -3,11 +3,13 @@
 1. Define a single component SlipStream application and deploy it in a scalable mode.
 
 2. Obtain the context file from a VM of the component that will be scaled
-ssh -l root <ip> cat /opt/slipstream/client/sbin/slipstream.context > ~/slipstream.context
 
-3. The functions in the demo are intended to be manully run in REPL.
-For examaple, go to clj/ directory of the project and start REPL with
- lein repl
+    ssh -l root <ip> cat /opt/slipstream/client/sbin/slipstream.context > ~/slipstream.context
+
+3. The functions in the demo are intended to be run manually in REPL.
+For example, go to clj/ directory of the project and start REPL with
+
+    $lein repl
 
 Now you should be ready to proceed.
 "
@@ -15,7 +17,7 @@ Now you should be ready to proceed.
 ; Loading the namespace should find and read ~/slipstream.context
 (require '[com.sixsq.slipstream.clj-client.run :as r] :reload)
 
-; Wait in case the deployment is still provisining.
+; Wait in case the deployment is still provisioning.
 (r/wait-ready 1200)
 
 ; Queries.
