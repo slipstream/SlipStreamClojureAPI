@@ -7,7 +7,7 @@ SlipStream Clojure client library to query [SlipStream server API][ss-api].
 ### Query SlipStream Run
 
 Library looks for the configuration file named `slipstream.context` in the following places
-and in defined the order
+and order
 
 ```
 1. in the resources directory defined for the JVM
@@ -29,9 +29,9 @@ serviceurl = https://nuv.la
 node_instance_name = orchestrator-exoscale-ch-gva
 ```
 
-Requre the run namespace and use the function to interact with the run
+Require the run namespace and use the functions to interact with the run
 
-```clojre
+```clojure
 (require '[com.sixsq.slipstream.clj-client.run :as r])
 
 (r/get-state)
