@@ -14,19 +14,17 @@ Now you should be ready to proceed.
 
 You can provide two optional parameters
 
-./test/live/scalable-run.clj [component-name] [new-VM-size]|[CPU RAM]
+./test/live/scalable-run.clj [component-name] [new-VM-size]
 
 component-name - name of the application component. Default: testvm
 new-VM-size    - VM size for the diagonal scaling test. Default: Tiny
-CPU            - value for CPU. Default: 1
-RAM            - value for RAM. Default: 2
 "
 
 ; Name of the deployed component to be used for scaling.
 (def comp-name (if (> (count *command-line-args*) 1)
                  (nth *command-line-args* 1)
                  "testvm"))
-; Cloud releated instance type or CPU/RAM. Used below in diagonal scale up action.
+; Cloud releated instance type. Used below in diagonal scale up action.
 (def test-instance-type (if (> (count *command-line-args*) 2)
                           (nth *command-line-args* 2)
                           "Tiny"))
@@ -71,7 +69,7 @@ RAM            - value for RAM. Default: 2
 (defn check-instance-ids
   [exp]
   (let [exp-str (map str exp)]
-    (if-not (= exp-str (r/get-instance-ids comp-name))
+    (if-not (= exp-str (r/get-comp-ids comp-name))
       (error (format "Instance IDs should be %s." exp-str)))))
 
 (defn check-can-scale
@@ -117,7 +115,7 @@ RAM            - value for RAM. Default: 2
 
 (action "Artificially abort the run and then recover from the abort.")
 (try+
-  (r/get-rtp "foo" 0 "bar")
+  (r/get-param "foo" 0 "bar")
   (catch [:status 404] {} nil)
   (catch Object o (error "Unexpected error:" o)))
 (check-cannot-scale)
@@ -152,7 +150,7 @@ RAM            - value for RAM. Default: 2
 
 
 (action "Diagonal scale up action (with internal wait). Providing VM size RTPs.")
-(def cloudservice (r/get-rtp comp-name 1 "cloudservice"))
+(def cloudservice (r/get-param comp-name 1 "cloudservice"))
 (def key-instance-type (str cloudservice ".instance.type"))
 (let [res (r/action-scale-up comp-name 2
                              :rtps {key-instance-type test-instance-type}
@@ -163,9 +161,9 @@ RAM            - value for RAM. Default: 2
 (check-instance-ids '(2 4 5))
 (step "'component id' => 'instance size'")
 ; TODO: add asserts for IDs 4 and 5
-(doseq [id (r/get-instance-ids comp-name)]
+(doseq [id (r/get-comp-ids comp-name)]
   (step (format "%s => %s"
-                id (r/get-rtp comp-name id key-instance-type))))
+                id (r/get-param comp-name id key-instance-type))))
 (check-can-scale)
 
 
