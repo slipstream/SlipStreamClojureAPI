@@ -20,6 +20,40 @@
     </license>
   </licenses>
 
+  <profiles>
+    <profile>
+      <id>run-tests</id>
+      <activation>
+        <property>
+          <name>!skipTests</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>boot-test</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <configuration>
+                  <executable>boot</executable>
+                  <arguments>
+                    <argument>mvn-test</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
   <build>
 
     <sourceDirectory>src</sourceDirectory>
@@ -60,37 +94,6 @@
       </plugin>
 
       <plugin>
-        <groupId>com.theoryinpractise</groupId>
-        <artifactId>clojure-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>compile</id>
-            <phase>compile</phase>
-            <goals>
-              <goal>compile</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>test</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-          </execution>
-        </executions>
-
-        <configuration>
-          <clojureOptions />
-          <sourceDirectories>
-            <sourceDirectory>src</sourceDirectory>
-          </sourceDirectories>
-          <testSourceDirectories>
-            <testSourceDirectory>test</testSourceDirectory>
-          </testSourceDirectories>
-        </configuration>
-      </plugin>
-
-      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>1.4.0</version>
@@ -111,21 +114,45 @@
         </configuration>
       </plugin>
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-        </configuration>
+     <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
         <executions>
           <execution>
-            <id>make-jar-with-dependencies</id>
-            <phase>package</phase>
+            <id>boot-build</id>
+            <phase>install</phase>
             <goals>
-              <goal>single</goal>
+              <goal>exec</goal>
             </goals>
+            <configuration>
+              <executable>boot</executable>
+              <arguments>
+                <argument>mvn-build</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>add-jar</id>
+            <phase>install</phase>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>target/${project.artifactId}-${project.version}.jar</file>
+                  <type>jar</type>
+                  <classifier>jar-with-dependencies</classifier>
+                </artifact>
+              </artifacts>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -155,70 +182,4 @@
       </releases>
     </repository>
   </repositories>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.clojure</groupId>
-      <artifactId>clojure</artifactId>
-      <version>1.8.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.clojure</groupId>
-      <artifactId>tools.logging</artifactId>
-      <version>0.3.0</version>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.17</version>
-      <exclusions>
-        <exclusion>
-          <groupId>javax.mail</groupId>
-          <artifactId>mail</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>javax.jms</groupId>
-          <artifactId>jms</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.sun.jdmk</groupId>
-          <artifactId>jmxtools</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.sun.jmx</groupId>
-          <artifactId>jmxri</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>clj-http</groupId>
-      <artifactId>clj-http</artifactId>
-      <version>2.0.0</version>
-    </dependency>
-    <dependency>
-      <groupId>clojure-ini</groupId>
-      <artifactId>clojure-ini</artifactId>
-      <version>0.0.2</version>
-    </dependency>
-    <dependency>
-      <groupId>slingshot</groupId>
-      <artifactId>slingshot</artifactId>
-      <version>0.12.2</version>
-    </dependency>
-    <dependency>
-      <groupId>superstring</groupId>
-      <artifactId>superstring</artifactId>
-      <version>2.1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>clj-json</groupId>
-      <artifactId>clj-json</artifactId>
-      <version>0.5.3</version>
-    </dependency>
-    <dependency>
-      <groupId>org.clojure</groupId>
-      <artifactId>data.xml</artifactId>
-      <version>0.0.8</version>
-    </dependency>
-  </dependencies>
 </project>

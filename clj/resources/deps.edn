@@ -1,0 +1,13 @@
+[[org.clojure/clojure]
+[org.clojure/tools.logging]
+[log4j
+ :exclusions [javax.mail/mail
+              javax.jms/jms
+              com.sun.jdmk/jmxtools
+              com.sun.jmx/jmxri]]
+[clj-http]
+[clojure-ini]
+[slingshot]
+[superstring]
+[clj-json]
+[org.clojure/data.xml]]
