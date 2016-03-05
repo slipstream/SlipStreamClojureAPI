@@ -1,4 +1,4 @@
-(def project-version "2.23.2-SNAPSHOT")
+(def project-version "3.1-SNAPSHOT")
 
 (task-options!
  pom {:project 'com.sixsq.slipstream/SlipStreamClientAPI
