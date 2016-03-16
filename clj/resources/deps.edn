@@ -10,4 +10,5 @@
 [slingshot]
 [superstring]
 [clj-json]
-[org.clojure/data.xml]]
+[org.clojure/data.xml]
+[io.nervous/kvlt]]
