@@ -1,10 +1,31 @@
-(ns com.sixsq.slipstream.clj-client.config
+(ns com.sixsq.slipstream.clj-client.context
   (:require
     [com.sixsq.slipstream.clj-client.utils :as u]
     [clojure.java.io :as io]
     [clojure.tools.logging :as log]
     [clojure-ini.core :refer [read-ini]]))
 
+
+(def default-config {:serviceurl nil
+                     :username   nil
+                     :password   nil
+                     :cookie     nil
+                     :run-uuid   nil})
+
+(def ^:dynamic *config* default-config)
+
+(defn set-config!
+  "
+  {
+  :serviceurl
+  :username
+  :password
+  :cookie
+  :run-uuid
+  }
+  "
+  [config]
+  (alter-var-root #'*config* (fn [_] (merge default-config config))))
 
 ;;
 ;; Location defaults.
@@ -50,9 +71,10 @@
     (if-let [conf (find-conf-file)]
       (do
         (log/debug "Found configuration file: " conf)
-        (read-ini conf
-                  :keywordize? true
-                  :comment-char \#))
+        (alter-var-root *config* (constantly
+                                   (read-ini conf
+                                             :keywordize? true
+                                             :comment-char \#))))
       (throw (IllegalStateException. "Failed to find configuration file.")))))
 
 (defn get-config
