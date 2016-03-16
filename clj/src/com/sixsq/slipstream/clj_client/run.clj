@@ -190,7 +190,8 @@
   [run-uuid comp ids]
   (:body (ri/delete
            (ri/to-component-uri run-uuid comp)
-           {:query-params ("ids" (s/join "," ids))})))
+           *config*
+           {:body (str "ids=" (s/join "," ids))})))
 
 (defn- wait-state
   "Waits for state 'state' for 'timeout' seconds using 'interval' seconds."
