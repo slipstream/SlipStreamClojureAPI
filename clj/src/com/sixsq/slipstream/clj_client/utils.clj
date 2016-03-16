@@ -47,6 +47,10 @@
   [& [parts]]
   (s/join "/" parts))
 
+(defn to-body-params
+  [query-map]
+  (s/join "&" (map #(s/join "=" %) query-map)))
+
 (defn split
   [s on]
   (s/split s on))
