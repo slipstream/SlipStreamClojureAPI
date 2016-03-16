@@ -33,6 +33,7 @@
           (catch ExceptionInfo e (ex-data e)))
   ```
   "
+  (:refer-clojure :exclude [get])
   (:require [kvlt.core :as kvlt]))
 
 (defn- request!
