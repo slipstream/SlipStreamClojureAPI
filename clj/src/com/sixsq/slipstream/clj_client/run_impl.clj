@@ -1,4 +1,5 @@
 (ns com.sixsq.slipstream.clj-client.run-impl
+  (:refer-clojure :exclude [get])
   (:require
     [com.sixsq.slipstream.clj-client.utils :as u]
     [com.sixsq.slipstream.clj-client.http-impl :as http]
