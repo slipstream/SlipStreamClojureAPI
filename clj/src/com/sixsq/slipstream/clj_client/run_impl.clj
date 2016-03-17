@@ -124,7 +124,7 @@
   [conf]
   (let [{:keys [username password cookie]} conf]
     (cond
-      cookie {:header {:cookie cookie}}
+      cookie {:headers {:cookie cookie}}
       (and username password) {:basic-auth [username password]}
       :else (throw (Exception. "Cookie or user credentials are required.")))))
 
@@ -134,34 +134,61 @@
     ""
     (throw ex)))
 
-(defn into-params
-  [& maps]
-  (apply merge param-req-params maps))
+(defn map-merge
+  [a b]
+  (if (and (map? a) (map? b))
+    (merge-with map-merge a b)
+    b))
 
+(defn merge-request
+  [& maps]
+  (apply merge-with map-merge maps))
+
+(defn with-default-request
+  [& maps]
+  (apply merge-request param-req-params maps))
+
+(defn to-url
+  [conf uri]
+  (u/url-join [(:serviceurl conf) uri]))
+
+;;
+;; CRUD requests.
 (defn get
   [uri conf & [req]]
   (:body (http/get
-           (u/url-join [(:service-url conf) uri])
-           (into-params req (http-creds conf)))))
+           (to-url conf uri)
+           (with-default-request
+             req
+             (http-creds conf)))))
 
 (defn put
-  [uri value conf & [req]]
+  [uri body conf & [req]]
   (http/put
-    (u/url-join [(:service-url conf) uri])
-    (into-params req (http-creds conf) {:body value})))
+    (to-url conf uri)
+    (with-default-request
+      req
+      (http-creds conf)
+      {:body body})))
 
 (defn delete
-  [uri conf & [req]]
+  [uri conf & [req body-params]]
   (http/delete
-    (u/url-join [(:service-url conf) uri])
-    (into-params req (http-creds conf))))
+    (to-url conf uri)
+    (with-default-request
+      req
+      (http-creds conf)
+      (if (seq body-params)
+        {:body (u/to-body-params body-params)}))))
 
 (defn post
-  [uri query-params-map conf & [req]]
+  [uri conf & [req body-params]]
   (http/post
-    (u/url-join [(:service-url conf) uri])
-    (into-params req
-                 (http-creds conf)
-                 {:body (u/to-body-params query-params-map)})))
+    (to-url conf uri)
+    (with-default-request
+      req
+      (http-creds conf)
+      (if (seq body-params)
+        {:body (u/to-body-params body-params)}))))
 
 

@@ -15,6 +15,7 @@
   (is (= "run/123/foo.1:bar" (to-param-uri "123" "foo" 1 "bar"))))
 
 (deftest test-into-params
-  (is (= param-req-params (into-params)))
-  (is (= param-req-params (into-params nil)))
-  (is (= (merge param-req-params {:b 2}) (into-params {:b 2}))))
+  (is (= nil (merge-request)))
+  (is (= nil (merge-request nil)))
+  (is (= {:b 2} (merge-request {:b 2})))
+  (is (= {:h {:a 1 :b 2}} (merge-request {:h {:a 1}} {:h {:b 2}}))))

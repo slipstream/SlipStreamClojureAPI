@@ -5,28 +5,6 @@
     [clojure.tools.logging :as log]
     [clojure-ini.core :refer [read-ini]]))
 
-
-(def default-config {:serviceurl nil
-                     :username   nil
-                     :password   nil
-                     :cookie     nil
-                     :run-uuid   nil})
-
-(def ^:dynamic *config* default-config)
-
-(defn set-config!
-  "
-  {
-  :serviceurl
-  :username
-  :password
-  :cookie
-  :run-uuid
-  }
-  "
-  [config]
-  (alter-var-root #'*config* (fn [_] (merge default-config config))))
-
 ;;
 ;; Location defaults.
 
@@ -57,26 +35,23 @@
        (concat [resource-context])
        (remove nil?)))
 
-(defn- file-exists?
+(defn file-exists?
   [file-name]
   (.exists (io/as-file file-name)))
 
-(defn- find-conf-file []
+(defn find-file []
   (->> (context-file-paths)
        (filter file-exists?)
        first))
 
-(def read-conf
-  (delay
-    (if-let [conf (find-conf-file)]
-      (do
-        (log/debug "Found configuration file: " conf)
-        (alter-var-root *config* (constantly
-                                   (read-ini conf
-                                             :keywordize? true
-                                             :comment-char \#))))
-      (throw (IllegalStateException. "Failed to find configuration file.")))))
-
-(defn get-config
+(defn get-context
   []
-  @read-conf)
+  (if-let [conf (find-file)]
+    (do
+      (log/debug "Found configuration file: " conf)
+      (read-ini conf
+                :keywordize? true
+                :comment-char \#))
+    (throw (IllegalStateException. "Failed to find configuration file."))))
+
+

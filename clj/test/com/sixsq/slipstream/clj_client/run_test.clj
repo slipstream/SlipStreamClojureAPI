@@ -1,10 +1,10 @@
 (ns com.sixsq.slipstream.clj-client.run-test
   (:require [clojure.test :refer :all]
-            [com.sixsq.slipstream.clj-client.run :refer [set-run-config!]]
+            [com.sixsq.slipstream.clj-client.run :refer [set-run-context!]]
             [com.sixsq.slipstream.clj-client.run :refer :all]))
 
 (def run-uuid "123")
-(set-run-config! {:username "user" :password "pass"})
+(set-run-context! {:username "user" :password "pass"})
 
 (deftest test-get-comp-ids
   (with-redefs-fn {#'com.sixsq.slipstream.clj-client.run/get-param (fn [_ _ _ _] "")}

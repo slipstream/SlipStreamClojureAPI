@@ -1,5 +1,8 @@
 (ns com.sixsq.slipstream.clj-client.run
-  "The `run` namespace contains functions for interacting with SlipStream runs.
+  "
+  # Purpose
+
+  The `run` namespace contains functions for interacting with SlipStream runs.
 
   It allows users to
 
@@ -11,7 +14,7 @@
 
   Timeouts and intervals are in seconds.
 
-  Below is the terminology with examples.
+  # SlipStraem run termininology
 
   There are three types of parameters on a run
 
@@ -25,6 +28,28 @@
    * `webapp` is the name of the application component, which is refered to as `comp`
      in the API,
    * `webapp.1` is the name of the instance `1` of the application component `webapp`.
+
+
+  # Usage and examples
+
+  ```
+  (require '[com.sixsq.slipstream.clj-client.run :as r])
+
+  (def context {:username \"foo\"
+                :password \"bar\"})
+  (r/with-new-context context (r/get-run-info \"123-456\"))
+
+  ;;
+  ;; Change context and query a number of runs.
+  (def my-slipstream {:serviceurl \"https://example.com\"
+                      :username \"jay\"
+                      :password \"random\"})
+  (def runs [\"253194ea-f982-4e1e-881e-7642408eae21\"
+             \"b0271dff-773e-4f4b-9915-c3cd3ec8bcb0\"
+             \"253194ea-f982-4e1e-881e-7642408eae21\"])
+  (for [run-uuid runs]
+    (r/with-new-context my-slipstream (r/get-run-info run-uuid)))
+  ```
   "
   (:require
     [com.sixsq.slipstream.clj-client.utils :as u]
@@ -34,30 +59,37 @@
     [clojure.data.xml :as xml])
   (:use [clojure.walk :only [stringify-keys]]))
 
-(def default-config {:service-url "https://nuv.la"})
+(def default-context {:serviceurl "https://nuv.la"})
 
-(def ^:dynamic *config* default-config)
+(def ^:dynamic *context* default-context)
+
+(defn select-context
+  [context]
+  (select-keys context [:serviceurl :username :password :cookie]))
 
 ;;
 ;; Public library API.
 
 ;; Should be called to provide service URL and credentials.
-(defn set-run-config!
+(defn set-run-context!
   "The following fields are expected.
 
-  {
-    :service-url \"https://nuv.la\"
+  {:serviceurl \"https://nuv.la\"
 
-    :username     nil
-    :password     nil
+   :cookie       nil
 
-    :cookie       nil
-  }
+   :username     nil
+   :password     nil}
+
   If :cookie is provided it's prefered over the :username/:password.
   "
-  [config]
-  ;; FIXME: bind instead
-  (alter-var-root #'*config* (fn [_] (merge default-config config))))
+  [context]
+  (alter-var-root #'*context* (fn [_] (merge default-context (select-context context)))))
+
+
+(defmacro with-new-context
+  [context & body]
+  `(binding [*context* (merge *context* ~context)] (do ~@body)))
 
 
 ;; Getters and setters of component, component instance and global parameters.
@@ -66,13 +98,13 @@
   as 'run-uuid/comp.id:param'.
   When 'id' is nil, gets parameter of the application component as 'run-uuid/comp:param'."
   [run-uuid comp id param & [req]]
-  (ri/get (ri/to-param-uri run-uuid comp id param) *config* req))
+  (ri/get (ri/to-param-uri run-uuid comp id param) *context* req))
 
 (defn set-param
   "Set parameter 'param' to 'value' on application component instance 'comp.id'."
   [run-uuid comp id param value & [req]]
   (ri/put
-    (ri/to-param-uri run-uuid comp id param) value *config* req))
+    (ri/to-param-uri run-uuid comp id param) value *context* req))
 
 (defn set-params
   "Given a map of parameters 'params', set them on application component
@@ -91,13 +123,13 @@
   "Get state of the run."
   [run-uuid]
   (let [uri (ri/run-state-uri run-uuid)]
-    (ri/get uri *config*)))
+    (ri/get uri *context*)))
 
 (defn get-abort
   "Get abort message."
   [run-uuid]
   (try
-    (ri/get (ri/run-abort-uri run-uuid) *config*)
+    (ri/get (ri/run-abort-uri run-uuid) *context*)
     (catch clojure.lang.ExceptionInfo e (ri/parse-ex-412 e))
     (catch java.util.concurrent.ExecutionException e (ri/parse-ex-412 (.getCause e)))))
 
@@ -127,7 +159,7 @@
 (defn scalable?
   "Check if run is scalable."
   [run-uuid]
-  (-> (ri/get (ri/run-uri run-uuid) *config* ri/as-xml)
+  (-> (ri/get (ri/run-uri run-uuid) *context* ri/as-xml)
       xml/parse-str
       :attrs
       :mutable
@@ -145,7 +177,8 @@
 
 (defn get-run-info
   [run-uuid]
-  {:url       (ri/run-url (:service-url *config*) run-uuid)
+  (println *context*)
+  {:url       (ri/run-url (:serviceurl *context*) run-uuid)
    :state     (get-state run-uuid)
    :scalable  (scalable? run-uuid)
    :can-scale (can-scale? run-uuid)
@@ -160,13 +193,13 @@
   "Cancel abort on the run."
   [run-uuid]
   (ri/delete
-    (ri/run-abort-uri run-uuid) *config*))
+    (ri/run-abort-uri run-uuid) *context*))
 
 (defn terminate
   "Terminate the run."
   [run-uuid]
   (ri/delete
-    (ri/run-uri run-uuid) *config*))
+    (ri/run-uri run-uuid) *context*))
 
 (defn scale-up
   "Scale up application component 'comp' by 'n' instances. Allow to set parameters
@@ -175,8 +208,9 @@
   ([run-uuid comp n]
    (let [resp (ri/post
                 (ri/to-component-uri run-uuid comp)
-                {"n" n}
-                *config*)]
+                *context*
+                {}
+                {"n" n})]
      (u/split (:body resp) #",")))
   ([run-uuid comp n params]
    (let [added-instances (scale-up run-uuid comp n)
@@ -190,8 +224,9 @@
   [run-uuid comp ids]
   (:body (ri/delete
            (ri/to-component-uri run-uuid comp)
-           *config*
-           {:body (str "ids=" (s/join "," ids))})))
+           *context*
+           {}
+           {"ids" (s/join "," ids)})))
 
 (defn- wait-state
   "Waits for state 'state' for 'timeout' seconds using 'interval' seconds."
@@ -237,7 +272,7 @@
     (log/debug (format "Scaling %s." act) comp n params)
     (try
       (let [ret (run-scale-action run-uuid act comp n params)
-            _   (wait-ready timeout)]
+            _   (wait-ready run-uuid timeout)]
         (log/debug (format "Success. Finished scaling %s." act) comp n params)
         (assoc res
           :reason ret
@@ -260,7 +295,7 @@
                          :or   {params {} timeout wait-timeout-default}}]]
   (action-scale run-uuid "up" comp n :params params :timeout timeout))
 
-(defn- take-last-n-ids
+(defn take-last-n-ids
   "Returns the last 'n' IDs of the currently running instances of application
   component 'comp'."
   [run-uuid comp n]
