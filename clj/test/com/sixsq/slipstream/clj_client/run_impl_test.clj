@@ -1,6 +1,7 @@
 (ns com.sixsq.slipstream.clj-client.run-impl-test
+  (:refer-clojure :exclude [get])
   (:require [clojure.test :refer :all]
-            [com.sixsq.slipstream.clj-client.run-impl :refer :all]))
+            [com.sixsq.slipstream.clj-client.lib.run-impl :refer :all]))
 
 (deftest test-to-ids
   (are [x y] (= x (extract-ids y))

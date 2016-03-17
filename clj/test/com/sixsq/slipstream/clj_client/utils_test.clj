@@ -1,6 +1,6 @@
 (ns com.sixsq.slipstream.clj-client.utils-test
   (:require [clojure.test :refer :all]
-            [com.sixsq.slipstream.clj-client.utils :refer :all]))
+            [com.sixsq.slipstream.clj-client.lib.utils :refer :all]))
 
 
 (deftest test-in?

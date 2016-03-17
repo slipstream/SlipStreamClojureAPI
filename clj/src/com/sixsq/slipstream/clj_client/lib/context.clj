@@ -1,6 +1,6 @@
-(ns com.sixsq.slipstream.clj-client.context
+(ns com.sixsq.slipstream.clj-client.lib.context
   (:require
-    [com.sixsq.slipstream.clj-client.utils :as u]
+    [com.sixsq.slipstream.clj-client.lib.utils :as u]
     [clojure.java.io :as io]
     [clojure.tools.logging :as log]
     [clojure-ini.core :refer [read-ini]]))

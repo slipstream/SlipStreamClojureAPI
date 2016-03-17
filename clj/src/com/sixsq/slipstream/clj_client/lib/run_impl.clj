@@ -1,8 +1,8 @@
-(ns com.sixsq.slipstream.clj-client.run-impl
+(ns com.sixsq.slipstream.clj-client.lib.run-impl
   (:refer-clojure :exclude [get])
   (:require
-    [com.sixsq.slipstream.clj-client.utils :as u]
-    [com.sixsq.slipstream.clj-client.http-impl :as http]
+    [com.sixsq.slipstream.clj-client.lib.utils :as u]
+    [com.sixsq.slipstream.clj-client.lib.http-impl :as http]
     [superstring.core :as s]
     [clj-json.core :as json]))
 

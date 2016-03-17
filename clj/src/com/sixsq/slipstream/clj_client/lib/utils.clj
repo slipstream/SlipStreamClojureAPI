@@ -1,4 +1,4 @@
-(ns com.sixsq.slipstream.clj-client.utils
+(ns com.sixsq.slipstream.clj-client.lib.utils
   (:require [superstring.core :as s]
             [clojure.walk :as walk])
   (:import [java.io File]))
