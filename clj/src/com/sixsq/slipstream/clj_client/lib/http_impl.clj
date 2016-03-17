@@ -1,4 +1,4 @@
-(ns com.sixsq.slipstream.clj-client.http-impl
+(ns com.sixsq.slipstream.clj-client.lib.http-impl
   "Simple wrapper around an HTTP library to produce consistent CRUD interface.
 
   The CRUD actions accept and produce `Ring`-style requests/responses.

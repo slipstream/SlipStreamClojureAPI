@@ -1,5 +1,8 @@
 (ns com.sixsq.slipstream.clj-client.run
-  "The `run` namespace contains functions for interacting with SlipStream runs.
+  "
+  # Purpose
+
+  The `run` namespace contains functions for interacting with SlipStream runs.
 
   It allows users to
 
@@ -11,7 +14,7 @@
 
   Timeouts and intervals are in seconds.
 
-  Below is the terminology with examples.
+  # SlipStraem run termininology
 
   There are three types of parameters on a run
 
@@ -22,135 +25,172 @@
   where
 
    * `ss` is the global namespace of the run,
-   * `webapp` is the name of the application component, which is refered to as `comp`
+   * `webapp` is the name of the application component, which is referred to as `comp`
      in the API,
    * `webapp.1` is the name of the instance `1` of the application component `webapp`.
+
+
+  # Usage and examples
+
+  The namespace can be bootstrapped either from `slipstream.context` file
+  (in .ini format) or by explicitly providing the configuration to `contextualize!`.
+
+  In the case of `slipstream.context`, the following structure and parameters
+  are assumed
+
+   ```
+   [contextualization]
+
+   # SlipStream endpoint.
+   serviceurl = https://nuv.la
+
+   # SlipStream user credentials
+   username = foo
+   password = bar
+
+   # prefered over username and password
+   cookie = key=val; Path:/
+
+   # run UUID
+   diid = 123
+   ```
+
+  This file is usually available on SlipStream managed VMs and is used by
+  orchestrator and node executors.
+
+  First call to any of the API functions searches and loads the
+  contextualisation file.  All successive calls use the locally bound configuration.
+
+  Explicitly calling `contextualize!` w/o parameters reload the contextualization
+  and updates the configuration of the namespace.
+
+  `contextualize!` can be called with a context map
+
+  ```
+  {:serviceurl \"https://nuv.la\"
+
+   ;; run UUID
+   :diid \"123\"
+
+   :cookie \"key=val; Path:/\"
+
+   :username \"foo\"
+   :password \"bar\"
+   }
+  ```
+
+  where either `:cookie` or `:username` and `:password` are mandatory.
+
+  ## Examples
+
+  Implicit bootstrap -- `slipstream.context` with the correct parameters
+  should be in the search path.
+  ```
+  (require '[com.sixsq.slipstream.clj-client.run-wrap :as r])
+
+  (r/get-run-info)
+  ```
+
+  Manually define configuration and contextualize the namespace.
+  ```
+  (require '[com.sixsq.slipstream.clj-client.run-wrap :as r])
+
+  (def conf {:serviceurl \"https://nuv.la\"
+            :diid \"123-456\"
+            :username \"foo\"
+            :password \"bar\"})
+  (rw/contextualize! conf)
+
+  (r/get-run-info)
+  ```
   "
   (:require
-    [com.sixsq.slipstream.clj-client.utils :as u]
-    [com.sixsq.slipstream.clj-client.run-impl :as ri]
-    [superstring.core :as s]
-    [clojure.tools.logging :as log]
-    [clojure.data.xml :as xml])
-  (:use [clojure.walk :only [stringify-keys]]))
+    [com.sixsq.slipstream.clj-client.lib.run :as r]
+    [com.sixsq.slipstream.clj-client.lib.context :as c]))
 
-(def default-config {:service-url "https://nuv.la"})
+(def ^:dynamic *context* {})
 
-(def ^:dynamic *config* default-config)
+(defn contextualize!
+  ([]
+   (alter-var-root #'*context* (constantly (:contextualization (c/get-context))))
+   (r/set-run-context! *context*))
+  ([context]
+   (alter-var-root #'*context* (constantly context))
+   (r/set-run-context! context)))
+
+(defn run-uuid [] (or (:diid *context*)
+                      (do (contextualize!)
+                          (:diid *context*))))
 
 ;;
 ;; Public library API.
 
-;; Should be called to provide service URL and credentials.
-(defn set-run-config!
-  "The following fields are expected.
-
-  {
-    :service-url \"https://nuv.la\"
-
-    :username     nil
-    :password     nil
-
-    :cookie       nil
-  }
-  If :cookie is provided it's prefered over the :username/:password.
-  "
-  [config]
-  ;; FIXME: bind instead
-  (alter-var-root #'*config* (fn [_] (merge default-config config))))
-
 
 ;; Getters and setters of component, component instance and global parameters.
 (defn get-param
-  "Get parameter 'param' of application component instance 'comp.id' in run `run-uuid`
-  as 'run-uuid/comp.id:param'.
-  When 'id' is nil, gets parameter of the application component as 'run-uuid/comp:param'."
-  [run-uuid comp id param & [req]]
-  (ri/get (ri/to-param-uri run-uuid comp id param) *config* req))
+  "Get parameter 'param' of application component instance 'comp.id' as 'comp.id:param'.
+  When 'id' is nil, gets parameter of the application component as 'comp:param'."
+  [comp id param]
+  (r/get-param (run-uuid) comp id param))
 
 (defn set-param
   "Set parameter 'param' to 'value' on application component instance 'comp.id'."
-  [run-uuid comp id param value & [req]]
-  (ri/put
-    (ri/to-param-uri run-uuid comp id param) value *config* req))
+  [comp id param value]
+  (r/set-param (run-uuid) comp id param value))
 
 (defn set-params
   "Given a map of parameters 'params', set them on application component
-  instance 'run-uuid/comp.id'."
-  [run-uuid comp id params & [req]]
-  (->> params
-       stringify-keys
-       (run! (fn [[p v]] (set-param run-uuid comp id p v req)))))
+  instance 'comp.id'."
+  [comp id params]
+  (r/set-params (run-uuid) comp id params))
 
 (defn get-scale-state
   "Get scale state of the component instance."
-  [run-uuid comp id]
-  (get-param run-uuid comp id "scale.state"))
+  [comp id]
+  (r/get-scale-state (run-uuid) comp id))
 
 (defn get-state
   "Get state of the run."
-  [run-uuid]
-  (let [uri (ri/run-state-uri run-uuid)]
-    (ri/get uri *config*)))
+  []
+  (r/get-state (run-uuid)))
 
 (defn get-abort
   "Get abort message."
-  [run-uuid]
-  (try
-    (ri/get (ri/run-abort-uri run-uuid) *config*)
-    (catch clojure.lang.ExceptionInfo e (ri/parse-ex-412 e))
-    (catch java.util.concurrent.ExecutionException e (ri/parse-ex-412 (.getCause e)))))
+  []
+  (r/get-abort (run-uuid)))
 
 (defn get-multiplicity
   "Get multiplicity of application component 'comp'."
-  [run-uuid comp]
-  (Integer/parseInt (get-param run-uuid comp nil "multiplicity")))
+  [comp]
+  (r/get-multiplicity (run-uuid) comp))
 
 (defn get-comp-ids
   "Get list of instance IDs of application component 'comp'."
-  [run-uuid comp]
-  (remove #(zero? (count %))
-          (-> (try
-                (get-param run-uuid comp nil "ids")
-                (catch clojure.lang.ExceptionInfo e (ri/parse-ex-412 e))
-                (catch java.util.concurrent.ExecutionException e (ri/parse-ex-412 (.getCause e))))
-              (u/split #",")
-              (sort))))
+  [comp]
+  (r/get-comp-ids (run-uuid) comp))
 
 
 ;; Predicates.
 (defn aborted?
   "Check if run is in 'Aborted' state."
-  [run-uuid]
-  (not (s/blank? (get-abort run-uuid))))
+  []
+  (r/aborted? (run-uuid)))
 
 (defn scalable?
   "Check if run is scalable."
-  [run-uuid]
-  (-> (ri/get (ri/run-uri run-uuid) *config* ri/as-xml)
-      xml/parse-str
-      :attrs
-      :mutable
-      read-string))
+  []
+  (r/scalable? (run-uuid)))
 
 (defn can-scale?
   "Check if it's possible to scale the run."
-  [run-uuid]
+  []
   ; TODO: Use single call to get run representation and query it locally.
   ;       At the moment it's xml, which is not that comfortable to parse.
-  (and
-    (scalable? run-uuid)
-    (not (aborted? run-uuid))
-    (u/in? (get-state run-uuid) ri/scalable-states)))
+  (r/can-scale? (run-uuid)))
 
 (defn get-run-info
-  [run-uuid]
-  {:url       (ri/run-url (:service-url *config*) run-uuid)
-   :state     (get-state run-uuid)
-   :scalable  (scalable? run-uuid)
-   :can-scale (can-scale? run-uuid)
-   :aborted   (aborted? run-uuid)
-   :abort-msg (get-abort run-uuid)})
+  []
+  (r/get-run-info (run-uuid)))
 
 
 ;; Actions on the run.
@@ -158,127 +198,56 @@
 
 (defn cancel-abort
   "Cancel abort on the run."
-  [run-uuid]
-  (ri/delete
-    (ri/run-abort-uri run-uuid) *config*))
+  []
+  (r/cancel-abort (run-uuid)))
 
 (defn terminate
   "Terminate the run."
-  [run-uuid]
-  (ri/delete
-    (ri/run-uri run-uuid) *config*))
+  []
+  (r/terminate (run-uuid)))
 
 (defn scale-up
   "Scale up application component 'comp' by 'n' instances. Allow to set parameters
   from 'params' map on the new component instances. Returns list of added component
   instance names qualified with IDs."
-  ([run-uuid comp n]
-   (let [resp (ri/post
-                (ri/to-component-uri run-uuid comp)
-                {"n" n}
-                *config*)]
-     (u/split (:body resp) #",")))
-  ([run-uuid comp n params]
-   (let [added-instances (scale-up run-uuid comp n)
-         ids             (ri/extract-ids added-instances)]
-     (run! #(set-params run-uuid comp % params) ids)
-     added-instances)))
+  ([comp n]
+   (r/scale-up (run-uuid) comp n))
+  ([comp n params]
+   (r/scale-up (run-uuid) comp n params)))
 
 (defn scale-down
   "Scale down application component 'comp' by terminating instances defined by
   'ids' vector."
-  [run-uuid comp ids]
-  (:body (ri/delete
-           (ri/to-component-uri run-uuid comp)
-           *config*
-           {:body (str "ids=" (s/join "," ids))})))
-
-(defn- wait-state
-  "Waits for state 'state' for 'timeout' seconds using 'interval' seconds."
-  [run-uuid state & [& {:keys [timeout interval]
-                        :or   {timeout 60 interval 5}}]]
-  (log/debug "Waiting for" state "state for" timeout "sec.")
-  (u/wait-for #(= state (get-state run-uuid)) timeout interval))
+  [comp ids]
+  (r/scale-down (run-uuid) comp ids))
 
 (defn wait-ready
   "Waits for Ready state on the run. Returns true on success."
-  ([run-uuid]
-   (wait-state run-uuid "Ready" :timeout wait-timeout-default :interval 5))
-  ([run-uuid timeout]
-   (wait-state run-uuid "Ready" :timeout timeout :interval 5)))
+  ([]
+   (r/wait-ready (run-uuid)))
+  ([timeout]
+   (r/wait-ready (run-uuid) timeout)))
 
 
 ;; Composite actions.
-(def action-success "success")
-(def action-failure "failure")
-
-(defn- run-scale-action
-  [run-uuid act comp n [& params]]
-  (cond
-    (= act "up") (scale-up run-uuid comp n params)
-    ; FIXME: If run is aborted, server returns html - not json or xml.
-    (= act "down") (if (aborted? run-uuid) (ri/throw-409) (scale-down run-uuid comp n))
-    :else (throw (Exception. (str "Unknown scale action requested: " act)))))
-
-(def action-result
-  {:state        action-success
-   :reason       nil
-   :action       nil
-   :comp-name    nil
-   :multiplicity nil})
-
-(defn- action-scale
-  "Call scale action on 'comp' by action comp 'act'."
-  [run-uuid act comp n & [& {:keys [params timeout]
-                             :or   {params {} timeout wait-timeout-default}}]]
-  (let [res (assoc action-result
-              :action (format "scale-%s" act)
-              :comp-name comp)]
-    (log/debug (format "Scaling %s." act) comp n params)
-    (try
-      (let [ret (run-scale-action run-uuid act comp n params)
-            _   (wait-ready timeout)]
-        (log/debug (format "Success. Finished scaling %s." act) comp n params)
-        (assoc res
-          :reason ret
-          :multiplicity (get-multiplicity run-uuid comp)))
-      (catch Exception e
-        (log/error (format "Failure scaling %s." act) comp n params e)
-        (assoc res
-          :state action-failure
-          :reason (ri/reason-from-exc (ex-data e)))))))
-
-(defn action-success?
-  "Given the 'result' returned by an action, check if it was successfull."
-  [result]
-  (= action-success (:state result)))
-
 (defn action-scale-up
   "Scale application component 'comp' by 'n' instances up.  Wait for the
   completion of the action. Optionally provide map of parameters as 'params'."
-  [run-uuid comp n & [& {:keys [params timeout]
-                         :or   {params {} timeout wait-timeout-default}}]]
-  (action-scale run-uuid "up" comp n :params params :timeout timeout))
-
-(defn- take-last-n-ids
-  "Returns the last 'n' IDs of the currently running instances of application
-  component 'comp'."
-  [run-uuid comp n]
-  (take-last n (get-comp-ids run-uuid comp)))
+  [comp n & [& {:keys [params timeout]
+                :or   {params {} timeout wait-timeout-default}}]]
+  (r/action-scale-up (run-uuid) comp n :params params :timeout timeout))
 
 (defn action-scale-down-by
   "Scale down application component 'comp' by 'n' instances. Wait for
   the completion of the action."
-  [run-uuid comp n & [& {:keys [timeout]
-                         :or   {timeout wait-timeout-default}}]]
-  (action-scale run-uuid "down" comp
-                (take-last-n-ids run-uuid comp n)
-                :timeout timeout))
+  [comp n & [& {:keys [timeout]
+                :or   {timeout wait-timeout-default}}]]
+  (r/action-scale-down-by (run-uuid) comp n :timeout timeout))
 
 (defn action-scale-down-at
   "Scale down application component 'comp' by terminating the component
   instances identified by IDs in 'ids'. Wait for the completion of the action."
-  [run-uuid comp ids & [& {:keys [timeout]
-                           :or   {timeout wait-timeout-default}}]]
-  (action-scale run-uuid "down" comp ids :timeout timeout))
+  [comp ids & [& {:keys [timeout]
+                  :or   {timeout wait-timeout-default}}]]
+  (r/action-scale-down-at (run-uuid) comp ids :timeout timeout))
 
