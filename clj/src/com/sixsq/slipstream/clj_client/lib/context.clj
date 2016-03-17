@@ -1,10 +1,9 @@
-(ns com.sixsq.slipstream.clj-client.config
+(ns com.sixsq.slipstream.clj-client.lib.context
   (:require
-    [com.sixsq.slipstream.clj-client.utils :as u]
+    [com.sixsq.slipstream.clj-client.lib.utils :as u]
     [clojure.java.io :as io]
     [clojure.tools.logging :as log]
     [clojure-ini.core :refer [read-ini]]))
-
 
 ;;
 ;; Location defaults.
@@ -36,25 +35,23 @@
        (concat [resource-context])
        (remove nil?)))
 
-(defn- file-exists?
+(defn file-exists?
   [file-name]
   (.exists (io/as-file file-name)))
 
-(defn- find-conf-file []
+(defn find-file []
   (->> (context-file-paths)
        (filter file-exists?)
        first))
 
-(def read-conf
-  (delay
-    (if-let [conf (find-conf-file)]
-      (do
-        (log/debug "Found configuration file: " conf)
-        (read-ini conf
-                  :keywordize? true
-                  :comment-char \#))
-      (throw (IllegalStateException. "Failed to find configuration file.")))))
-
-(defn get-config
+(defn get-context
   []
-  @read-conf)
+  (if-let [conf (find-file)]
+    (do
+      (log/debug "Found configuration file: " conf)
+      (read-ini conf
+                :keywordize? true
+                :comment-char \#))
+    (throw (IllegalStateException. "Failed to find configuration file."))))
+
+

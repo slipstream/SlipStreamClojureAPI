@@ -1,4 +1,4 @@
-(ns com.sixsq.slipstream.clj-client.utils
+(ns com.sixsq.slipstream.clj-client.lib.utils
   (:require [superstring.core :as s]
             [clojure.walk :as walk])
   (:import [java.io File]))
@@ -46,6 +46,12 @@
   "
   [& [parts]]
   (s/join "/" parts))
+
+(defn to-body-params
+  [query-map & [on]]
+  (s/join (or on "\n") (map #(s/join "=" %)
+                            (remove #(s/blank? (first %))
+                                    (walk/stringify-keys query-map)))))
 
 (defn split
   [s on]
