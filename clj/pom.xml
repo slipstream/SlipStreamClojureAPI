@@ -10,7 +10,7 @@
   <parent>
     <groupId>com.sixsq.slipstream</groupId>
     <artifactId>SlipStreamClientAPI</artifactId>
-    <version>2.24-SNAPSHOT</version>
+    <version>3.1-SNAPSHOT</version>
   </parent>
 
   <licenses>
@@ -191,19 +191,19 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>clj-http</groupId>
-      <artifactId>clj-http</artifactId>
-      <version>2.0.0</version>
+      <groupId>io.nervous</groupId>
+      <artifactId>kvlt</artifactId>
+      <version>0.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>aleph</groupId>
+      <artifactId>aleph</artifactId>
+      <version>0.4.1-beta5</version>
     </dependency>
     <dependency>
       <groupId>clojure-ini</groupId>
       <artifactId>clojure-ini</artifactId>
       <version>0.0.2</version>
-    </dependency>
-    <dependency>
-      <groupId>slingshot</groupId>
-      <artifactId>slingshot</artifactId>
-      <version>0.12.2</version>
     </dependency>
     <dependency>
       <groupId>superstring</groupId>

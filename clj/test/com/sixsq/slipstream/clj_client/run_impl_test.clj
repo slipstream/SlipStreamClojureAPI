@@ -1,6 +1,7 @@
 (ns com.sixsq.slipstream.clj-client.run-impl-test
+  (:refer-clojure :exclude [get])
   (:require [clojure.test :refer :all]
-            [com.sixsq.slipstream.clj-client.run-impl :refer :all]))
+            [com.sixsq.slipstream.clj-client.lib.run-impl :refer :all]))
 
 (deftest test-to-ids
   (are [x y] (= x (extract-ids y))
@@ -12,4 +13,10 @@
              ["3"] "node, node.3"))
 
 (deftest test-build-param-url
-  (is (= "http://example.com/run/123/foo.1:bar" (build-param-url "foo" 1 "bar"))))
+  (is (= "run/123/foo.1:bar" (to-param-uri "123" "foo" 1 "bar"))))
+
+(deftest test-into-params
+  (is (= nil (merge-request)))
+  (is (= nil (merge-request nil)))
+  (is (= {:b 2} (merge-request {:b 2})))
+  (is (= {:h {:a 1 :b 2}} (merge-request {:h {:a 1}} {:h {:b 2}}))))
