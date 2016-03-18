@@ -21,7 +21,7 @@
     <dependencies>
         <dependency>
             <groupId>com.sixsq.slipstream</groupId>
-            <artifactId>SlipStreamClientAPI-jar</artifactId>
+            <artifactId>SlipStreamClientAPI</artifactId>
             <version>${project.version}</version>
             <type>jar</type>
         </dependency>
