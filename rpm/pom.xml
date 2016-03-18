@@ -24,7 +24,6 @@
             <artifactId>SlipStreamClientAPI-jar</artifactId>
             <version>${project.version}</version>
             <type>jar</type>
-            <classifier>jar</classifier>
         </dependency>
     </dependencies>
 
@@ -50,9 +49,8 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>com.sixsq.slipstream</groupId>
-                                    <artifactId>SlipStreamClientAPI-jar</artifactId>
+                                    <artifactId>SlipStreamClientAPI</artifactId>
                                     <type>jar</type>
-                                    <classifier>jar</classifier>
                                     <destFileName>clj-ss-client.jar</destFileName>
                                 </artifactItem>
                             </artifactItems>
