@@ -63,65 +63,7 @@
   </profiles>
 
   <build>
-
-    <sourceDirectory>src</sourceDirectory>
-    <testSourceDirectory>test</testSourceDirectory>
-    <resources>
-      <resource>
-        <directory>src/resources</directory>
-      </resource>
-      <resource>
-        <directory>test/resources</directory>
-      </resource>
-    </resources>
-    <testResources>
-      <testResource>
-        <directory>src/resources</directory>
-      </testResource>
-      <testResource>
-        <directory>test/resources</directory>
-      </testResource>
-    </testResources>
-    <directory>target</directory>
-    <outputDirectory>target/classes</outputDirectory>
-
     <plugins>
-
-      <plugin>
-        <artifactId>maven-clean-plugin</artifactId>
-        <configuration>
-          <filesets>
-            <fileset>
-              <directory>.</directory>
-              <includes>
-                <include>**/*.lein-env</include>
-              </includes>
-            </fileset>
-          </filesets>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>1.4.0</version>
-        <executions>
-          <execution>
-            <phase>compile</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <executable>rm</executable>
-          <arguments>
-            <argument>-f</argument>
-            <argument>target/classes/slipstream.context</argument>
-          </arguments>
-        </configuration>
-      </plugin>
-
      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
