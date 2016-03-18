@@ -31,7 +31,6 @@ new-VM-size    - VM size for the diagonal scaling test. Default: Tiny
 
 ; Loading the namespace should find and read ~/slipstream.context
 (require '[com.sixsq.slipstream.clj-client.run :as r] :reload)
-(use '[slingshot.slingshot :only [try+]])
 (use '[clojure.pprint :only [pprint]])
 
 (defn print-run
@@ -114,10 +113,11 @@ new-VM-size    - VM size for the diagonal scaling test. Default: Tiny
 (prn-inst-scale-states '(1))
 
 (action "Artificially abort the run and then recover from the abort.")
-(try+
+(try
   (r/get-param "foo" 0 "bar")
-  (catch [:status 404] {} nil)
-  (catch Object o (error "Unexpected error:" o)))
+  (catch java.util.concurrent.ExecutionException e (let [status (:status (ex-data (.getCause e)))]
+                                                     (if-not (= 404 status) (error "Unexpected HTTP error status:" status))))
+  (catch Exception e (error "Unexpected error:" (ex-data e))))
 (check-cannot-scale)
 (if-not (true? (r/aborted?))
   (error "Run should be aborted at this stage."))
