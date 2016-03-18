@@ -24,7 +24,7 @@
             <artifactId>SlipStreamClientAPI-jar</artifactId>
             <version>${project.version}</version>
             <type>jar</type>
-            <classifier>jar-with-dependencies</classifier>
+            <classifier>jar</classifier>
         </dependency>
     </dependencies>
 
