@@ -11,7 +11,7 @@
                   #"META-INF/.*\.RSA"}})
 
 (set-env!
- :source-paths #{"resources"}
+ :source-paths #{"resources" "test"}
  :resource-paths #{"src"}
 
  :repositories
