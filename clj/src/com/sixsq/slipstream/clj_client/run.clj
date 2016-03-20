@@ -48,7 +48,7 @@
   username = foo
   password = bar
 
-  # prefered over username and password
+  # preferred over username and password
   cookie = key=val; Path:/
 
   # run UUID

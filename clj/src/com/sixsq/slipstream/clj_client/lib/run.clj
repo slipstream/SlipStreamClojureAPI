@@ -83,7 +83,7 @@
    :password     nil}
   ```
 
-  If `:cookie` is provided it's prefered over the `:username`/`:password`.
+  If `:cookie` is provided it's preferred over the `:username`/`:password`.
   "
   [context]
   (alter-var-root #'*context* (fn [_] (merge default-context (select-context context)))))
