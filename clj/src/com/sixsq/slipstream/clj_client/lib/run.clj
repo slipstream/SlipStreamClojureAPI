@@ -72,16 +72,18 @@
 
 ;; Should be called to provide service URL and credentials.
 (defn set-run-context!
-  "The following fields are expected.
+  "The following map is expected
 
+  ```
   {:serviceurl \"https://nuv.la\"
 
    :cookie       nil
 
    :username     nil
    :password     nil}
+  ```
 
-  If :cookie is provided it's prefered over the :username/:password.
+  If `:cookie` is provided it's preferred over the `:username`/`:password`.
   "
   [context]
   (alter-var-root #'*context* (fn [_] (merge default-context (select-context context)))))

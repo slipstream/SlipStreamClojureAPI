@@ -38,22 +38,22 @@
   In the case of `slipstream.context`, the following structure and parameters
   are assumed
 
-   ```
-   [contextualization]
+  ```
+  [contextualization]
 
-   # SlipStream endpoint.
-   serviceurl = https://nuv.la
+  # SlipStream endpoint.
+  serviceurl = https://nuv.la
 
-   # SlipStream user credentials
-   username = foo
-   password = bar
+  # SlipStream user credentials
+  username = foo
+  password = bar
 
-   # prefered over username and password
-   cookie = key=val; Path:/
+  # preferred over username and password
+  cookie = key=val; Path:/
 
-   # run UUID
-   diid = 123
-   ```
+  # run UUID
+  diid = 123
+  ```
 
   This file is usually available on SlipStream managed VMs and is used by
   orchestrator and node executors.
@@ -85,6 +85,7 @@
 
   Implicit bootstrap -- `slipstream.context` with the correct parameters
   should be in the search path.
+
   ```
   (require '[com.sixsq.slipstream.clj-client.run-wrap :as r])
 
@@ -92,6 +93,7 @@
   ```
 
   Manually define configuration and contextualize the namespace.
+
   ```
   (require '[com.sixsq.slipstream.clj-client.run-wrap :as r])
 

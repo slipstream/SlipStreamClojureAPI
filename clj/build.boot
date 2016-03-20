@@ -1,15 +1,5 @@
 (def project-version "3.1-SNAPSHOT")
 
-(task-options!
- pom {:project 'com.sixsq.slipstream/SlipStreamClientAPI
-      :version project-version}
- checkout {:dependencies [['sixsq/default-deps project-version]]}
- uber {:exclude-scope #{"provided"}
-       :exclude #{#".*/pom.xml"
-                  #"META-INF/.*\.SF"
-                  #"META-INF/.*\.DSA"
-                  #"META-INF/.*\.RSA"}})
-
 (set-env!
  :source-paths #{"resources" "test"}
  :resource-paths #{"src"}
@@ -29,6 +19,8 @@
    [boot-environ "1.0.2" :scope "test"]
    [sixsq/boot-deputil "0.1.0" :scope "test"]
    [seancorfield/boot-expectations "1.0.5" :scope "test"]
+
+   [funcool/boot-codeina "0.1.0-SNAPSHOT" :scope "test"]
    ])
 
 (require
@@ -36,7 +28,24 @@
  '[environ.boot :refer [environ]]
  '[sixsq.boot-deputil :refer [set-deps!]]
  '[tolitius.boot-check :refer [with-yagni with-eastwood with-kibit with-bikeshed]]
- '[seancorfield.boot-expectations :refer [expectations]])
+ '[seancorfield.boot-expectations :refer [expectations]]
+ '[funcool.boot-codeina :refer :all]
+ )
+
+(task-options!
+ pom {:project 'com.sixsq.slipstream/SlipStreamClientAPI
+      :version project-version}
+ checkout {:dependencies [['sixsq/default-deps project-version]]}
+ uber {:exclude-scope #{"provided"}
+       :exclude #{#".*/pom.xml"
+                  #"META-INF/.*\.SF"
+                  #"META-INF/.*\.DSA"
+                  #"META-INF/.*\.RSA"}}
+ apidoc {:version project-version
+         :title "SlipStream Client API"
+         :sources #{"src"}
+         :description "SlipStream Client library to interact with SlipStream via REST API."
+         :target "target/doc/api"})
 
 (deftask build
   "build full project"
