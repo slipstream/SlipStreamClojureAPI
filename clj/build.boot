@@ -12,18 +12,15 @@
  :dependencies
  '[
    [org.clojure/clojure "1.8.0"]
-   [environ "1.0.2"]
 
    [adzerk/boot-test "1.1.0" :scope "test"]
    [tolitius/boot-check "0.1.1" :scope "test"]
-   [boot-environ "1.0.2" :scope "test"]
    [sixsq/boot-deputil "0.1.0" :scope "test"]
    [funcool/boot-codeina "0.1.0-SNAPSHOT" :scope "test"]
    ])
 
 (require
  '[adzerk.boot-test :refer [test]]
- '[environ.boot :refer [environ]]
  '[sixsq.boot-deputil :refer [set-deps!]]
  '[tolitius.boot-check :refer [with-yagni with-eastwood with-kibit with-bikeshed]]
  '[funcool.boot-codeina :refer :all]
@@ -49,9 +46,6 @@
   []
   (comp
    (pom)
-   (environ :env {:clj-env     "test"
-                  :config-path "config-hsqldb-mem.edn"
-                  :passphrase  "sl1pstre8m"})
    (test)
    (aot :all true)
    (jar)
