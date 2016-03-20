@@ -1,15 +1,5 @@
 (def project-version "3.1-SNAPSHOT")
 
-(task-options!
- pom {:project 'com.sixsq.slipstream/SlipStreamClientAPI
-      :version project-version}
- checkout {:dependencies [['sixsq/default-deps project-version]]}
- uber {:exclude-scope #{"provided"}
-       :exclude #{#".*/pom.xml"
-                  #"META-INF/.*\.SF"
-                  #"META-INF/.*\.DSA"
-                  #"META-INF/.*\.RSA"}})
-
 (set-env!
  :source-paths #{"resources" "test"}
  :resource-paths #{"src"}
@@ -43,10 +33,19 @@
  )
 
 (task-options!
-  apidoc {:version project-version
-          :title "SlipStream Client API"
-          :sources #{"src"}
-          :description "SlipStream Client library to interact with SlipStream via REST API."})
+ pom {:project 'com.sixsq.slipstream/SlipStreamClientAPI
+      :version project-version}
+ checkout {:dependencies [['sixsq/default-deps project-version]]}
+ uber {:exclude-scope #{"provided"}
+       :exclude #{#".*/pom.xml"
+                  #"META-INF/.*\.SF"
+                  #"META-INF/.*\.DSA"
+                  #"META-INF/.*\.RSA"}}
+ apidoc {:version project-version
+         :title "SlipStream Client API"
+         :sources #{"src"}
+         :description "SlipStream Client library to interact with SlipStream via REST API."
+         :target "target/doc/api"})
 
 (deftask build
   "build full project"
