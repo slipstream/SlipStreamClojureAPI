@@ -1,9 +1,10 @@
 (ns com.sixsq.slipstream.clj-client.lib.http-impl
-  "Simple wrapper around an HTTP library to produce consistent CRUD interface.
+  "Simple synchronous wrapper around an HTTP library to produce consistent
+  CRUD interface.
 
   The CRUD actions accept and produce `Ring`-style requests/responses.
 
-  Examples.
+  Examples of the request/response.
 
   GET using Basic authn
   req := {:accept :xml
@@ -24,7 +25,7 @@
   ```
 
   On HTTP error, thows ExceptionInfo with `:data` containing the full response.
-  The full response can be obtained with `(ex-data ex)`
+  The response can be obtained with `(ex-data ex)`
 
   ```clojure
   (let [{:keys [status body]}
@@ -36,12 +37,21 @@
   (:refer-clojure :exclude [get])
   (:require [kvlt.core :as kvlt]))
 
-(defn- request!
+(defn- re-throw-ex-info
+  [e]
+  (throw (let [data (ex-data (.getCause e))]
+           (ex-info (format "HTTP Error: %s" (:status data)) data))))
+
+(defn request!
+  "Synchronous request.  Throws `ExecutionInfo` on HTTP errors
+   with `:data` as Ring-style response.
+   To extract the response on error, catch `ExecutionInfo` and call
+   `(ex-data e)`."
   [meth url req]
   (try
-    (-> (merge {:method (keyword meth) :url url} req)
-        kvlt/request!
-        deref)))
+    @(kvlt/request!
+      (merge {:method (keyword meth) :url url} req))
+    (catch java.util.concurrent.ExecutionException e (re-throw-ex-info e))))
 
 (defn get
   [url & [req]]

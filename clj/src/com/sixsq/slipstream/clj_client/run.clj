@@ -193,6 +193,11 @@
   []
   (r/get-run-info (run-uuid)))
 
+(defn action-success?
+  "Given the 'result' returned by an action, check if it was successfull."
+  [result]
+  (r/action-success? result))
+
 
 ;; Actions on the run.
 (def wait-timeout-default 600)

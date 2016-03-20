@@ -115,8 +115,8 @@ new-VM-size    - VM size for the diagonal scaling test. Default: Tiny
 (action "Artificially abort the run and then recover from the abort.")
 (try
   (r/get-param "foo" 0 "bar")
-  (catch java.util.concurrent.ExecutionException e (let [status (:status (ex-data (.getCause e)))]
-                                                     (if-not (= 404 status) (error "Unexpected HTTP error status:" status))))
+  (catch clojure.lang.ExceptionInfo e (let [status (:status (ex-data e))]
+                                        (if-not (= 404 status) (error "Unexpected HTTP error status:" status))))
   (catch Exception e (error "Unexpected error:" (ex-data e))))
 (check-cannot-scale)
 (if-not (true? (r/aborted?))
@@ -141,8 +141,8 @@ new-VM-size    - VM size for the diagonal scaling test. Default: Tiny
 
 
 (action "Scale down by IDs. Manual wait.")
-(if-not (nil? (r/scale-down comp-name '(3 1)))
-  (error "Scale down should have returned nil."))
+(if-not (clojure.string/blank? (r/scale-down comp-name '(3 1)))
+  (error "Scale down should have returned empty string."))
 (wait-ready-or-error)
 (check-multiplicity 1)
 (check-instance-ids '(2))
@@ -153,7 +153,7 @@ new-VM-size    - VM size for the diagonal scaling test. Default: Tiny
 (def cloudservice (r/get-param comp-name 1 "cloudservice"))
 (def key-instance-type (str cloudservice ".instance.type"))
 (let [res (r/action-scale-up comp-name 2
-                             :rtps {key-instance-type test-instance-type}
+                             :params {key-instance-type test-instance-type}
                              :timeout 1200)]
   (if-not (and (r/action-success? res) (= (inst-names-range 4 6) (:reason res)))
     (error "Diagonal scale up failed:" res)))
