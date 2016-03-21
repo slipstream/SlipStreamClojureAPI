@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>SlipStreamClientAPI-jar</artifactId>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
   <name>SlipStreamClientAPI - JAR</name>
   <description>SlipStream Clojure Client API (JAR)</description>
 
@@ -20,112 +20,79 @@
     </license>
   </licenses>
 
+  <dependencies>
+    <dependency>
+      <groupId>sixsq</groupId>
+      <artifactId>default-deps</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+  <profiles>
+    <profile>
+      <id>run-tests</id>
+      <activation>
+        <property>
+          <name>!skipTests</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>boot-test</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <configuration>
+                  <executable>boot</executable>
+                  <arguments>
+                    <argument>mvn-test</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
   <build>
-
-    <sourceDirectory>src</sourceDirectory>
-    <testSourceDirectory>test</testSourceDirectory>
-    <resources>
-      <resource>
-        <directory>src/resources</directory>
-      </resource>
-      <resource>
-        <directory>test/resources</directory>
-      </resource>
-    </resources>
-    <testResources>
-      <testResource>
-        <directory>src/resources</directory>
-      </testResource>
-      <testResource>
-        <directory>test/resources</directory>
-      </testResource>
-    </testResources>
-    <directory>target</directory>
-    <outputDirectory>target/classes</outputDirectory>
-
     <plugins>
-
-      <plugin>
-        <artifactId>maven-clean-plugin</artifactId>
-        <configuration>
-          <filesets>
-            <fileset>
-              <directory>.</directory>
-              <includes>
-                <include>**/*.lein-env</include>
-              </includes>
-            </fileset>
-          </filesets>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>com.theoryinpractise</groupId>
-        <artifactId>clojure-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>compile</id>
-            <phase>compile</phase>
-            <goals>
-              <goal>compile</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>test</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-          </execution>
-        </executions>
-
-        <configuration>
-          <clojureOptions />
-          <sourceDirectories>
-            <sourceDirectory>src</sourceDirectory>
-          </sourceDirectories>
-          <testSourceDirectories>
-            <testSourceDirectory>test</testSourceDirectory>
-          </testSourceDirectories>
-        </configuration>
-      </plugin>
-
-      <plugin>
+     <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-        <version>1.4.0</version>
         <executions>
           <execution>
-            <phase>compile</phase>
+            <id>boot-build</id>
+            <phase>install</phase>
             <goals>
               <goal>exec</goal>
             </goals>
+            <configuration>
+              <executable>boot</executable>
+              <arguments>
+                <argument>mvn-build</argument>
+              </arguments>
+            </configuration>
           </execution>
-        </executions>
-        <configuration>
-          <executable>rm</executable>
-          <arguments>
-            <argument>-f</argument>
-            <argument>target/classes/slipstream.context</argument>
-          </arguments>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-        </configuration>
-        <executions>
           <execution>
-            <id>make-jar-with-dependencies</id>
-            <phase>package</phase>
+            <id>boot-deploy</id>
+            <phase>deploy</phase>
             <goals>
-              <goal>single</goal>
+              <goal>exec</goal>
             </goals>
+            <configuration>
+              <executable>boot</executable>
+              <arguments>
+                <argument>mvn-deploy</argument>
+              </arguments>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -155,70 +122,4 @@
       </releases>
     </repository>
   </repositories>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.clojure</groupId>
-      <artifactId>clojure</artifactId>
-      <version>1.8.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.clojure</groupId>
-      <artifactId>tools.logging</artifactId>
-      <version>0.3.0</version>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.17</version>
-      <exclusions>
-        <exclusion>
-          <groupId>javax.mail</groupId>
-          <artifactId>mail</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>javax.jms</groupId>
-          <artifactId>jms</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.sun.jdmk</groupId>
-          <artifactId>jmxtools</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.sun.jmx</groupId>
-          <artifactId>jmxri</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>io.nervous</groupId>
-      <artifactId>kvlt</artifactId>
-      <version>0.1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>aleph</groupId>
-      <artifactId>aleph</artifactId>
-      <version>0.4.1-beta5</version>
-    </dependency>
-    <dependency>
-      <groupId>clojure-ini</groupId>
-      <artifactId>clojure-ini</artifactId>
-      <version>0.0.2</version>
-    </dependency>
-    <dependency>
-      <groupId>superstring</groupId>
-      <artifactId>superstring</artifactId>
-      <version>2.1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>clj-json</groupId>
-      <artifactId>clj-json</artifactId>
-      <version>0.5.3</version>
-    </dependency>
-    <dependency>
-      <groupId>org.clojure</groupId>
-      <artifactId>data.xml</artifactId>
-      <version>0.0.8</version>
-    </dependency>
-  </dependencies>
 </project>
