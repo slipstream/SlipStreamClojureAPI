@@ -33,7 +33,7 @@
   # Usage and examples
 
   ```
-  (require '[com.sixsq.slipstream.clj-client.run :as r])
+  (require '[com.sixsq.slipstream.clj-client.lib.run :as r])
 
   (def context {:username \"foo\"
                 :password \"bar\"})
