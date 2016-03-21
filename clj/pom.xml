@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>SlipStreamClientAPI-jar</artifactId>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
   <name>SlipStreamClientAPI - JAR</name>
   <description>SlipStream Clojure Client API (JAR)</description>
 
@@ -78,6 +78,19 @@
               <executable>boot</executable>
               <arguments>
                 <argument>mvn-build</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>boot-deploy</id>
+            <phase>deploy</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>boot</executable>
+              <arguments>
+                <argument>mvn-deploy</argument>
               </arguments>
             </configuration>
           </execution>
