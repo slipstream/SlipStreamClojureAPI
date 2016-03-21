@@ -1,4 +1,4 @@
-#!/usr/bin/env lein exec -p
+#!/usr/bin/env boot
 "
 Prerequisites.
 
@@ -19,6 +19,33 @@ You can provide two optional parameters
 component-name - name of the application component. Default: testvm
 new-VM-size    - VM size for the diagonal scaling test. Default: Tiny
 "
+
+;;
+;; Boot related scafolding.
+(def artifact-version "3.1-SNAPSHOT")
+(def repo-type (if (re-find #"SNAPSHOT" artifact-version) "snapshots" "releases"))
+(def edition "community")
+(def nexus-url "http://nexus.sixsq.com/content/repositories/")
+
+(set-env!
+  :source-paths #{"src"}
+  :resource-paths #{"resources"}
+
+  :repositories #(reduce conj %
+                         [["boot-releases" {:url (str nexus-url "releases-boot")}]
+                          ["sixsq" {:url (str nexus-url repo-type "-" edition)}]])
+
+  :dependencies
+  '[[sixsq/boot-deputil "0.1.0" :scope "test"]])
+
+(require
+  '[sixsq.boot-deputil :refer [set-deps!]])
+
+(boot (comp
+        (checkout :dependencies [['sixsq/default-deps artifact-version]])
+        (set-deps!)))
+;; Boot end.
+
 
 ; Name of the deployed component to be used for scaling.
 (def comp-name (if (> (count *command-line-args*) 1)
