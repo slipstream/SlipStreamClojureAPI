@@ -132,8 +132,7 @@
   [run-uuid]
   (try
     (ri/get (ri/run-abort-uri run-uuid) *context*)
-    (catch clojure.lang.ExceptionInfo e (ri/parse-ex-412 e))
-    (catch java.util.concurrent.ExecutionException e (ri/parse-ex-412 (.getCause e)))))
+    (catch clojure.lang.ExceptionInfo e (ri/parse-ex-412 e))))
 
 (defn get-multiplicity
   "Get multiplicity of application component 'comp'."
@@ -146,8 +145,7 @@
   (remove #(zero? (count %))
           (-> (try
                 (get-param run-uuid comp nil "ids")
-                (catch clojure.lang.ExceptionInfo e (ri/parse-ex-412 e))
-                (catch java.util.concurrent.ExecutionException e (ri/parse-ex-412 (.getCause e))))
+                (catch clojure.lang.ExceptionInfo e (ri/parse-ex-412 e)))
               (u/split #",")
               (sort))))
 
@@ -179,7 +177,6 @@
 
 (defn get-run-info
   [run-uuid]
-  (println *context*)
   {:url       (ri/run-url (:serviceurl *context*) run-uuid)
    :state     (get-state run-uuid)
    :scalable  (scalable? run-uuid)
