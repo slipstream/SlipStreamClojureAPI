@@ -121,7 +121,6 @@ new-VM-size    - VM size for the diagonal scaling test. Default: Tiny
   (step "Live test of the SlipStream clojure API library via scaling SlipStream run.")
   (step (format "Component to scale: '%s'" *comp-name*))
   (step (format "VM instance type for diagonal scaling: '%s'" *test-instance-type*))
-  (System/exit 0)
 
   (action "Run:")
   (print-run)
