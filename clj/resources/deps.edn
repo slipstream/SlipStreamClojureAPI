@@ -11,4 +11,5 @@
 [clj-json]
 [org.clojure/data.xml]
 [io.nervous/kvlt]
+[org.clojure/core.async]
 ]

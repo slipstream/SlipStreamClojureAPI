@@ -4,7 +4,7 @@
     [com.sixsq.slipstream.clj-client.lib.utils :as u]
     [com.sixsq.slipstream.clj-client.lib.http-impl :as http]
     [superstring.core :as s]
-    [clj-json.core :as json]))
+    #?(:clj [clj-json.core :as json])))
 
 (def ^:const global-ns "ss")
 
@@ -110,13 +110,14 @@
 (defn- reason-from-error
   [error]
   (let [e (:error error)]
-    (format "%s. %s. %s" (:code e) (:reason e) (:detail e))))
+    (str (:code e) ". " (:reason e) ". " (:detail e))))
 
 (defn reason-from-exc
   [ex]
   (-> ex
       :body
-      json/parse-string
+      #?(:clj  (json/parse-string)
+         :cljs (JSON.parse))
       u/keywordize-keys
       reason-from-error))
 
@@ -127,7 +128,7 @@
     (cond
       cookie {:headers {:cookie cookie}}
       (and username password) {:basic-auth [username password]}
-      :else (throw (Exception. "Cookie or user credentials are required.")))))
+      :else (throw (ex-info "Cookie or user credentials are required." {})))))
 
 (defn parse-ex-412
   [ex]

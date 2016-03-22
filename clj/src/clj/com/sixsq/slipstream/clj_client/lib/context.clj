@@ -1,6 +1,7 @@
 (ns com.sixsq.slipstream.clj-client.lib.context
   (:require
     [com.sixsq.slipstream.clj-client.lib.utils :as u]
+    [com.sixsq.slipstream.clj-client.lib.utils.context :as cu]
     [clojure.java.io :as io]
     [clojure.tools.logging :as log]
     [clojure-ini.core :refer [read-ini]]))
@@ -10,8 +11,8 @@
 
 (def ^:private ^:const ss-client-home
   (->> ["opt" "slipstream" "client"]
-       u/path-join
-       u/force-absolute))
+       cu/path-join
+       cu/force-absolute))
 
 ;;
 ;; Configuration.
@@ -21,8 +22,8 @@
 (def ^:private ^:const context-file-locs
   [(System/getProperty "user.dir")
    (System/getProperty "user.home")
-   (u/path-join [ss-client-home "bin"])
-   (u/path-join [ss-client-home "sbin"])
+   (cu/path-join [ss-client-home "bin"])
+   (cu/path-join [ss-client-home "sbin"])
    (System/getProperty "java.io.tmpdir")])
 
 (def ^:private resource-context
@@ -31,7 +32,7 @@
 (defn- context-file-paths
   []
   (->> context-file-locs
-       (map (partial u/path-append context-fn))
+       (map (partial cu/path-append context-fn))
        (concat [resource-context])
        (remove nil?)))
 

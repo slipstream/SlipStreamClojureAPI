@@ -53,6 +53,7 @@
   "
   (:require
     [com.sixsq.slipstream.clj-client.lib.utils :as u]
+    [com.sixsq.slipstream.clj-client.lib.utils.wait :as wu]
     [com.sixsq.slipstream.clj-client.lib.run-impl :as ri]
     [superstring.core :as s]
     [clojure.tools.logging :as log]
@@ -235,7 +236,7 @@
   [run-uuid state & [& {:keys [timeout interval]
                         :or   {timeout 60 interval 5}}]]
   (log/debug "Waiting for" state "state for" timeout "sec.")
-  (u/wait-for #(= state (get-state run-uuid)) timeout interval))
+  (wu/wait-for #(= state (get-state run-uuid)) timeout interval))
 
 (defn wait-ready
   "Waits for Ready state on the run. Returns true on success."

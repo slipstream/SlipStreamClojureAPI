@@ -6,7 +6,7 @@
 
 (set-env!
   :source-paths #{"resources" "test"}
-  :resource-paths #{"src"}
+  :resource-paths #{"src/clj" "src/cljc" "src/cljs" "dev-resources"}
 
   :repositories
   #(reduce conj %
@@ -14,13 +14,20 @@
 
   :dependencies
   '[[org.clojure/clojure "1.8.0"]
+    [org.clojure/clojurescript "1.8.34"]
     [adzerk/boot-test "1.1.0" :scope "test"]
+    [adzerk/boot-cljs "1.7.228-1" :scope "test"]
+    [adzerk/boot-cljs-repl "0.3.0" :scope "test"]
+    [adzerk/boot-reload "0.4.5" :scope "test"]
     [tolitius/boot-check "0.1.1" :scope "test"]
     [sixsq/boot-deputil "0.2.1" :scope "test"]
     [funcool/boot-codeina "0.1.0-SNAPSHOT" :scope "test"]])
 
 (require
   '[adzerk.boot-test :refer [test]]
+  '[adzerk.boot-cljs :refer [cljs]]
+  '[adzerk.boot-cljs-repl :refer [cljs-repl]]
+  '[adzerk.boot-reload :refer [reload]]
   '[sixsq.boot-deputil :refer [set-deps!]]
   '[tolitius.boot-check :refer [with-yagni with-eastwood with-kibit with-bikeshed]]
   '[funcool.boot-codeina :refer [apidoc]])
@@ -79,6 +86,11 @@
            (install)
            (target)
            (push :repo "sixsq")))
+
+(deftask build-cljs
+  "build clojurescript"
+  []
+  (cljs :optimizations :advanced))
 
 (deftask setup-deps
          "setup dependencies for project"
