@@ -1,5 +1,0 @@
-[contextualization]
-diid = 123
-cookie = foo
-serviceurl = http://example.com
-node_instance_name = instance-name
