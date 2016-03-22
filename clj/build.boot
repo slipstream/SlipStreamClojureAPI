@@ -10,14 +10,13 @@
 
   :repositories
   #(reduce conj %
-           [["boot-releases" {:url (str nexus-url "releases-boot")}]
-            ["sixsq" {:url (str nexus-url repo-type "-" edition)}]])
+           [["sixsq" {:url (str nexus-url repo-type "-" edition)}]])
 
   :dependencies
   '[[org.clojure/clojure "1.8.0"]
     [adzerk/boot-test "1.1.0" :scope "test"]
     [tolitius/boot-check "0.1.1" :scope "test"]
-    [sixsq/boot-deputil "0.1.0" :scope "test"]
+    [sixsq/boot-deputil "0.2.1" :scope "test"]
     [funcool/boot-codeina "0.1.0-SNAPSHOT" :scope "test"]])
 
 (require
