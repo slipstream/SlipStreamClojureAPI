@@ -5,7 +5,7 @@
 (def nexus-url "http://nexus.sixsq.com/content/repositories/")
 
 (set-env!
-  :source-paths #{"resources" "test"}
+  :source-paths #{"resources" "test/clj" "test/cljc" "test/cljs"}
   :resource-paths #{"src/clj" "src/cljc" "src/cljs" "dev-resources"}
 
   :repositories
@@ -21,6 +21,7 @@
     [adzerk/boot-reload "0.4.5" :scope "test"]
     [tolitius/boot-check "0.1.1" :scope "test"]
     [sixsq/boot-deputil "0.2.1" :scope "test"]
+    [crisptrutski/boot-cljs-test "0.2.2-SNAPSHOT" :scope "test"]
     [funcool/boot-codeina "0.1.0-SNAPSHOT" :scope "test"]])
 
 (require
@@ -30,6 +31,7 @@
   '[adzerk.boot-reload :refer [reload]]
   '[sixsq.boot-deputil :refer [set-deps!]]
   '[tolitius.boot-check :refer [with-yagni with-eastwood with-kibit with-bikeshed]]
+  '[crisptrutski.boot-cljs-test :refer [test-cljs]]
   '[funcool.boot-codeina :refer [apidoc]])
 
 (task-options!
@@ -45,9 +47,10 @@
           :title       "SlipStream Client API"
           :sources     #{"src"}
           :description "Client library to interact with SlipStream via REST API."
-          :target      "target/doc/api"})
+          :target      "target/doc/api"}
+  test-cljs {:js-env :phantom})
 
-(deftask build
+(deftask build-clj
          "build full project"
          []
          (comp
@@ -57,6 +60,16 @@
            (jar)
            (install)
            (target)))
+
+(deftask build-cljs
+  "build clojurescript"
+  []
+  (comp
+   (test-cljs)
+   (cljs :optimizations :advanced)))
+
+(deftask build []
+  (comp (build-cljs) (build-clj)))
 
 (deftask mvn-test
          "run all tests of project"
@@ -86,11 +99,6 @@
            (install)
            (target)
            (push :repo "sixsq")))
-
-(deftask build-cljs
-  "build clojurescript"
-  []
-  (cljs :optimizations :advanced))
 
 (deftask setup-deps
          "setup dependencies for project"

@@ -90,7 +90,7 @@
 
 (defn extract-ids
   [names]
-  (->> (if (= java.lang.String (type names)) (s/split names #",") names)
+  (->> (if (string? names) (s/split names #",") names)
        (map extract-id)
        (remove nil?)))
 
