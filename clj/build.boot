@@ -48,7 +48,8 @@
           :sources     #{"src"}
           :description "Client library to interact with SlipStream via REST API."
           :target      "target/doc/api"}
-  test-cljs {:js-env :phantom})
+  test-cljs {:js-env :phantom
+             :exit?  true})
 
 (deftask build-clj
          "build full project"
