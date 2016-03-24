@@ -94,11 +94,7 @@
          "build full project through maven"
          []
          (comp
-           (pom)
-           (uber)
-           (jar)
-           (install)
-           (target)
+           (mvn-build)
            (push :repo "sixsq")))
 
 (deftask setup-deps
