@@ -66,11 +66,11 @@
   "build clojurescript"
   []
   (comp
-   (test-cljs)
-   (cljs :optimizations :advanced)))
+   (cljs :optimizations :advanced)
+   (test-cljs)))
 
 (deftask build []
-  (comp (build-cljs) (build-clj)))
+  (comp (build-clj) (build-cljs)))
 
 (deftask mvn-test
          "run all tests of project"
