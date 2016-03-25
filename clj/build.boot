@@ -5,8 +5,8 @@
 (def nexus-url "http://nexus.sixsq.com/content/repositories/")
 
 (set-env!
-  :source-paths #{"resources" "test/clj" "test/cljc" "test/cljs"}
-  :resource-paths #{"src/clj" "src/cljc" "src/cljs" "dev-resources"}
+  :source-paths #{"resources" "dev-resources" "test/clj" "test/cljc" "test/cljs"}
+  :resource-paths #{"src/clj" "src/cljc" "src/cljs"}
 
   :repositories
   #(reduce conj %
