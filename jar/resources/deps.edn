@@ -1,0 +1,16 @@
+[
+[org.clojure/clojure :scope "provided"]
+[org.clojure/tools.logging]
+[log4j
+ :exclusions [javax.mail/mail
+              javax.jms/jms
+              com.sun.jdmk/jmxtools
+              com.sun.jmx/jmxri]]
+[clojure-ini]
+[superstring]
+[clj-json]
+[org.clojure/data.xml]
+[io.nervous/kvlt
+ :exclusions [org.clojure/clojurescript]]
+[org.clojure/core.async]
+]
