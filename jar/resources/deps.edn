@@ -1,5 +1,5 @@
 [
-[org.clojure/clojure]
+[org.clojure/clojure :scope "provided"]
 [org.clojure/tools.logging]
 [log4j
  :exclusions [javax.mail/mail
@@ -10,6 +10,7 @@
 [superstring]
 [clj-json]
 [org.clojure/data.xml]
-[io.nervous/kvlt]
+[io.nervous/kvlt
+ :exclusions [org.clojure/clojurescript]]
 [org.clojure/core.async]
 ]

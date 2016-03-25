@@ -19,8 +19,8 @@
   #(reduce conj % [["sixsq" {:url (sixsq-repo (get-env :version) (get-env :edition))}]])
 
   :dependencies
-  '[[org.clojure/clojure "1.8.0"]
-    [org.clojure/clojurescript "1.8.34"]
+  '[[org.clojure/clojure "1.8.0" :scope "provided"]
+    [org.clojure/clojurescript "1.8.34" :scope "provided"]
     [adzerk/boot-test "1.1.0" :scope "test"]
     [adzerk/boot-cljs "1.7.228-1" :scope "test"]
     [adzerk/boot-cljs-repl "0.3.0" :scope "test"]
@@ -44,11 +44,6 @@
   pom {:project (get-env :project)
        :version (get-env :version)}
   checkout {:dependencies [['sixsq/default-deps (get-env :version)]]}
-  uber {:exclude-scope #{"provided"}
-        :exclude       #{#".*/pom.xml"
-                         #"META-INF/.*\.SF"
-                         #"META-INF/.*\.DSA"
-                         #"META-INF/.*\.RSA"}}
   apidoc {:version     (get-env :version)
           :title       "SlipStream Client API"
           :sources     #{"src"}
@@ -79,7 +74,6 @@
 (deftask build []
          (comp
            (pom)
-           (uber)
            (jar)))
 
 (deftask mvn-test
