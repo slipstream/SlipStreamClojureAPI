@@ -106,11 +106,11 @@
         (let [cep (t/cloud-entry-point token endpoint)]
           (is (map? cep))
           (is (:baseURI cep))
-          (is (:events cep))                                ;; should be :Events
+          (is (:events cep))
 
           ;; fix cloud entry point and search for events
           (let [cep (assoc cep :baseURI base-uri)           ;; workaround server bug
-                events (t/search token cep "events")]       ;; should be "Events"
+                events (t/search token cep "events")]
             (is (map? events))
             (is (:count events))
 
@@ -156,11 +156,11 @@
         (let [cep (t/cloud-entry-point token endpoint)]
           (is (map? cep))
           (is (:baseURI cep))
-          (is (:attribute cep))                             ;; should be :Attributes
+          (is (:attribute cep))                             ;; should be :attributes
 
           ;; fix cloud entry point and search for events
           (let [cep (assoc cep :baseURI base-uri)           ;; workaround server bug
-                attrs (t/search token cep "attribute")]     ;; should be "Attributes"
+                attrs (t/search token cep "attribute")]     ;; should be "attributes"
             (is (map? attrs))
             (is (:count attrs))
 
