@@ -5,7 +5,7 @@
    these tests (typically from the REPL), do the following:
 
    ```clojure
-   (in-ns 'com.sixsq.slipstream.clj-client.cimi-lifecycle-test)
+   (in-ns 'sixsq.slipstream.client.api.cimi-lifecycle-test)
    (set-server-info \"my-username\" \"my-password\" \"my-server-root\")
    (run-tests)
    ```
