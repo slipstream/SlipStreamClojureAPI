@@ -1,3 +1,5 @@
+(def +version+ "3.1-SNAPSHOT")
+
 (defn sixsq-repo [version edition]
   (let [nexus-url "http://nexus.sixsq.com/content/repositories/"
         repo-type (if (re-find #"SNAPSHOT" version)
