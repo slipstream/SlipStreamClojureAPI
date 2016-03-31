@@ -20,22 +20,34 @@
     </license>
   </licenses>
 
-  <dependencies>
-    <dependency>
-      <groupId>sixsq</groupId>
-      <artifactId>default-deps</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.sixsq.slipstream</groupId>
-      <artifactId>SlipStreamClientAPI-jar</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-  </dependencies>
-
   <profiles>
     <profile>
+      <id>deps</id>
+      <activation>
+        <property>
+          <name>!updateBootVersion</name>
+        </property>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>sixsq</groupId>
+          <artifactId>default-deps</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>com.sixsq.slipstream</groupId>
+          <artifactId>SlipStreamClientAPI-jar</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
       <id>update-boot-version</id>
+      <activation>
+        <property>
+          <name>updateBootVersion</name>
+        </property>
+      </activation>
       <build>
         <plugins>
           <plugin>
