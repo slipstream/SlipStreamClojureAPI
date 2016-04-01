@@ -21,7 +21,7 @@
 
  :dependencies
  '[[org.clojure/clojure "1.8.0" :scope "provided"]
-   [sixsq/boot-deputil "0.2.1" :scope "test"]])
+   [sixsq/boot-deputil "0.2.2" :scope "test"]])
 
 (require
  '[sixsq.boot-deputil :refer [set-deps!]])

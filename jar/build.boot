@@ -28,7 +28,7 @@
     [adzerk/boot-cljs-repl "0.3.0" :scope "test"]
     [adzerk/boot-reload "0.4.5" :scope "test"]
     [tolitius/boot-check "0.1.1" :scope "test"]
-    [sixsq/boot-deputil "0.2.1" :scope "test"]
+    [sixsq/boot-deputil "0.2.2" :scope "test"]
     [crisptrutski/boot-cljs-test "0.2.2-SNAPSHOT" :scope "test"]
     [funcool/boot-codeina "0.1.0-SNAPSHOT" :scope "test"]])
 
