@@ -21,8 +21,9 @@
   (let [k (s/trim (name k))]
     (cond
       (s/blank? k) m
-      (s/includes? k ":") (assoc m (apply format "parameter--node--%s--%s" (s/split k #":")) (str v))
-      :else (assoc m (format "parameter--%s" k) (str v)))))
+      (s/includes? k ":") (let [[comp param] (s/split k #":")]
+                            (assoc m (str "parameter--node--" comp "--" param) (str v)))
+      :else (assoc m (str "parameter--" k) (str v)))))
 
 (defn parse-params
   [params]
