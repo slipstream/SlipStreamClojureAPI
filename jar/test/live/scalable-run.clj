@@ -16,6 +16,10 @@ You can provide two optional positional parameters
 
 ./test/live/scalable-run.clj [component-name] [new-VM-size]
 
+username       - name of the user
+password       - password of the user
+app-uri        - uri of the application ot provision
+endpoint       - SlipStream endpoint.  Default: https://nuv.la
 component-name - name of the application component. Default: testvm
 new-VM-size    - VM size for the diagonal scaling test. Default: Tiny
 "
@@ -46,6 +50,12 @@ new-VM-size    - VM size for the diagonal scaling test. Default: Tiny
         (set-deps!)))
 ;; Boot end.
 
+
+
+(def ^:dynamic *username* nil)
+(def ^:dynamic *password* nil)
+(def ^:dynamic *app-uri* nil)
+(def ^:dynamic *serviceurl* "https://nuv.la")
 
 ; Name of the deployed component to be used for scaling.
 (def ^:dynamic *comp-name* "testvm")
@@ -226,7 +236,19 @@ new-VM-size    - VM size for the diagonal scaling test. Default: Tiny
   (action "Test finished successfully."))
 
 ;;
+(def usage
+  "Usage: ./test/live/scalable-run.clj user pass app-uri [endpoint] [component-name] [new-VM-size]
+  user           - name of the user (mandatory)
+  pass           - password of the user (mandatory)
+  app-uri        - uri of the application to provision (mandatory)
+  endpoint       - SlipStream endpoint. Default: https://nuv.la
+  component-name - name of the application component. Default: testvm
+  new-VM-size    - VM size for the diagonal scaling test. Default: Tiny
+  ")
+
 (defn -main [& args]
+  (if (< (count args) 2)
+    (error usage))
   (if (> (count args) 0)
     (alter-var-root #'*comp-name* (fn [_] (nth args 0))))
   (if (> (count args) 1)

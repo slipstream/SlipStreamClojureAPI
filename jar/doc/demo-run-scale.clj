@@ -14,8 +14,23 @@ For example, go to clj/ directory of the project and start REPL with
 Now you should be ready to proceed.
 "
 
-; Loading the namespace should find and read ~/slipstream.context
-(require '[sixsq.slipstream.client.api.run :as r] :reload)
+(def username "konstan")
+(def password "a1s2d3f4g5")
+(def serviceurl "https://nuv.la")
+(def app "konstan/scale/scale-test-dpl")
+
+(require '[sixsq.slipstream.client.api.authn :as a])
+(require '[sixsq.slipstream.client.api.lib.app :as p])
+(require '[sixsq.slipstream.client.api.run :as r])
+
+(a/login-global username password)
+
+(def run-uuid
+  (last
+    (clojure.string/split
+      (p/deploy app) #"/")))
+
+(r/contextualize! {:diid run-uuid})
 
 ; Wait in case the deployment is still provisioning.
 (r/wait-ready 1200)
