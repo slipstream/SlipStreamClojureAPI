@@ -1,9 +1,10 @@
 (ns sixsq.slipstream.client.api.run-test
   (:require [clojure.test :refer :all]
+            [sixsq.slipstream.client.api.authn :as a]
             [sixsq.slipstream.client.api.lib.run :refer :all]))
 
 (def run-uuid "123")
-(set-run-context! {:username "user" :password "pass"})
+(a/set-run-context! {:username "user" :password "pass"})
 
 (deftest test-get-comp-ids
   (with-redefs-fn {#'sixsq.slipstream.client.api.lib.run/get-param (fn [_ _ _ _] "")}

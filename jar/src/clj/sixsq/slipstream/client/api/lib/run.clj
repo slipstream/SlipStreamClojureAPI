@@ -1,6 +1,6 @@
 (ns sixsq.slipstream.client.api.lib.run
   "
-  # Purpose
+  ## Purpose
 
   The `run` namespace contains functions for interacting with SlipStream runs.
 
@@ -14,7 +14,7 @@
 
   Timeouts and intervals are in seconds.
 
-  # SlipStraem run termininology
+  ## SlipStream run termininology
 
   There are three types of parameters on a run
 
@@ -30,83 +30,60 @@
    * `webapp.1` is the name of the instance `1` of the application component `webapp`.
 
 
-  # Usage and examples
+  ## Usage and examples
 
-  ```
-  (require '[com.sixsq.slipstream.clj-client.lib.run :as r])
+  Use [[login]] and/or [[login!]] to get token or alter API global authenticantion
+  context.
 
-  (def context {:username \"foo\"
-                :password \"bar\"})
-  (r/with-new-context context (r/get-run-info \"123-456\"))
+      (require '[sixsq.slipstream.client.api.authn :as a])
+      (require '[sixsq.slipstream.client.api.lib.run :as r])
 
-  ;;
-  ;; Change context and query a number of runs.
-  (def my-slipstream {:serviceurl \"https://example.com\"
-                      :username \"jay\"
-                      :password \"random\"})
-  (def runs [\"253194ea-f982-4e1e-881e-7642408eae21\"
-             \"b0271dff-773e-4f4b-9915-c3cd3ec8bcb0\"
-             \"253194ea-f982-4e1e-881e-7642408eae21\"])
-  (for [run-uuid runs]
-    (r/with-new-context my-slipstream (r/get-run-info run-uuid)))
-  ```
-  "
+      ;;
+      ;; Login to the library default SlipStream service and globally set
+      ;; authentication context.
+
+      (a/login! \"user\" \"pass\")
+      (r/get-run-info \"123-456\")
+
+      ;;
+      ;; Change context and query a number of runs.
+
+      (def my-slipstream {:serviceurl \"https://example.com\"
+                          :cookie (a/login \"jay\" \"random\" \"https://example.com\")}
+      (def runs [\"253194ea-f982-4e1e-881e-7642408eae21\"
+                 \"b0271dff-773e-4f4b-9915-c3cd3ec8bcb0\"
+                 \"253194ea-f982-4e1e-881e-7642408eae21\"])
+      (for [run-uuid runs]
+        (a/with-context my-slipstream (r/get-run-info run-uuid)))"
+  {:doc/format :markdown}
   (:require
     [sixsq.slipstream.client.api.utils.utils :as u]
     [sixsq.slipstream.client.api.utils.wait :as wu]
     [sixsq.slipstream.client.api.impl.run :as ri]
+    [sixsq.slipstream.client.api.impl.crud :as h]
+    [sixsq.slipstream.client.api.authn :refer [*context*]]
     [superstring.core :as s]
     [clojure.tools.logging :as log]
     [clojure.data.xml :as xml])
   (:use [clojure.walk :only [stringify-keys]]))
 
-(def default-context {:serviceurl "https://nuv.la"})
-
-(def ^:dynamic *context* default-context)
-
-(defn select-context
-  [context]
-  (select-keys context [:serviceurl :username :password :cookie]))
 
 ;;
 ;; Public library API.
-
-;; Should be called to provide service URL and credentials.
-(defn set-run-context!
-  "The following map is expected
-
-  ```
-  {:serviceurl \"https://nuv.la\"
-
-   :cookie       nil
-
-   :username     nil
-   :password     nil}
-  ```
-
-  If `:cookie` is provided it's preferred over the `:username`/`:password`.
-  "
-  [context]
-  (alter-var-root #'*context* (fn [_] (merge default-context (select-context context)))))
-
-
-(defmacro with-new-context
-  [context & body]
-  `(binding [*context* (merge *context* ~context)] (do ~@body)))
-
 
 ;; Getters and setters of component, component instance and global parameters.
 (defn get-param
   "Get parameter 'param' of application component instance 'comp.id' in run `run-uuid`
   as 'run-uuid/comp.id:param'.
   When 'id' is nil, gets parameter of the application component as 'run-uuid/comp:param'."
+  {:doc/format :markdown}
   [run-uuid comp id param & [req]]
-  (ri/get (ri/to-param-uri run-uuid comp id param) *context* req))
+  (h/get (ri/to-param-uri run-uuid comp id param) *context* req))
 
 (defn set-param
   "Set parameter 'param' to 'value' on application component instance 'comp.id'."
   [run-uuid comp id param value & [req]]
-  (ri/put
+  (h/put
     (ri/to-param-uri run-uuid comp id param) value *context* req))
 
 (defn set-params
@@ -126,14 +103,14 @@
   "Get state of the run."
   [run-uuid]
   (let [uri (ri/run-state-uri run-uuid)]
-    (ri/get uri *context*)))
+    (h/get uri *context*)))
 
 (defn get-abort
   "Get abort message."
   [run-uuid]
   (try
-    (ri/get (ri/run-abort-uri run-uuid) *context*)
-    (catch clojure.lang.ExceptionInfo e (ri/parse-ex-412 e))))
+    (h/get (ri/run-abort-uri run-uuid) *context*)
+    (catch clojure.lang.ExceptionInfo e (h/parse-ex-412 e))))
 
 (defn get-multiplicity
   "Get multiplicity of application component 'comp'."
@@ -146,7 +123,7 @@
   (remove #(zero? (count %))
           (-> (try
                 (get-param run-uuid comp nil "ids")
-                (catch clojure.lang.ExceptionInfo e (ri/parse-ex-412 e)))
+                (catch clojure.lang.ExceptionInfo e (h/parse-ex-412 e)))
               (u/split #",")
               (sort))))
 
@@ -160,7 +137,7 @@
 (defn scalable?
   "Check if run is scalable."
   [run-uuid]
-  (-> (ri/get (ri/run-uri run-uuid) *context* ri/as-xml)
+  (-> (h/get (ri/run-uri run-uuid) *context* h/as-xml)
       xml/parse-str
       :attrs
       :mutable
@@ -192,13 +169,13 @@
 (defn cancel-abort
   "Cancel abort on the run."
   [run-uuid]
-  (ri/delete
+  (h/delete
     (ri/run-abort-uri run-uuid) *context*))
 
 (defn terminate
   "Terminate the run."
   [run-uuid]
-  (ri/delete
+  (h/delete
     (ri/run-uri run-uuid) *context*))
 
 (defn scale-up
@@ -206,7 +183,7 @@
   from 'params' map on the new component instances. Returns list of added component
   instance names qualified with IDs."
   ([run-uuid comp n]
-   (let [resp (ri/post
+   (let [resp (h/post
                 (ri/to-component-uri run-uuid comp)
                 *context*
                 {}
@@ -222,7 +199,7 @@
   "Scale down application component 'comp' by terminating instances defined by
   'ids' vector."
   [run-uuid comp ids]
-  (:body (ri/delete
+  (:body (h/delete
            (ri/to-component-uri run-uuid comp)
            *context*
            {}
@@ -252,7 +229,7 @@
   (cond
     (= act "up") (scale-up run-uuid comp n params)
     ; FIXME: If run is aborted, server returns html - not json or xml.
-    (= act "down") (if (aborted? run-uuid) (ri/throw-409) (scale-down run-uuid comp n))
+    (= act "down") (if (aborted? run-uuid) (h/throw-409) (scale-down run-uuid comp n))
     :else (throw (Exception. (str "Unknown scale action requested: " act)))))
 
 (def action-result
@@ -281,7 +258,7 @@
         (log/error (format "Failure scaling %s." act) comp n params e)
         (assoc res
           :state action-failure
-          :reason (ri/reason-from-exc (ex-data e)))))))
+          :reason (h/reason-from-exc (ex-data e)))))))
 
 (defn action-success?
   "Given the 'result' returned by an action, check if it was successfull."

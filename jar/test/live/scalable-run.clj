@@ -54,7 +54,7 @@ new-VM-size    - VM size for the diagonal scaling test. Default: Tiny
 (def ^:dynamic *test-instance-type* "Tiny")
 
 ; Loading the namespace should find and read ~/slipstream.context
-(require '[com.sixsq.slipstream.clj-client.run :as r] :reload)
+(require '[sixsq.slipstream.client.api.run :as r] :reload)
 (use '[clojure.pprint :only [pprint]])
 
 (defn print-run

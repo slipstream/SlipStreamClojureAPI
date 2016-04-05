@@ -1,6 +1,6 @@
 (ns sixsq.slipstream.client.api.run
   "
-  # Purpose
+  ## Purpose
 
   The `run` namespace contains functions for interacting with SlipStream runs.
 
@@ -30,7 +30,7 @@
    * `webapp.1` is the name of the instance `1` of the application component `webapp`.
 
 
-  # Usage and examples
+  ## Usage and examples
 
   The namespace can be bootstrapped either from `slipstream.context` file
   (in .ini format) or by explicitly providing the configuration to `contextualize!`.
@@ -38,22 +38,20 @@
   In the case of `slipstream.context`, the following structure and parameters
   are assumed
 
-  ```
-  [contextualization]
+      [contextualization]
 
-  # SlipStream endpoint.
-  serviceurl = https://nuv.la
+      # SlipStream endpoint.
+      serviceurl = https://nuv.la
 
-  # SlipStream user credentials
-  username = foo
-  password = bar
+      # SlipStream user credentials
+      username = foo
+      password = bar
 
-  # preferred over username and password
-  cookie = key=val; Path:/
+      # preferred over username and password
+      cookie = key=val; Path:/
 
-  # run UUID
-  diid = 123
-  ```
+      # run UUID
+      diid = 123
 
   This file is usually available on SlipStream managed VMs and is used by
   orchestrator and node executors.
@@ -66,48 +64,42 @@
 
   `contextualize!` can be called with a context map
 
-  ```
-  {:serviceurl \"https://nuv.la\"
+      {:serviceurl \"https://nuv.la\"
 
-   ;; run UUID
-   :diid \"123\"
+       ;; run UUID
+       :diid \"123\"
 
-   :cookie \"key=val; Path:/\"
+       :cookie \"key=val; Path:/\"
 
-   :username \"foo\"
-   :password \"bar\"
-   }
-  ```
+       :username \"foo\"
+       :password \"bar\"}
 
   where either `:cookie` or `:username` and `:password` are mandatory.
 
-  ## Examples
+  ### Examples
 
   Implicit bootstrap -- `slipstream.context` with the correct parameters
   should be in the search path.
 
-  ```
-  (require '[com.sixsq.slipstream.clj-client.run-wrap :as r])
+      (require '[sixsq.slipstream.client.api.run :as r])
 
-  (r/get-run-info)
-  ```
+      (r/get-run-info)
 
   Manually define configuration and contextualize the namespace.
 
-  ```
-  (require '[com.sixsq.slipstream.clj-client.run-wrap :as r])
+      (require '[sixsq.slipstream.client.api.run :as r])
 
-  (def conf {:serviceurl \"https://nuv.la\"
-            :diid \"123-456\"
-            :username \"foo\"
-            :password \"bar\"})
-  (rw/contextualize! conf)
+      (def conf {:serviceurl \"https://nuv.la\"
+                 :diid \"123-456\"
+                 :username \"foo\"
+                 :password \"bar\"})
+      (rw/contextualize! conf)
 
-  (r/get-run-info)
-  ```
-  "
+      (r/get-run-info)"
+  {:doc/format :markdown}
   (:require
     [sixsq.slipstream.client.api.lib.run :as r]
+    [sixsq.slipstream.client.api.authn :as a]
     [sixsq.slipstream.client.api.utils.context :as c]))
 
 (def ^:dynamic *context* {})
@@ -115,10 +107,10 @@
 (defn contextualize!
   ([]
    (alter-var-root #'*context* (constantly (:contextualization (c/get-context))))
-   (r/set-run-context! *context*))
+   (a/set-run-context! *context*))
   ([context]
    (alter-var-root #'*context* (constantly context))
-   (r/set-run-context! context)))
+   (a/set-run-context! context)))
 
 (defn run-uuid [] (or (:diid *context*)
                       (do (contextualize!)
