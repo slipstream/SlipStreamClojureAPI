@@ -15,7 +15,7 @@
 
 (defn to-body-params
   [query-map & [on]]
-  (s/join (or on "\n") (map #(s/join "=" %)
+  (s/join (or on "&") (map #(s/join "=" %)
                             (remove #(s/blank? (first %))
                                     (walk/stringify-keys query-map)))))
 
@@ -26,3 +26,4 @@
 (defn keywordize-keys
   [d]
   (walk/keywordize-keys d))
+

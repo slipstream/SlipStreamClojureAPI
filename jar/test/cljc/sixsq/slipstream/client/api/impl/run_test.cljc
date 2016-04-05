@@ -2,6 +2,7 @@
   (:refer-clojure :exclude [get])
   (:require
    [sixsq.slipstream.client.api.impl.run :as t]
+   [sixsq.slipstream.client.api.impl.crud :as h]
    #?(:clj [clojure.test :refer [deftest is are testing run-tests]]
       :cljs [cljs.test :refer-macros [deftest is are testing run-tests]])))
 
@@ -18,7 +19,7 @@
   (is (= "run/123/foo.1:bar" (t/to-param-uri "123" "foo" 1 "bar"))))
 
 (deftest test-into-params
-  (is (= nil (t/merge-request)))
-  (is (= nil (t/merge-request nil)))
-  (is (= {:b 2} (t/merge-request {:b 2})))
-  (is (= {:h {:a 1 :b 2}} (t/merge-request {:h {:a 1}} {:h {:b 2}}))))
+  (is (= nil (h/merge-request)))
+  (is (= nil (h/merge-request nil)))
+  (is (= {:b 2} (h/merge-request {:b 2})))
+  (is (= {:h {:a 1 :b 2}} (h/merge-request {:h {:a 1}} {:h {:b 2}}))))
