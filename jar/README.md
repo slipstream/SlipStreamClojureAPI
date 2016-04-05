@@ -32,7 +32,7 @@ node_instance_name = orchestrator-exoscale-ch-gva
 Require the run namespace and use the functions to interact with the run
 
 ```clojure
-(require '[com.sixsq.slipstream.client.api.run :as r])
+(require '[sixsq.slipstream.client.api.run :as r])
 
 (r/get-state)
 (r/action-scale-up "web-server" 3)
