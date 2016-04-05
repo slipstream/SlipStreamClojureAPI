@@ -14,7 +14,7 @@
 
   Timeouts and intervals are in seconds.
 
-  ## SlipStraem run termininology
+  ## SlipStream run termininology
 
   There are three types of parameters on a run
 
@@ -35,14 +35,14 @@
   Use [[login]] and/or [[login-global]] to get token or alter API global authenticantion
   context.
 
-      (require '[sixsq.slipstream.clj-client.api.authn :as a])
-      (require '[sixsq.slipstream.clj-client.api.lib.run :as r])
+      (require '[sixsq.slipstream.client.api.authn :as a])
+      (require '[sixsq.slipstream.client.api.lib.run :as r])
 
       ;;
-      ;; Login to the library deafult SlipStream service and globally set
+      ;; Login to the library default SlipStream service and globally set
       ;; authentication context.
 
-      (a/login-global \"user\" \"pass\")
+      (a/login! \"user\" \"pass\")
       (r/get-run-info \"123-456\")
 
       ;;

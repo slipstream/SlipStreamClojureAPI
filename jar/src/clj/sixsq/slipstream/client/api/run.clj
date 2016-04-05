@@ -81,13 +81,13 @@
   Implicit bootstrap -- `slipstream.context` with the correct parameters
   should be in the search path.
 
-      (require '[sixsq.slipstream.clj-client.run-wrap :as r])
+      (require '[sixsq.slipstream.client.api.run :as r])
 
       (r/get-run-info)
 
   Manually define configuration and contextualize the namespace.
 
-      (require '[sixsq.slipstream.clj-client.run-wrap :as r])
+      (require '[sixsq.slipstream.client.api.run :as r])
 
       (def conf {:serviceurl \"https://nuv.la\"
                  :diid \"123-456\"
