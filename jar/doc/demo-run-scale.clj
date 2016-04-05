@@ -15,7 +15,7 @@ Now you should be ready to proceed.
 "
 
 ; Loading the namespace should find and read ~/slipstream.context
-(require '[com.sixsq.slipstream.client.api.run :as r] :reload)
+(require '[sixsq.slipstream.client.api.run :as r] :reload)
 
 ; Wait in case the deployment is still provisioning.
 (r/wait-ready 1200)
