@@ -32,7 +32,7 @@
 
   ## Usage and examples
 
-  Use [[login]] and/or [[login-global]] to get token or alter API global authenticantion
+  Use [[login]] and/or [[login!]] to get token or alter API global authenticantion
   context.
 
       (require '[sixsq.slipstream.client.api.authn :as a])

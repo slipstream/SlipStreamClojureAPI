@@ -5,10 +5,10 @@
 
   The library API functions in namespaces under **sixsq.slipstream.client.api.lib**
   use dynamic context defined in this namespace.  To bootstrap
-  the API with the context use [[login-global]].  Each time
+  the API with the context use [[login!]].  Each time
   when called, it alters the root of the context with the new
   authentication token obtained after performing basic authn
-  with the username/password provided to [[login-global]].
+  with the username/password provided to [[login!]].
 
   `(with-context new-context (api-function ...))` can be used to
   rebind the global context to the new provided one for the time of
@@ -109,14 +109,14 @@
      (s/join "//" (filter #(not (= % "")) (take 3 (s/split url #"/"))))))
 
 #?(:clj
-   (defn login-global
+   (defn login!
      "Synchronous login to the server.  Alters the root of the global dynamic context used
       in the namespaces under **sixsq.slipstream.client.api.lib** to interact with the
       service. Returns the access token.
       Not available in clojurescript."
      {:doc/format :markdown}
      ([username password]
-      (login-global username password default-login-url))
+      (login! username password default-login-url))
      ([username password login-url]
       (let [token (login username password login-url)]
         (set-run-context! {:serviceurl (endpoint-from-url login-url)
