@@ -13,11 +13,16 @@
   [& [parts]]
   (s/join "/" parts))
 
+(defn- remove-blanks
+  [m]
+  (->> (walk/stringify-keys m)
+       (remove #(s/blank? (first %)))))
+
 (defn to-body-params
   [query-map & [on]]
-  (s/join (or on "&") (map #(s/join "=" %)
-                            (remove #(s/blank? (first %))
-                                    (walk/stringify-keys query-map)))))
+  (->> (remove-blanks query-map)
+       (map #(s/join "=" %))
+       (s/join (or on "&"))))
 
 (defn split
   [s on]
