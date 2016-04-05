@@ -10,7 +10,7 @@
   <parent>
     <groupId>com.sixsq.slipstream</groupId>
     <artifactId>SlipStreamClientAPI</artifactId>
-    <version>3.1-SNAPSHOT</version>
+    <version>3.2-SNAPSHOT</version>
   </parent>
 
   <licenses>
@@ -20,59 +20,18 @@
     </license>
   </licenses>
 
-  <profiles>
-    <profile>
-      <id>deps</id>
-      <activation>
-        <property>
-          <name>!updateBootVersion</name>
-        </property>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>sixsq</groupId>
-          <artifactId>default-deps</artifactId>
-          <version>${project.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>com.sixsq.slipstream</groupId>
-          <artifactId>SlipStreamClientAPI-jar</artifactId>
-          <version>${project.version}</version>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
-      <id>update-boot-version</id>
-      <activation>
-        <property>
-          <name>updateBootVersion</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>exec-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>update-boot-version-exec</id>
-                <phase>generate-sources</phase>
-                <goals>
-                  <goal>exec</goal>
-                </goals>
-                <configuration>
-                  <executable>${basedir}/update-version.sh</executable>
-                  <arguments>
-                    <argument>${project.version}</argument>
-                  </arguments>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
+  <dependencies>
+    <dependency>
+      <groupId>sixsq</groupId>
+      <artifactId>default-deps</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sixsq.slipstream</groupId>
+      <artifactId>SlipStreamClientAPI-jar</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
 
   <build>
     <plugins>

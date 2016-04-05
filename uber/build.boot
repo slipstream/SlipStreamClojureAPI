@@ -1,4 +1,4 @@
-(def +version+ "3.1-SNAPSHOT")
+(def +version+ "3.2-SNAPSHOT")
 
 (defn sixsq-repo [version edition]
   (let [nexus-url "http://nexus.sixsq.com/content/repositories/"
@@ -9,7 +9,7 @@
 
 (set-env!
  :project 'com.sixsq.slipstream/SlipStreamClientAPI-uber
- :version "3.1-SNAPSHOT"
+ :version +version+
  :license {"Apache 2.0" "http://www.apache.org/licenses/LICENSE-2.0.txt"}
  :edition "community")
 
@@ -21,7 +21,7 @@
 
  :dependencies
  '[[org.clojure/clojure "1.8.0" :scope "provided"]
-   [sixsq/boot-deputil "0.2.1" :scope "test"]])
+   [sixsq/boot-deputil "0.2.2" :scope "test"]])
 
 (require
  '[sixsq.boot-deputil :refer [set-deps!]])
