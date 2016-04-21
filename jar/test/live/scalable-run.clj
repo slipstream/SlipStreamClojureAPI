@@ -22,7 +22,7 @@ new-VM-size    - VM size for the diagonal scaling test. Default: Tiny
 
 ;;
 ;; Boot related scafolding.
-(def artifact-version "3.1-SNAPSHOT")
+(def artifact-version "3.2-SNAPSHOT")
 (def repo-type (if (re-find #"SNAPSHOT" artifact-version) "snapshots" "releases"))
 (def edition "community")
 (def nexus-url "http://nexus.sixsq.com/content/repositories/")
