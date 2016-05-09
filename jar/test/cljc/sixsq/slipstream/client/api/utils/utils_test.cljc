@@ -1,8 +1,8 @@
 (ns sixsq.slipstream.client.api.utils.utils-test
   (:require
-        [sixsq.slipstream.client.api.utils.utils :as t]
-        #?(:clj [clojure.test :refer [deftest is are testing run-tests]]
-           :cljs [cljs.test :refer-macros [deftest is testing run-tests]])))
+    [sixsq.slipstream.client.api.utils.utils :as t]
+    #?(:clj [clojure.test :refer [deftest is are testing run-tests]]
+       :cljs [cljs.test :refer-macros [deftest is testing run-tests]])))
 
 (deftest test-in?
   (is (true? (t/in? :a [:a :b])))
@@ -30,3 +30,4 @@
   (is (= "a=b&c=d" (t/to-body-params {"a" "b" "c" "d"})))
   (is (= "a=b&c=d" (t/to-body-params {:a "b" :c "d"})))
   (is (= "a=b\nc=d" (t/to-body-params {"a" "b" "c" "d"} "\n"))))
+

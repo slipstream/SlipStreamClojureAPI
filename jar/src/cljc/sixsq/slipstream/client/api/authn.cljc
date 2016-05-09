@@ -39,27 +39,37 @@
   (:require
     [sixsq.slipstream.client.api.utils.http-async :as http]
     [superstring.core :as s]
+    [sixsq.slipstream.client.api.utils.utils :as u]
     #?(:clj
     [clojure.core.async :refer [go go-loop <! <!!]]
        :cljs [cljs.core.async :refer [<!]]))
   #?(:cljs (:require-macros
              [cljs.core.async.macros :refer [go go-loop]])))
 
+
 (def ^:const default-url "https://nuv.la")
-(def ^:const default-login-url (str default-url "/login"))
+
+(def ^:const login-resource "login")
+
+(defn to-login-url
+  [service-url]
+  (u/url-join [service-url login-resource]))
+
+(def ^:const default-login-url (to-login-url default-url))
 
 ;;
-;; Context management for the namespaces in client.api.lib/*.
+;; Authentication context management for the namespaces in client.api.lib/*.
 (def default-context {:serviceurl default-url})
 
 (def ^:dynamic *context* default-context)
 
 (defn select-context
   [context]
+  (println "selecting context:" context)
   (select-keys context [:serviceurl :username :password :cookie]))
 
 ;;
-(defn set-run-context!
+(defn set-context!
   "Should be called to provide service URL and connection token.
   The following map is expected
 
@@ -106,20 +116,24 @@
 #?(:clj
    (defn endpoint-from-url
      [url]
-     (s/join "//" (filter #(not (= % "")) (take 3 (s/split url #"/"))))))
+     (->> (s/split url #"/")
+          (take 3)
+          (filter #(not (= % "")))
+          (s/join "//"))))
 
 #?(:clj
    (defn login!
-     "Synchronous login to the server.  Alters the root of the global dynamic context used
-      in the namespaces under **sixsq.slipstream.client.api.lib** to interact with the
-      service. Returns the access token.
-      Not available in clojurescript."
+     "Synchronous login to the server.  Alters the root of the global dynamic
+     authentication context used in the namespaces under
+     **sixsq.slipstream.client.api.lib** to interact with the service.
+     Returns the access token.
+     Not available in clojurescript."
      {:doc/format :markdown}
      ([username password]
       (login! username password default-login-url))
      ([username password login-url]
       (let [token (login username password login-url)]
-        (set-run-context! {:serviceurl (endpoint-from-url login-url)
-                           :cookie     token})
+        (set-context! {:serviceurl (endpoint-from-url login-url)
+                       :cookie     token})
         token))))
 

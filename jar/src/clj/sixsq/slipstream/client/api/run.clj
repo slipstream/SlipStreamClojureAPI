@@ -107,10 +107,10 @@
 (defn contextualize!
   ([]
    (alter-var-root #'*context* (constantly (:contextualization (c/get-context))))
-   (a/set-run-context! *context*))
+   (a/set-context! *context*))
   ([context]
    (alter-var-root #'*context* (constantly context))
-   (a/set-run-context! context)))
+   (a/set-context! context)))
 
 (defn run-uuid [] (or (:diid *context*)
                       (do (contextualize!)
