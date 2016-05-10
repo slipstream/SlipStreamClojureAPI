@@ -1,38 +1,41 @@
 #!/usr/bin/env boot
 "
-Prerequisites.
+## Purpose
+
+This test accepts user parameters, starts a scalable run and scales it up, down and diagonally.
+This validates the library and the behaviour of the SlipStream scalable deployment.
+
+## Prerequisites.
 
 1. Define a single component SlipStream application and deploy it in a scalable mode.
+By default, the test assumes that the name of the application component is 'testvm'.
 
-2. Obtain the context file from a VM of the component that will be scaled
+Check the 'usage' var below for the CLI parameters.
 
-./test/live/get-context.sh <ip> [<path-to-store>]
+2. Run the test with
 
-By default, this creates ~/slipstream.context with the context from the VM.
-
-Now you should be ready to proceed.
-
-You can provide two optional positional parameters
-
-./test/live/scalable-run.clj [component-name] [new-VM-size]
-
-username       - name of the user
-password       - password of the user
-app-uri        - uri of the application ot provision
-endpoint       - SlipStream endpoint.  Default: https://nuv.la
-component-name - name of the application component. Default: testvm
-new-VM-size    - VM size for the diagonal scaling test. Default: Tiny
+  # ./test/live/scalable-run.clj <params>
 "
+
+(def usage
+  "Usage: ./test/live/scalable-run.clj user pass app-uri [endpoint] [component-name] [new-VM-size]
+  user           - name of the user (mandatory)
+  pass           - password of the user (mandatory)
+  app-uri        - uri of the application to provision (mandatory)
+  endpoint       - SlipStream endpoint. Default: https://nuv.la
+  component-name - name of the application component. Default: testvm
+  new-VM-size    - VM size for the diagonal scaling test. Default: Tiny
+  ")
 
 ;;
 ;; Boot related scafolding.
-(def artifact-version "3.1-SNAPSHOT")
+(def artifact-version "3.2-SNAPSHOT")
 (def repo-type (if (re-find #"SNAPSHOT" artifact-version) "snapshots" "releases"))
 (def edition "community")
 (def nexus-url "http://nexus.sixsq.com/content/repositories/")
 
 (set-env!
-  :source-paths #{"src"}
+  :source-paths #{"src/clj" "src/cljc"}
   :resource-paths #{"resources"}
 
   :repositories #(reduce conj %
@@ -51,7 +54,8 @@ new-VM-size    - VM size for the diagonal scaling test. Default: Tiny
 ;; Boot end.
 
 
-
+;;
+;; Dynamic vars.
 (def ^:dynamic *username* nil)
 (def ^:dynamic *password* nil)
 (def ^:dynamic *app-uri* nil)
@@ -63,10 +67,18 @@ new-VM-size    - VM size for the diagonal scaling test. Default: Tiny
 ; Cloud releated instance type. Used below in diagonal scale up action.
 (def ^:dynamic *test-instance-type* "Tiny")
 
-; Loading the namespace should find and read ~/slipstream.context
+
+;;
+;; Imports.
+(require '[sixsq.slipstream.client.api.authn :as a])
+(require '[sixsq.slipstream.client.api.lib.app :as p])
+
 (require '[sixsq.slipstream.client.api.run :as r] :reload)
 (use '[clojure.pprint :only [pprint]])
 
+
+;;
+;; Helper functions.
 (defn print-run
   []
   (pprint (r/get-run-info)))
@@ -125,12 +137,38 @@ new-VM-size    - VM size for the diagonal scaling test. Default: Tiny
              #(list (str *comp-name* "." %) (r/get-scale-state *comp-name* %))
              ids)))
 
+(defn run-uuid-from-run-url
+  [run-url]
+  (-> run-url
+      clojure.string/trim
+      (clojure.string/split #"/")
+      last
+      clojure.string/trim))
+
 
 ;; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 (defn run []
   (step "Live test of the SlipStream clojure API library via scaling SlipStream run.")
-  (step (format "Component to scale: '%s'" *comp-name*))
+  (step (format "User: '%s'" *username*))
+  (step (format "Endpoint: '%s'" *serviceurl*))
+  (step (format "Application uri: '%s'" *app-uri*))
+  (step (format "Application component name to scale: '%s'" *comp-name*))
   (step (format "VM instance type for diagonal scaling: '%s'" *test-instance-type*))
+
+  ;;
+  ;; Login to the SlipStream portal.
+  ;;
+  (action "Login to SlipStream.")
+  (a/login! *username* *password* (a/to-login-url *serviceurl*))
+
+  ;;
+  ;; Deploy the application in a scalable mode.
+  ;;
+  (action "Start scalable run.")
+  (def run-uuid
+    (run-uuid-from-run-url (p/deploy *app-uri* {:scalable true})))
+  ; Re-contextualize the run namespace with the deployment uuid.
+  (r/contextualize! (assoc a/*context* :diid run-uuid))
 
   (action "Run:")
   (print-run)
@@ -236,22 +274,23 @@ new-VM-size    - VM size for the diagonal scaling test. Default: Tiny
   (action "Test finished successfully."))
 
 ;;
-(def usage
-  "Usage: ./test/live/scalable-run.clj user pass app-uri [endpoint] [component-name] [new-VM-size]
-  user           - name of the user (mandatory)
-  pass           - password of the user (mandatory)
-  app-uri        - uri of the application to provision (mandatory)
-  endpoint       - SlipStream endpoint. Default: https://nuv.la
-  component-name - name of the application component. Default: testvm
-  new-VM-size    - VM size for the diagonal scaling test. Default: Tiny
-  ")
+(defn exit-usage []
+  (println usage)
+  (System/exit 1))
 
 (defn -main [& args]
-  (if (< (count args) 2)
-    (error usage))
-  (if (> (count args) 0)
-    (alter-var-root #'*comp-name* (fn [_] (nth args 0))))
-  (if (> (count args) 1)
-    (alter-var-root #'*test-instance-type* (fn [_] (nth args 1))))
+  (println args)
+  (if (< (count args) 3)
+    (exit-usage)
+    (do
+      (alter-var-root #'*username* (fn [_] (nth args 0)))
+      (alter-var-root #'*password* (fn [_] (nth args 1)))
+      (alter-var-root #'*app-uri* (fn [_] (nth args 2)))))
+  (if (> (count args) 3)
+    (alter-var-root #'*serviceurl* (fn [_] (nth args 3))))
+  (if (> (count args) 4)
+    (alter-var-root #'*comp-name* (fn [_] (nth args 4))))
+  (if (> (count args) 5)
+    (alter-var-root #'*test-instance-type* (fn [_] (nth args 5))))
   (run)
   (System/exit 0))
