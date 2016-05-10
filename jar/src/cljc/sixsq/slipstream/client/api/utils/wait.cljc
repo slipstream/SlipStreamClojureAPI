@@ -1,13 +1,18 @@
 (ns sixsq.slipstream.client.api.utils.wait
   (:require
     #?(:clj [clojure.core.async :refer [timeout go-loop <! <!!]]
-       :cljs [cljs.core.async :refer [<!]]))
+       :cljs [cljs.core.async :refer [timeout <!]]))
   #?(:cljs (:require-macros
-             [cljs.core.async.macros :refer [timeout go-loop]])))
+             [cljs.core.async.macros :refer [go-loop]])))
+
+(def default_interval 1)
+(defn- validate-interval [interval]
+  (if (<= interval 0)
+    default_interval
+    interval))
 
 (defn iterations [timeout interval]
-  {:pre [(> interval 0)]}
-  (-> (quot timeout interval)
+  (-> (quot timeout (validate-interval interval))
       (max 1)))
 
 (defn wait-for-async
@@ -15,8 +20,8 @@
 
   Retruns channel that will contain the retuned value."
   [predicate time-out interval]
-  {:pre [(> interval 0)]}
-  (let [max-n       (iterations time-out interval)
+  (let [interval    (validate-interval interval)
+        max-n       (iterations time-out interval)
         interval-ms (* 1000 interval)]
     (go-loop [n 1]
       (if-let [result (predicate)]
