@@ -65,7 +65,6 @@
 
 (defn select-context
   [context]
-  (println "selecting context:" context)
   (select-keys context [:serviceurl :username :password :cookie]))
 
 ;;
