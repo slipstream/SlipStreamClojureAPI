@@ -29,7 +29,7 @@ Check the 'usage' var below for the CLI parameters.
 
 ;;
 ;; Boot related scafolding.
-(def artifact-version "3.2-SNAPSHOT")
+(def artifact-version "3.3-SNAPSHOT")
 (def repo-type (if (re-find #"SNAPSHOT" artifact-version) "snapshots" "releases"))
 (def edition "community")
 (def nexus-url "http://nexus.sixsq.com/content/repositories/")
