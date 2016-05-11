@@ -188,7 +188,8 @@ output.  Example:
   ;;
   (action "Start scalable run.")
   (def run-uuid
-    (run-uuid-from-run-url (p/deploy *app-uri* {:scalable true})))
+    (run-uuid-from-run-url (p/deploy *app-uri* {:scalable true
+                                                (str *comp-name* ":multiplicity") 1})))
   ; Re-contextualize the run namespace with the deployment uuid.
   (r/contextualize! (assoc a/*context* :diid run-uuid))
 
