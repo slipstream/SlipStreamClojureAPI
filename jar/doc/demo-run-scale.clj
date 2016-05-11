@@ -89,7 +89,7 @@ Now you should be ready to proceed.
 (r/get-comp-ids comp-name)
 
 ; Scale down by IDs. Manual wait.
-(r/scale-down comp-name '(4 1))
+(r/scale-down comp-name [4 1])
 (r/wait-ready 900)
 (r/get-multiplicity comp-name)
 (r/get-comp-ids comp-name)
@@ -107,7 +107,7 @@ Now you should be ready to proceed.
                    id (r/get-param comp-name id key-instance-type))))
 
 ; Scale down action. Remove instances 2, 3 and 6.  Use internal wait.
-(r/action-scale-down-at comp-name '(2 3 6) :timeout 1200)
+(r/action-scale-down-at comp-name [2 3 6] :timeout 1200)
 (r/get-multiplicity comp-name)
 (r/get-comp-ids comp-name)
 
