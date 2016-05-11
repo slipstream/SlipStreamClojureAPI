@@ -4,7 +4,7 @@
             [sixsq.slipstream.client.api.lib.run :refer :all]))
 
 (def run-uuid "123")
-(a/set-run-context! {:username "user" :password "pass"})
+(a/set-context! {:username "user" :password "pass"})
 
 (deftest test-get-comp-ids
   (with-redefs-fn {#'sixsq.slipstream.client.api.lib.run/get-param (fn [_ _ _ _] "")}

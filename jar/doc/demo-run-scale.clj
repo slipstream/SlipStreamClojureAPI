@@ -1,34 +1,64 @@
 "Prerequisites.
 
-1. Define a single component SlipStream application and deploy it in a scalable mode.
+1. Define a single component SlipStream application.
 
-2. Obtain the context file from a VM of the component that will be scaled
+2. The functions in the demo are intended to be run manually in REPL.
+For example, go to jar/ directory of the project and start REPL with
 
-    ssh -l root <ip> cat /opt/slipstream/client/sbin/slipstream.context > ~/slipstream.context
-
-3. The functions in the demo are intended to be run manually in REPL.
-For example, go to clj/ directory of the project and start REPL with
-
-    $lein repl
+    $ boot repl
 
 Now you should be ready to proceed.
 "
 
-; Loading the namespace should find and read ~/slipstream.context
-(require '[sixsq.slipstream.client.api.run :as r] :reload)
+;;
+;; Redefine the following variables.
 
-; Wait in case the deployment is still provisioning.
+; SlipStream URL and credentials
+(def serviceurl "https://nuv.la")
+(def username "change_me")
+(def password "change_me")
+
+; Application URI.  Example:
+(def app "konstan/scale/scale-test-dpl")
+
+; Name of the application component from `app` to be used for scaling.
+(def comp-name "testvm")
+
+; Cloud releated instance type. Used below in diagonal scale up action.
+(def test-instance-type "Tiny")
+
+
+;;
+;; Imports.
+(require '[sixsq.slipstream.client.api.authn :as a])
+(require '[sixsq.slipstream.client.api.lib.app :as p])
+(require '[sixsq.slipstream.client.api.run :as r])
+
+;;
+;; Login to the SlipStream portal.
+(a/login! username password (a/to-login-url serviceurl))
+
+(defn run-uuid-from-run-url
+  [run-url]
+  (-> run-url
+      clojure.string/trim
+      (clojure.string/split #"/")
+      last
+      clojure.string/trim))
+
+; Deploy the application in a scalable mode.
+(def run-uuid (run-uuid-from-run-url (p/deploy app {:scalable true})))
+
+; Re-contextualize the run namespace with the deployment uuid.
+(r/contextualize! (assoc a/*context* :diid run-uuid))
+
+; Wait for Ready state in case the deployment is still provisioning.
 (r/wait-ready 1200)
 
 ; Queries.
 (r/get-state)
 
 (r/scalable?)
-
-; Define the name of the deployed component to be used for scaling.
-(def comp-name "testvm")
-; Cloud releated instance type. Used below in diagonal scale up action.
-(def test-instance-type "Tiny")
 
 (r/get-multiplicity comp-name)
 (r/get-comp-ids comp-name)
@@ -50,6 +80,7 @@ Now you should be ready to proceed.
 (r/get-comp-ids comp-name)
 
 (r/can-scale?)
+(r/wait-ready 900)
 
 ; Scale up. Manual wait.
 (r/scale-up comp-name 3)
@@ -58,7 +89,7 @@ Now you should be ready to proceed.
 (r/get-comp-ids comp-name)
 
 ; Scale down by IDs. Manual wait.
-(r/scale-down comp-name '(4 1))
+(r/scale-down comp-name [4 1])
 (r/wait-ready 900)
 (r/get-multiplicity comp-name)
 (r/get-comp-ids comp-name)
@@ -76,7 +107,7 @@ Now you should be ready to proceed.
                    id (r/get-param comp-name id key-instance-type))))
 
 ; Scale down action. Remove instances 2, 3 and 6.  Use internal wait.
-(r/action-scale-down-at comp-name '(2 3 6) :timeout 1200)
+(r/action-scale-down-at comp-name [2 3 6] :timeout 1200)
 (r/get-multiplicity comp-name)
 (r/get-comp-ids comp-name)
 
