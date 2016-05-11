@@ -20,9 +20,7 @@
     [sixsq.slipstream.client.api.cimi :as t]
     [sixsq.slipstream.client.api.authn :as authn]
     [superstring.core :as s]
-    #?(:clj
-    [clojure.test :refer [deftest is are testing run-tests]]
-       :cljs [cljs.test :refer-macros [deftest is are testing run-tests]])))
+    [clojure.test :refer [deftest is are testing run-tests]]))
 
 (def ^:dynamic *server-info* nil)
 
