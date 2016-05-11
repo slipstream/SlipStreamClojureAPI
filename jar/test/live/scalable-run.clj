@@ -19,6 +19,24 @@ Check the 'usage' var below for the CLI parameters.
 
 You must run it from the `jar` subdirectory in order to find the
 correct files on the classpath.
+
+3. If test fails, you need to terminate the deployment manually.  The
+deployment URL can be found at the very begining of the test
+output.  Example:
+
+```
+    :::
+    ::: Start scalable run.
+    :::
+    ::: Run:
+    {:url \"https://nuv.la/run/b61d28b9-acec-4f79-8909-f0e603b3fa64\",
+     :state \"Initializing\",
+     :scalable true,
+     :can-scale false,
+     :aborted false,
+     :abort-msg \"\"}
+    :::
+```
 "
 
 (def usage
