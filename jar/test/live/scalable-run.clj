@@ -9,7 +9,9 @@ of the SlipStream scalable deployment.
 ## Prerequisites.
 
 1. Define a single component SlipStream application.  By default, the
-test assumes that the name of the application component is 'testvm'.
+test assumes that the name of the application component is
+'testvm'. The application will be started with an explicit
+multiplicity of 1 for the scaled application component.
 
 Check the 'usage' var below for the CLI parameters.
 
@@ -21,7 +23,7 @@ You must run it from the `jar` subdirectory in order to find the
 correct files on the classpath.
 
 3. If test fails, you need to terminate the deployment manually.  The
-deployment URL can be found at the very begining of the test
+deployment URL can be found at the very beginning of the test
 output.  Example:
 
 ```
