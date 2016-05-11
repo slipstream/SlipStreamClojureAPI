@@ -2,19 +2,23 @@
 "
 ## Purpose
 
-This test accepts user parameters, starts a scalable run and scales it up, down and diagonally.
-This validates the library and the behaviour of the SlipStream scalable deployment.
+This test accepts user parameters, starts a scalable run and scales it
+up, down and diagonally.  This validates the library and the behaviour
+of the SlipStream scalable deployment.
 
 ## Prerequisites.
 
-1. Define a single component SlipStream application and deploy it in a scalable mode.
-By default, the test assumes that the name of the application component is 'testvm'.
+1. Define a single component SlipStream application.  By default, the
+test assumes that the name of the application component is 'testvm'.
 
 Check the 'usage' var below for the CLI parameters.
 
 2. Run the test with
 
   # ./test/live/scalable-run.clj <params>
+
+You must run it from the `jar` subdirectory in order to find the
+correct files on the classpath.
 "
 
 (def usage
@@ -258,7 +262,7 @@ Check the 'usage' var below for the CLI parameters.
   (check-can-scale)
 
 
-  (action "Termintating run.")
+  (action "Terminating run.")
   ; FIXME: run/terminate should return run/action-result map
   (let [res (r/terminate)]
     (if-not (= 204 (:status res))
