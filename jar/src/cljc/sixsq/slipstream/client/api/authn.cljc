@@ -68,15 +68,16 @@
   (select-keys context [:serviceurl :username :password :cookie]))
 
 ;;
-(defn set-context!
-  "Should be called to provide service URL and connection token.
-  The following map is expected
+#?(:clj
+   (defn set-context!
+     "Should be called to provide service URL and connection token.
+     The following map is expected
 
-      {:serviceurl \"https://nuv.la\"
-       :cookie     \"cookie\"}"
-  {:doc/format :markdown}
-  [context]
-  (alter-var-root #'*context* (fn [_] (merge default-context (select-context context)))))
+         {:serviceurl \"https://nuv.la\"
+          :cookie     \"cookie\"}"
+     {:doc/format :markdown}
+     [context]
+     (alter-var-root #'*context* (fn [_] (merge default-context (select-context context))))))
 
 (defmacro with-context
   [context & body]
