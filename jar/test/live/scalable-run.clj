@@ -279,7 +279,6 @@ Check the 'usage' var below for the CLI parameters.
   (System/exit 1))
 
 (defn -main [& args]
-  (println args)
   (if (< (count args) 3)
     (exit-usage)
     (do
