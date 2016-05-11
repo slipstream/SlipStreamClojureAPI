@@ -1,13 +1,14 @@
 # SlipStream Clojure Client API
 
-SlipStream Clojure client library to query [SlipStream server API][ss-api].
+SlipStream Clojure client library to query [SlipStream server
+API][ss-api].
 
 ## Usage
 
 ### Query SlipStream Run
 
-Library looks for the configuration file named `slipstream.context` in the following places
-and in defined the order
+Library looks for the configuration file named `slipstream.context` in
+the following places and in defined the order
 
 ```
 1. in the resources directory defined for the JVM
@@ -19,7 +20,7 @@ and in defined the order
 
 ```
 
-Here is the the example of `slipstream.context`
+Here is an example of `slipstream.context`
 
 ```
 [contextualization]
@@ -29,9 +30,10 @@ serviceurl = https://nuv.la
 node_instance_name = orchestrator-exoscale-ch-gva
 ```
 
-Requre the run namespace and use the function to interact with the run
+Require the run namespace and use the function to interact with the
+run
 
-```clojre
+```clojure
 (require '[sixsq.slipstream.client.api.run :as r])
 
 (r/get-state)
@@ -59,4 +61,3 @@ implied.  See the License for the specific language governing
 permissions and limitations under the License.
 
 [ss-api]: http://ssapi.sixsq.com/
-
