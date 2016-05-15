@@ -6,12 +6,14 @@
    The functions mirror those in the synchronous wrapper and generally take
    the same arguments.  An difference is that exceptions are not thrown on
    HTTP error response codes and are instead pushed into the channel."
+  {:doc/format :markdown}
   (:refer-clojure :exclude [get])
   (:require [kvlt.chan :as kvlt]))
 
 (defn request!
   "Asynchronous request that returns a channel that will contain the
    result."
+  {:doc/format :markdown}
   [meth url req]
   (-> {:method (keyword meth) :url url}
       (merge req)

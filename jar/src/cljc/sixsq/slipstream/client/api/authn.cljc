@@ -95,6 +95,7 @@
    **FIXME**: Ideally the login-url should be discovered from the cloud
    entry point. This requires that the cloud entry point be accessible
    without credentials."
+  {:doc/format :markdown}
   ([username password]
    (login-async username password default-login-url))
   ([username password login-url]

@@ -84,7 +84,7 @@
          (run-tests))
 
 (deftask docs
-         "build API documentation"
+         "builds API documentation and puts into target"
          []
          (comp
            (codox)
@@ -92,7 +92,7 @@
            (target)))
 
 (deftask publish
-         "publish API documentation"
+         "publish API documentation to GitHub pages branch"
          []
          (fn middleware [next-handler]
            (fn handler [fileset]

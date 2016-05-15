@@ -1,5 +1,15 @@
 #!/bin/bash -e
 
+# This script is intended to be invoked from boot in the
+# jar subdirectory.  Use the command:
+#
+# $ boot docs publish
+#
+# This assumes that you have your GitHub credentials setup
+# within your environment.  Note that publishing with no
+# changes will fail and will leave you on the "gh-pages"
+# branch.
+
 # everything must be done at the root of the repository
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo ${DIR}

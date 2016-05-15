@@ -7,18 +7,18 @@
 
 (def default_interval 1)
 (defn- validate-interval [interval]
-  (if (<= interval 0)
-    default_interval
-    interval))
+  (if (pos? interval)
+    interval
+    default_interval))
 
 (defn iterations [timeout interval]
   (-> (quot timeout (validate-interval interval))
       (max 1)))
 
 (defn wait-for-async
-  "Asynchronous wait for 'predicate' for 'time-out' seconds with 'interval' seconds.
-
-  Retruns channel that will contain the retuned value."
+  "Asynchronous wait for 'predicate' for 'time-out' seconds with
+   'interval' seconds.  Returns channel that will contain the returned value."
+  {:doc/format :markdown}
   [predicate time-out interval]
   (let [interval    (validate-interval interval)
         max-n       (iterations time-out interval)
@@ -35,5 +35,6 @@
 #?(:clj
    (defn wait-for
      "Wait for 'predicate' for 'time-out' seconds with 'interval' seconds."
+     {:doc/format :markdown}
      [predicate time-out interval]
      (<!! (wait-for-async predicate time-out interval))))
