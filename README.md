@@ -2,6 +2,9 @@
 
 SlipStream client library to query [SlipStream server API][ss-api].
 
+The API documentation is available on the [GitHub Pages site for this
+repository][https://slipstream.github.com/SlipStreamClientAPI].   
+
 ## Clojure library
 
 See https://github.com/slipstream/SlipStreamClientAPI/blob/master/clj/README.md
