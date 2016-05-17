@@ -33,6 +33,8 @@
     m))
 
 (defn req-opts
+  ([]
+    (req-opts nil nil))
   ([token]
    (req-opts token nil))
   ([token body]

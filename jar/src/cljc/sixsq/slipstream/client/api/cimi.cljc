@@ -63,15 +63,23 @@
 (defn cloud-entry-point
   "Retrieves the cloud entry point from the given endpoint.  The cloud
    entry point acts as a directory of the available resources within
-   the CIMI server. This returns the cloud entry point in edn format.
-
-   FIXME: This resource should not require authentication, but it
-   currently does.  When this is corrected, the token can be removed
-   from the function signature."
-  ([token]
-   (cloud-entry-point token default-endpoint))
-  ([token endpoint]
+   the CIMI server. This returns the cloud entry point in edn format."
+  ([]
+   (cloud-entry-point default-endpoint))
+  ([endpoint]
    (-> endpoint
-       (http/get (impl/req-opts token))
+       (http/get (impl/req-opts))
+       :body
+       impl/parse-json)))
+
+(defn cloud-entry-point-async
+  "Retrieves the cloud entry point from the given endpoint.  The cloud
+   entry point acts as a directory of the available resources within
+   the CIMI server. This returns the cloud entry point in edn format."
+  ([]
+   (cloud-entry-point default-endpoint))
+  ([endpoint]
+   (-> endpoint
+       (http/get-async (impl/req-opts))
        :body
        impl/parse-json)))

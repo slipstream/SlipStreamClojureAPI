@@ -35,7 +35,9 @@
   ```
   "
   (:refer-clojure :exclude [get])
-  (:require [kvlt.core :as kvlt]))
+  (:require
+    [kvlt.core :as kvlt]
+    [kvlt.chan :as kc]))
 
 (defn- re-throw-ex-info
   [e]
@@ -53,9 +55,18 @@
       (merge {:method (keyword meth) :url url} req))
     (catch java.util.concurrent.ExecutionException e (re-throw-ex-info e))))
 
+(defn request-async!
+  "Asynchronous request puts result (or error) onto a channel."
+  [meth url req]
+  (kc/request! {:method (keyword meth) :url url} req))
+
 (defn get
   [url & [req]]
   (request! :get url req))
+
+(defn get-async
+  [url & [req]]
+  (request-async! :get url req))
 
 (defn put
   [url & [req]]
