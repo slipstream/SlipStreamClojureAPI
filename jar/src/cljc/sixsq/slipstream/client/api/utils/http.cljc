@@ -6,19 +6,23 @@
 
   Examples of the request/response.
 
+  ```
   GET using Basic authn
   req := {:accept :xml
           :basic-auth [\"user\" \"password\"]}
   resp := {:status 200
            :body \"<Hello :)>\"
            :headers {...}}
+  ```
 
+  ```
   GET using cookie
   req := {:accept :json
           :headers {:cookie cookie}}
   resp := {:status 200
            :body \"{\"Hello\": \":)\"}\"
            :headers {...}}
+  ```
 
   ```clojure
   (:body (get \"https://httpbin.org/get\"))
@@ -34,6 +38,7 @@
           (catch ExceptionInfo e (ex-data e)))
   ```
   "
+  {:doc/format :markdown}
   (:refer-clojure :exclude [get])
   (:require [kvlt.core :as kvlt]))
 
@@ -47,6 +52,7 @@
    with `:data` as Ring-style response.
    To extract the response on error, catch `ExecutionInfo` and call
    `(ex-data e)`."
+  {:doc/format :markdown}
   [meth url req]
   (try
     @(kvlt/request!
@@ -68,5 +74,3 @@
 (defn delete
   [url & [req]]
   (request! :delete url req))
-
-
