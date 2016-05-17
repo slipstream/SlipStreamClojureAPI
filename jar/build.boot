@@ -65,11 +65,11 @@
                (throw (ex-info "ERROR: clojurescript test failures!" {}))))))
 
 (deftask run-cljs-tests
-  "run only the clojurescript tests"
-  []
-  (comp
-   (test-cljs)
-   (failed-test-cljs?)))
+         "run only the clojurescript tests"
+         []
+         (comp
+           (test-cljs)
+           (failed-test-cljs?)))
 
 (deftask run-tests
          "runs all tests and performs full compilation"

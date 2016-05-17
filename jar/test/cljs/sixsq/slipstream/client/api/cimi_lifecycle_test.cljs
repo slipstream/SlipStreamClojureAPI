@@ -158,7 +158,7 @@
           (is base-uri)
 
           ;; get the cloud entry point for server
-          (let [cep (t/cloud-entry-point endpoint)]
+          (let [cep (<! (t/cloud-entry-point-async endpoint))]
             (is (map? cep))
             (is (:baseURI cep))
             (is (:serviceAttributes cep))
