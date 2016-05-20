@@ -52,7 +52,9 @@
          :source-uri   "https://github.com/slipstream/SlipStreamClientAPI/blob/master/jar/{filepath}#L{line}"
          :language     :clojure}
   cljs {:optimizations :advanced}
-  test-cljs {:js-env :phantom})
+  test-cljs {:js-env :phantom}
+  test {:junit-output-to ""}
+  )
 
 (deftask failed-test-cljs?
          "Raise exception on clojurescript test errors. Works around an issue
