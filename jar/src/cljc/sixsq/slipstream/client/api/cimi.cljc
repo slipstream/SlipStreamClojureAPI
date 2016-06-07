@@ -2,6 +2,7 @@
   "Provides the core functions for SCRUD actions on CIMI resources.
    All of the functions require an authentication token that can be
    obtained by logging into the server (see authn namespace). "
+  {:doc/format :markdown}
   (:refer-clojure :exclude [get])
   (:require
     [sixsq.slipstream.client.api.utils.http :as http]
@@ -23,6 +24,7 @@
   "Creates a new CIMI resource of the given type. The data will be
    converted into a JSON string before being sent to the server. The
    data must match the schema of the resource type."
+  {:doc/format :markdown}
   [token cep resource-type data]
   (if-let [add-url (:add (impl/get-collection-operations token cep resource-type))]
     (let [req (impl/req-opts token (impl/edn->json data))]
@@ -34,6 +36,7 @@
 (defn edit
   "Updates an existing CIMI resource identified by the URL or resource
    id."
+  {:doc/format :markdown}
   [token cep url-or-id data]
   (if-let [edit-url (:edit (impl/get-resource-operations token cep url-or-id))]
     (let [req (impl/req-opts token (impl/edn->json data))]
@@ -46,6 +49,7 @@
 (defn delete
   "Deletes the CIMI resource identified by the URL or resource id from
    the server."
+  {:doc/format :markdown}
   [token cep url-or-id]
   (let [delete-url (:delete (impl/get-resource-operations token cep url-or-id))]
     (let [req (impl/req-opts token)]
@@ -54,6 +58,7 @@
 (defn get-async
   "Reads the CIMI resource identified by the URL or resource id.  Returns
    the resource as an edn data structure in a channel."
+  {:doc/format :markdown}
   [token cep url-or-id]
   (let [url (impl/ensure-url cep url-or-id)
         c (chan 1 body-as-json)
@@ -72,6 +77,7 @@
   "Search for CIMI resources of the given type, returning a list of the
    matching resources (in a channel). The list will be wrapped within
    an envelope containing the metadata of the collection and search."
+  {:doc/format :markdown}
   [token cep resource-type]
   (let [url (impl/get-collection-url cep resource-type)
         c (chan 1 body-as-json)

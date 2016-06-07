@@ -1,4 +1,4 @@
-(def +version+ "3.4-SNAPSHOT")
+(def +version+ "3.6-SNAPSHOT")
 
 (defn sixsq-repo [version edition]
   (let [nexus-url "http://nexus.sixsq.com/content/repositories/"
@@ -30,7 +30,7 @@
     [tolitius/boot-check "0.1.1" :scope "test"]
     [sixsq/boot-deputil "0.2.2" :scope "test"]
     [crisptrutski/boot-cljs-test "0.2.2-SNAPSHOT" :scope "test"]
-    [funcool/boot-codeina "0.1.0-SNAPSHOT" :scope "test"]])
+    [boot-codox "0.9.5" :scope "test"]])
 
 (require
   '[adzerk.boot-test :refer [test]]
@@ -40,19 +40,21 @@
   '[sixsq.boot-deputil :refer [set-deps!]]
   '[tolitius.boot-check :refer [with-yagni with-eastwood with-kibit with-bikeshed]]
   '[crisptrutski.boot-cljs-test :refer [test-cljs]]
-  '[funcool.boot-codeina :refer [apidoc]])
+  '[codox.boot :refer [codox]])
 
 (task-options!
   pom {:project (get-env :project)
        :version (get-env :version)}
   checkout {:dependencies [['sixsq/default-deps (get-env :version)]]}
-  apidoc {:version     (get-env :version)
-          :title       "SlipStream Client API"
-          :sources     #{"src"}
-          :description "Client library to interact with SlipStream via REST API."
-          :target      "target/doc/api"}
+  codox {:name         (str (get-env :project))
+         :version      (get-env :version)
+         :source-paths #{"src/clj" "src/cljc" "src/cljs"}
+         :source-uri   "https://github.com/slipstream/SlipStreamClientAPI/blob/master/jar/{filepath}#L{line}"
+         :language     :clojure}
   cljs {:optimizations :advanced}
-  test-cljs {:js-env :phantom})
+  test-cljs {:js-env :phantom}
+  test {:junit-output-to ""}
+  )
 
 (deftask failed-test-cljs?
          "Raise exception on clojurescript test errors. Works around an issue
@@ -89,6 +91,26 @@
          "run all tests of project"
          []
          (run-tests))
+
+(deftask docs
+         "builds API documentation and puts into target"
+         []
+         (comp
+           (codox)
+           (sift :include #{#"^doc.*"})
+           (target)))
+
+(deftask publish
+         "publish API documentation to GitHub pages branch"
+         []
+         (fn middleware [next-handler]
+           (fn handler [fileset]
+             (require 'clojure.java.shell)
+             (let [sh (resolve 'clojure.java.shell/sh)
+                   result (sh "../publish-docs.sh")]
+               (if (zero? (:exit result))
+                 (next-handler fileset)
+                 (throw (ex-info "Publishing docs failed!" result)))))))
 
 (deftask mvn-build
          "build full project through maven"

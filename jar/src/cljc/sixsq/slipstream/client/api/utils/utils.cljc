@@ -10,6 +10,7 @@
   "Trivial joiner of a sequence on '/'.
   Not meant to be following RFC 3986.
   "
+  {:doc/format :markdown}
   [& [parts]]
   (s/join "/" parts))
 
