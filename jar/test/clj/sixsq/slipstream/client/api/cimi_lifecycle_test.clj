@@ -1,12 +1,12 @@
-;; FIXME: Needs to be cleaned up for clojurescript, Thread, login, ...
 (ns sixsq.slipstream.client.api.cimi-lifecycle-test
   "Runs lifecycle tests for CIMI resources against a live server.  If no
    user credentials are provided, the lifecycle tests are 'no-ops'.  To run
    these tests (typically from the REPL), do the following:
 
    ```clojure
+   (require '[sixsq.slipstream.client.api.cimi-lifecycle-test :as t])
+   (t/set-server-info \"my-username\" \"my-password\" \"my-server-root\")
    (in-ns 'sixsq.slipstream.client.api.cimi-lifecycle-test)
-   (set-server-info \"my-username\" \"my-password\" \"my-server-root\")
    (run-tests)
    ```
    These tests make an assumption about the location of the cloud entry
@@ -47,7 +47,7 @@
 
 (def example-attr
   {:id            "123"
-   :resourceURI   "http://sixsq.com/slipstream/1/Attribute"
+   :resourceURI   "http://sixsq.com/slipstream/1/ServiceAttribute"
    :created       "2015-01-16T08:20:00.0Z"
    :updated       "2015-01-16T08:20:00.0Z"
 
@@ -70,19 +70,23 @@
                             :principal "ADMIN"}]}})
 
 (defn set-server-info [username password server-root]
-  (let [endpoint (str server-root "api/cloud-entry-point")
-        login-endpoint (str server-root "login")
-        base-uri (str server-root "api/")]
-    (->> {:username       username
-          :password       password
-          :endpoint       endpoint
-          :login-endpoint login-endpoint
-          :base-uri       base-uri}
-         (constantly)
-         (alter-var-root #'*server-info*))))
+  (when (and username password server-root)
+    (let [endpoint (str server-root "api/cloud-entry-point")
+          login-endpoint (str server-root "login")
+          base-uri (str server-root "api/")]
+      (->> {:username       username
+            :password       password
+            :endpoint       endpoint
+            :login-endpoint login-endpoint
+            :base-uri       base-uri}
+           (constantly)
+           (alter-var-root #'*server-info*)))))
 
 (defn strip-fields [m]
   (dissoc m :id :created :updated :acl :operations))
+
+;; Caution!  Do not commit your credentials.
+(set-server-info nil nil "https://nuv.la/")
 
 (deftest event-lifecycle
   (if *server-info*
@@ -95,20 +99,19 @@
       (is login-endpoint)
       (is base-uri)
 
-      ;; log into the server
-      (let [token (authn/login username password login-endpoint)]
-        (is (string? token))
-        (is (not (s/blank? token)))
+      ;; get the cloud entry point for server
+      (let [cep (t/cloud-entry-point endpoint)]
+        (is (map? cep))
+        (is (:baseURI cep))
+        (is (:events cep))
 
-        ;; get the cloud entry point for server
-        (let [cep (t/cloud-entry-point token endpoint)]
-          (is (map? cep))
-          (is (:baseURI cep))
-          (is (:events cep))
+        ;; log into the server
+        (let [token (authn/login username password login-endpoint)]
+          (is (string? token))
+          (is (not (s/blank? token)))
 
-          ;; fix cloud entry point and search for events
-          (let [cep (assoc cep :baseURI base-uri)           ;; workaround server bug
-                events (t/search token cep "events")]
+          ;; search for events
+          (let [events (t/search token cep "events")]
             (is (map? events))
             (is (:count events))
 
@@ -130,9 +133,15 @@
                 (is (nil? (t/edit token cep event-id read-event)))
 
                 ;; delete the event and ensure that it is gone
-                (let [delete-resp (t/delete token cep event-id)
-                      _ (Thread/sleep 10000)]               ;; avoid 504 on server
-                  (is (thrown? Exception (t/get token cep event-id))))))))))))
+                (let [_ (t/delete token cep event-id)]
+                  (try
+                    (let [get-resp (t/get token cep event-id)]
+                      (is (nil? get-resp)))
+                    (catch Exception ex
+                      (is (= 1 ex))
+                      (let [resp (ex-data ex)]
+                        (is (= 1 resp))
+                        (is (= 404 (:status resp)))))))))))))))
 
 (deftest attribute-lifecycle
   (if *server-info*
@@ -146,24 +155,23 @@
       (is base-uri)
 
       ;; log into the server
-      (let [token (authn/login username password login-endpoint)]
-        (is (string? token))
-        (is (not (s/blank? token)))
+      (let [cep (t/cloud-entry-point endpoint)]
+        (is (map? cep))
+        (is (:baseURI cep))
+        (is (:serviceAttributes cep))
 
         ;; get the cloud entry point for server
-        (let [cep (t/cloud-entry-point token endpoint)]
-          (is (map? cep))
-          (is (:baseURI cep))
-          (is (:attribute cep))                             ;; should be :attributes
+        (let [token (authn/login username password login-endpoint)]
+          (is (string? token))
+          (is (not (s/blank? token)))
 
-          ;; fix cloud entry point and search for events
-          (let [cep (assoc cep :baseURI base-uri)           ;; workaround server bug
-                attrs (t/search token cep "attribute")]     ;; should be "attributes"
+          ;; search for service-attributes
+          (let [attrs (t/search token cep "serviceAttributes")]
             (is (map? attrs))
             (is (:count attrs))
 
             ;; add a new attribute resource
-            (let [add-attr-resp (t/add token cep "attribute" example-attr)]
+            (let [add-attr-resp (t/add token cep "serviceAttributes" example-attr)]
               (is (map? add-attr-resp))
               (is (= 201 (:status add-attr-resp)))
               (is (not (s/blank? (:message add-attr-resp))))
@@ -172,7 +180,7 @@
               ;; read the event back; do a search for all events
               (let [attr-id (:resource-id add-attr-resp)
                     read-attr (t/get token cep attr-id)
-                    attrs (t/search token cep "attribute")]
+                    attrs (t/search token cep "serviceAttributes")]
                 (is (= (strip-fields example-attr) (strip-fields read-attr)))
                 (is (pos? (:count attrs)))
 
@@ -186,7 +194,10 @@
                   (is (not (s/blank? (:resource-id edit-resp))))
                   (is (= (strip-fields updated-attr) (strip-fields reread-attr))))
 
-                ;; delete the attribute and ensure that it is gone
-                (let [delete-resp (t/delete token cep attr-id)
-                      _ (Thread/sleep 10000)]               ;; avoid 504 on server
-                  (is (thrown? Exception (t/get token cep attr-id))))))))))))
+                (let [_ (t/delete token cep attr-id)]
+                  (try
+                    (let [get-resp (t/get token cep attr-id)]
+                      (is (nil? get-resp)))
+                    (catch Exception ex
+                      (let [resp (ex-data ex)]
+                        (is (= 404 (:status resp)))))))))))))))
