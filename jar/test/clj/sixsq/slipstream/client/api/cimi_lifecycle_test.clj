@@ -133,8 +133,7 @@
                 (is (nil? (t/edit token cep event-id read-event)))
 
                 ;; delete the event and ensure that it is gone
-                ;; FIXME: Add this back when delete returns 200 rather than 204.
-                #_(let [_ (t/delete token cep event-id)]
+                (let [_ (t/delete token cep event-id)]
                   (try
                     (let [get-resp (t/get token cep event-id)]
                       (is (nil? get-resp)))
@@ -196,8 +195,7 @@
                   (is (= (strip-fields updated-attr) (strip-fields reread-attr))))
 
                 ;; delete the attribute and ensure that it is gone
-                ;; FIXME: Add this back when delete returns 200 rather than 204.
-                #_(let [_ (t/delete token cep attr-id)]
+                (let [_ (t/delete token cep attr-id)]
                   (try
                     (let [get-resp (t/get token cep attr-id)]
                       (is (nil? get-resp)))
