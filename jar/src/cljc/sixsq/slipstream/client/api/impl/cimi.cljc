@@ -43,9 +43,11 @@
        (assoc-body body))))
 
 (defn parse-json [s]
-  (w/keywordize-keys
-    #?(:clj  (json/parse-string s)
-       :cljs (JSON.parse s))))
+  (if (nil? s)
+    {} ;; return empty map if the input is nil
+    (w/keywordize-keys
+     #?(:clj  (json/parse-string s)
+        :cljs (JSON.parse s)))))
 
 (defn parse-raw-json [s]
   #?(:clj  (json/parse-string s)

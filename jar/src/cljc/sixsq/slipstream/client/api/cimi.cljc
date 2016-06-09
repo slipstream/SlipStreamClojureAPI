@@ -61,7 +61,7 @@
   {:doc/format :markdown}
   [token cep url-or-id]
   (let [url (impl/ensure-url cep url-or-id)
-        c (chan 1 body-as-json)
+        c (chan 1 (body-as-json))
         opts (-> (impl/req-opts token)
                  (assoc :chan c))]
     (http/get-async url opts)))
@@ -80,7 +80,7 @@
   {:doc/format :markdown}
   [token cep resource-type]
   (let [url (impl/get-collection-url cep resource-type)
-        c (chan 1 body-as-json)
+        c (chan 1 (body-as-json))
         opts (-> (impl/req-opts token)
                  (assoc :chan c))]
     (http/get-async url opts)))
@@ -101,7 +101,7 @@
   ([]
    (cloud-entry-point-async default-endpoint))
   ([endpoint]
-   (let [c (chan 1 body-as-json)
+   (let [c (chan 1 (body-as-json))
          opts (-> (impl/req-opts)
                   (assoc :chan c))]
      (http/get-async endpoint opts))))
