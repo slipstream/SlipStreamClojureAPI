@@ -194,6 +194,7 @@
                   (is (not (s/blank? (:resource-id edit-resp))))
                   (is (= (strip-fields updated-attr) (strip-fields reread-attr))))
 
+                ;; delete the attribute and ensure that it is gone
                 (let [_ (t/delete token cep attr-id)]
                   (try
                     (let [get-resp (t/get token cep attr-id)]
