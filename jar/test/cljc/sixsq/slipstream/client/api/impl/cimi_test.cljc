@@ -33,3 +33,19 @@
               "https://localhost:8201/api/network-service" "network-services"
               "https://localhost:8201/api/service-info" "service-info"
               "https://localhost:8201/api/usage-record" "usage-records"))
+
+#?(:clj (deftest check-body-as-json
+          (let [body {:alpha 1
+                      :beta  "2"
+                      :gamma 3.0
+                      :delta false}
+                json (t/edn->json body)
+                result (first (eduction (t/body-as-json) [{:body json}]))]
+            (is (= body result)))))
+
+#?(:clj (deftest check-body-as-json-error
+          (let [ex (ex-info "an exception to catch" {:dummy "data"})
+                result (first (eduction (t/body-as-json) [ex]))]
+            (println ex)
+            (println result)
+            (is (= ex result)))))

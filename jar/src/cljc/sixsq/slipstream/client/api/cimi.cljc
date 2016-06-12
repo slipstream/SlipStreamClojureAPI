@@ -12,14 +12,6 @@
 
 (def default-endpoint "https://nuv.la/api/cloud-entry-point")
 
-(defn body-as-json
-  "transducer that extracts the body of a response and parses
-   the result as JSON"
-  []
-  (comp
-    (map :body)
-    (map impl/parse-json)))
-
 (defn add
   "Creates a new CIMI resource of the given type. The data will be
    converted into a JSON string before being sent to the server. The
@@ -31,7 +23,7 @@
       (-> add-url
           (http/post req)
           :body
-          impl/parse-json))))
+          impl/json->edn))))
 
 (defn edit
   "Updates an existing CIMI resource identified by the URL or resource
@@ -43,7 +35,7 @@
       (-> edit-url
           (http/put req)
           :body
-          impl/parse-json
+          impl/json->edn
           :body))))                                         ;; FIXME: why is this needed?
 
 (defn delete
@@ -61,7 +53,7 @@
   {:doc/format :markdown}
   [token cep url-or-id]
   (let [url (impl/ensure-url cep url-or-id)
-        c (chan 1 (body-as-json))
+        c (chan 1 (impl/body-as-json))
         opts (-> (impl/req-opts token)
                  (assoc :chan c))]
     (http/get-async url opts)))
@@ -80,7 +72,7 @@
   {:doc/format :markdown}
   [token cep resource-type]
   (let [url (impl/get-collection-url cep resource-type)
-        c (chan 1 (body-as-json))
+        c (chan 1 (impl/body-as-json))
         opts (-> (impl/req-opts token)
                  (assoc :chan c))]
     (http/get-async url opts)))
@@ -101,7 +93,7 @@
   ([]
    (cloud-entry-point-async default-endpoint))
   ([endpoint]
-   (let [c (chan 1 (body-as-json))
+   (let [c (chan 1 (impl/body-as-json))
          opts (-> (impl/req-opts)
                   (assoc :chan c))]
      (http/get-async endpoint opts))))

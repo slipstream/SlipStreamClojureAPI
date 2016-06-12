@@ -34,7 +34,7 @@
 
 (defn req-opts
   ([]
-    (req-opts nil nil))
+   (req-opts nil nil))
   ([token]
    (req-opts token nil))
   ([token body]
@@ -42,24 +42,29 @@
        (assoc-token token)
        (assoc-body body))))
 
-(defn parse-json [s]
-  (if (nil? s)
-    {} ;; return empty map if the input is nil
-    (w/keywordize-keys
-     #?(:clj  (json/parse-string s)
-        :cljs (JSON.parse s)))))
+(defn error? [e]
+  (instance? #?(:clj Exception :cljs js/Error) e))
 
-(defn parse-raw-json [s]
+(defn str->json [s]
   #?(:clj  (json/parse-string s)
      :cljs (JSON.parse s)))
+
+(defn json->str [json]
+  #?(:clj  (json/generate-string json)
+     :cljs (JSON.stringify json)))
+
+(defn json->edn [s]
+  (cond
+    (nil? s) {}
+    (error? s) s
+    :else (w/keywordize-keys (str->json s))))
 
 (defn kw->string [kw]
   (if (keyword? kw) (name kw) kw))
 
 (defn edn->json [json]
-  (let [json (w/postwalk kw->string json)]
-    #?(:clj  (json/generate-string json)
-       :cljs (JSON.stringify json))))
+  (-> (w/postwalk kw->string json)
+      (json->str)))
 
 (defn ensure-url [cep url-or-id]
   (if (re-matches #"^((http://)|(https://))" url-or-id)
@@ -81,7 +86,7 @@
     (into {}
           (->> (http/get url req)
                :body
-               parse-json
+               json->edn
                :operations
                (map (juxt :rel :href))
                (map (fn [[k v]] [(action-keyword k) (str baseURI v)]))))))
@@ -93,7 +98,34 @@
     (into {}
           (->> (http/get url req)
                :body
-               parse-json
+               json->edn
                :operations
                (map (juxt :rel :href))
                (map (fn [[k v]] [(action-keyword k) (str baseURI v)]))))))
+
+(defn error-transducer
+  "Creates a transducer that will check for an exception and provide that
+   exception as a reduced value when detected."
+  []
+  (fn [xf]
+    (fn
+      ([] (xf))
+      ([result]
+       (println "TRANS 1: " result)
+       (xf result))
+      ([result input]
+       (println "TRANS 2: " result " " input)
+       (if (error? input)
+         (xf result (reduced input))
+         (xf result input))))))
+
+(defn body-as-json
+  "transducer that extracts the body of a response and parses
+   the result as JSON"
+  []
+  (comp
+    (error-transducer)
+    (map :body)
+    (map json->edn)))
+
+

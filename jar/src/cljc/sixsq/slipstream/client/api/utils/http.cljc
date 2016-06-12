@@ -63,8 +63,8 @@
 
 (defn request-async!
   "Asynchronous request puts result (or error) onto a channel."
-  [meth url req]
-  (kc/request! {:method (keyword meth) :url url} req))
+  [meth url {:keys [chan] :as req}]
+  (kc/request! (merge {:method (keyword meth) :url url} req) {:chan chan}))
 
 (defn get
   [url & [req]]
