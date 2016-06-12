@@ -45,9 +45,14 @@
 (defn error? [e]
   (instance? #?(:clj Exception :cljs js/Error) e))
 
+(defn throw-error [e]
+  (if (error? e)
+    (throw e)
+    e))
+
 (defn str->json [s]
-  #?(:clj  (json/parse-string s)
-     :cljs (JSON.parse s)))
+  #?(:clj  (w/keywordize-keys (json/parse-string s))
+     :cljs (js->clj (JSON.parse s) {:keywordize-keys true})))
 
 (defn json->str [json]
   #?(:clj  (json/generate-string json)
@@ -57,7 +62,7 @@
   (cond
     (nil? s) {}
     (error? s) s
-    :else (w/keywordize-keys (str->json s))))
+    :else (str->json s)))
 
 (defn kw->string [kw]
   (if (keyword? kw) (name kw) kw))
@@ -103,28 +108,12 @@
                (map (juxt :rel :href))
                (map (fn [[k v]] [(action-keyword k) (str baseURI v)]))))))
 
-(defn error-transducer
-  "Creates a transducer that will check for an exception and provide that
-   exception as a reduced value when detected."
-  []
-  (fn [xf]
-    (fn
-      ([] (xf))
-      ([result]
-       (println "TRANS 1: " result)
-       (xf result))
-      ([result input]
-       (println "TRANS 2: " result " " input)
-       (if (error? input)
-         (xf result (reduced input))
-         (xf result input))))))
-
 (defn body-as-json
   "transducer that extracts the body of a response and parses
    the result as JSON"
   []
   (comp
-    (error-transducer)
+    (map throw-error)
     (map :body)
     (map json->edn)))
 
