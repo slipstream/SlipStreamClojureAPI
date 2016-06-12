@@ -133,14 +133,13 @@
                 (is (nil? (t/edit token cep event-id read-event)))
 
                 ;; delete the event and ensure that it is gone
-                (let [_ (t/delete token cep event-id)]
+                (let [delete-resp (t/delete token cep event-id)]
+                  (is (= 200 (:status delete-resp)))
                   (try
                     (let [get-resp (t/get token cep event-id)]
                       (is (nil? get-resp)))
                     (catch Exception ex
-                      (is (= 1 ex))
                       (let [resp (ex-data ex)]
-                        (is (= 1 resp))
                         (is (= 404 (:status resp)))))))))))))))
 
 (deftest attribute-lifecycle
@@ -189,13 +188,12 @@
                       edit-resp (t/edit token cep attr-id updated-attr)
                       reread-attr (t/get token cep attr-id)]
                   (is (map? edit-resp))
-                  (is (= 200 (:status edit-resp)))
-                  (is (not (s/blank? (:message edit-resp))))
-                  (is (not (s/blank? (:resource-id edit-resp))))
+                  (is (= edit-resp reread-attr))
                   (is (= (strip-fields updated-attr) (strip-fields reread-attr))))
 
                 ;; delete the attribute and ensure that it is gone
-                (let [_ (t/delete token cep attr-id)]
+                (let [delete-resp (t/delete token cep attr-id)]
+                  (is (= 200 (:status delete-resp)))
                   (try
                     (let [get-resp (t/get token cep attr-id)]
                       (is (nil? get-resp)))
