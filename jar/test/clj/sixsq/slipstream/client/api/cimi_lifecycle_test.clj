@@ -72,13 +72,11 @@
 (defn set-server-info [username password server-root]
   (when (and username password server-root)
     (let [endpoint (str server-root "api/cloud-entry-point")
-          login-endpoint (str server-root "login")
-          base-uri (str server-root "api/")]
+          login-endpoint (str server-root "login")]
       (->> {:username       username
             :password       password
             :endpoint       endpoint
-            :login-endpoint login-endpoint
-            :base-uri       base-uri}
+            :login-endpoint login-endpoint}
            (constantly)
            (alter-var-root #'*server-info*)))))
 
@@ -90,14 +88,13 @@
 
 (deftest event-lifecycle
   (if *server-info*
-    (let [{:keys [username password endpoint login-endpoint base-uri]} *server-info*]
+    (let [{:keys [username password endpoint login-endpoint]} *server-info*]
 
       ;; check configuration sanity
       (is username)
       (is password)
       (is endpoint)
       (is login-endpoint)
-      (is base-uri)
 
       ;; get the cloud entry point for server
       (let [cep (t/cloud-entry-point endpoint)]
@@ -144,14 +141,13 @@
 
 (deftest attribute-lifecycle
   (if *server-info*
-    (let [{:keys [username password endpoint login-endpoint base-uri]} *server-info*]
+    (let [{:keys [username password endpoint login-endpoint]} *server-info*]
 
       ;; check configuration sanity
       (is username)
       (is password)
       (is endpoint)
       (is login-endpoint)
-      (is base-uri)
 
       ;; log into the server
       (let [cep (t/cloud-entry-point endpoint)]
