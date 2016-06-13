@@ -79,7 +79,7 @@
        :login-endpoint login-endpoint})))
 
 ;; FIXME: Caution!  Do not commit credentials.
-(def ^:dynamic *server-info* (set-server-info "loomis" "whoson1st" "https://nuv.la/"))
+(def ^:dynamic *server-info* (set-server-info nil nil "https://nuv.la/"))
 
 (defn strip-fields [m]
   (dissoc m :id :created :updated :acl :operations))
