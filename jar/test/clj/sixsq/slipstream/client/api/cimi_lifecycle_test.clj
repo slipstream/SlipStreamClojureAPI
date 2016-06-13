@@ -17,7 +17,7 @@
    **NOTE**: The value for \"my-server-root\" must end with a slash!
    "
   (:require
-    [sixsq.slipstream.client.api.cimi :as t]
+    [sixsq.slipstream.client.api.cimi-sync :as t]
     [sixsq.slipstream.client.api.authn :as authn]
     [superstring.core :as s]
     [clojure.test :refer [deftest is are testing run-tests]]))

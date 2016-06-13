@@ -1,38 +1,29 @@
 (ns sixsq.slipstream.client.api.utils.http-async
-  "An asynchronous wrapper arount an HTTP library for simple CRUD actions.
-   All functions return a core.async channel that will contain the HTTP
-   response.
+  "Asynchronous wrapper around standard HTTP calls to provide a uniform interface.
 
-   The functions mirror those in the synchronous wrapper and generally take
-   the same arguments.  An difference is that exceptions are not thrown on
-   HTTP error response codes and are instead pushed into the channel."
+  All actions accept requests in Ring-like format and return a channel.  All results
+  and errors are placed on the returned channel."
   {:doc/format :markdown}
   (:refer-clojure :exclude [get])
-  (:require [kvlt.chan :as kvlt]))
+  (:require
+    [kvlt.chan :as kc]))
 
-(defn request!
-  "Asynchronous request that returns a channel that will contain the
-   result."
-  {:doc/format :markdown}
-  [meth url req]
-  (-> {:method (keyword meth) :url url}
-      (merge req)
-      (kvlt/request!)))
+(defn- request-async!
+  [meth url {:keys [chan] :as req}]
+  (kc/request! (merge {:method (keyword meth) :url url} req) {:chan chan}))
 
 (defn get
   [url & [req]]
-  (request! :get url req))
+  (request-async! :get url req))
 
 (defn put
   [url & [req]]
-  (request! :put url req))
+  (request-async! :put url req))
 
 (defn post
   [url & [req]]
-  (request! :post url req))
+  (request-async! :post url req))
 
 (defn delete
   [url & [req]]
-  (request! :delete url req))
-
-
+  (request-async! :delete url req))

@@ -3,6 +3,7 @@
   #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]]))
   (:require
     [sixsq.slipstream.client.api.impl.cimi :as t]
+    [sixsq.slipstream.client.api.utils.error :as e]
     #?(:clj
     [clojure.core.async :as a :refer [go chan <!! <! >!]]
        :cljs [cljs.core.async :refer [chan <! >!]])
@@ -63,7 +64,7 @@
           c (chan 1 (t/body-as-json) identity)
           _ (>! c ex)
           result (<! c)]
-      (is (t/error? result))
+      (is (e/error? result))
       (is (= msg #?(:clj (.getMessage result)
                     :cljs (.-message result))))
       (is (= data (ex-data result))))))

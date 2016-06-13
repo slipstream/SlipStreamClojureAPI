@@ -4,10 +4,10 @@
    API and may change without notice."
   (:refer-clojure :exclude [read])
   (:require
-    [sixsq.slipstream.client.api.utils.http :as http]
+    [sixsq.slipstream.client.api.utils.http-sync :as http]  ;; FIXME: Wrong library included.
+    [sixsq.slipstream.client.api.utils.error :as e]
     [clojure.walk :as w]
-    #?(:clj
-    [clj-json.core :as json])
+    #?(:clj [clj-json.core :as json])
     [superstring.core :as s]))
 
 (def action-uris {:add    "http://sixsq.com/slipstream/1/Action/add"
@@ -42,14 +42,6 @@
        (assoc-token token)
        (assoc-body body))))
 
-(defn error? [e]
-  (instance? #?(:clj Exception :cljs js/Error) e))
-
-(defn throw-error [e]
-  (if (error? e)
-    (throw e)
-    e))
-
 (defn str->json [s]
   #?(:clj  (w/keywordize-keys (json/parse-string s))
      :cljs (js->clj (JSON.parse s) {:keywordize-keys true})))
@@ -61,7 +53,7 @@
 (defn json->edn [s]
   (cond
     (nil? s) {}
-    (error? s) s
+    (e/error? s) s
     :else (str->json s)))
 
 (defn kw->string [kw]
@@ -113,7 +105,7 @@
    the result as JSON"
   []
   (comp
-    (map throw-error)
+    (map e/throw-if-error)
     (map :body)
     (map json->edn)))
 

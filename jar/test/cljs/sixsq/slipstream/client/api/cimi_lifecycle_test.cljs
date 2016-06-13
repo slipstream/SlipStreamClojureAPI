@@ -18,7 +18,7 @@
    "
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require
-    [sixsq.slipstream.client.api.cimi :as t]
+    [sixsq.slipstream.client.api.cimi-async :as t]
     [sixsq.slipstream.client.api.authn :as authn]
     [superstring.core :as s]
     [cljs.core.async :refer [put! chan <!]]
@@ -79,7 +79,7 @@
        :login-endpoint login-endpoint})))
 
 ;; FIXME: Caution!  Do not commit credentials.
-(def ^:dynamic *server-info* (set-server-info nil nil "https://nuv.la/"))
+(def ^:dynamic *server-info* (set-server-info "loomis" "whoson1st" "https://nuv.la/"))
 
 (defn strip-fields [m]
   (dissoc m :id :created :updated :acl :operations))
@@ -97,23 +97,23 @@
           (is login-endpoint)
 
           ;; get the cloud entry point for server
-          #_(let [cep (t/cloud-entry-point endpoint)]
+          (let [cep (<! (t/cloud-entry-point endpoint))]
             (is (map? cep))
             (is (:baseURI cep))
             (is (:events cep))
 
             ;; log into the server
-            (let [token (authn/login-async username password login-endpoint)]
+            (let [token (<! (authn/login-async username password login-endpoint))]
               (is (string? token))
               (is (not (s/blank? token)))
 
               ;; search for events
-              (let [events (t/search token cep "events")]
+              (let [events (<! (t/search token cep "events"))]
                 (is (map? events))
                 (is (:count events))
 
                 ;; add a new event resource
-                (let [add-event-resp (t/add token cep "events" example-event)]
+                #_(let [add-event-resp (t/add token cep "events" example-event)]
                   (is (map? add-event-resp))
                   (is (= 201 (:status add-event-resp)))
                   (is (not (s/blank? (:message add-event-resp))))
@@ -138,8 +138,8 @@
                             (is (= 1 ex))
                             (let [resp (ex-data ex)]
                               (is (= 1 resp))
-                              (is (= 404 (:status resp))))))))))))))
-      (done))))
+                              (is (= 404 (:status resp)))))))))))))))
+    (done)))
 
 (deftest attribute-lifecycle-async
   (async done
@@ -154,13 +154,13 @@
           (is login-endpoint)
 
           ;; get the cloud entry point for server
-          (let [cep (<! (t/cloud-entry-point-async endpoint))]
+          (let [cep (<! (t/cloud-entry-point endpoint))]
             (is (map? cep))
             (is (:baseURI cep))
             (is (:serviceAttributes cep))
 
             ;; log into the server
-            #_(let [token (authn/login-async username password login-endpoint)]
+            (let [token (authn/login-async username password login-endpoint)]
               (is (string? token))
               (is (not (s/blank? token)))
 
@@ -170,7 +170,7 @@
                 (is (:count attrs))
 
                 ;; add a new attribute resource
-                (let [add-attr-resp (t/add token cep "serviceAttributes" example-attr)]
+                #_(let [add-attr-resp (t/add token cep "serviceAttributes" example-attr)]
                   (is (map? add-attr-resp))
                   (is (= 201 (:status add-attr-resp)))
                   (is (not (s/blank? (:message add-attr-resp))))
@@ -200,5 +200,5 @@
                             (is (nil? get-resp)))
                           (catch Exception ex
                             (let [resp (ex-data ex)]
-                              (is (= 404 (:status resp))))))))))))))
-      (done))))
+                              (is (= 404 (:status resp)))))))))))))))
+    (done)))
