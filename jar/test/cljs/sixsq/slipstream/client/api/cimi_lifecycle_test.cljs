@@ -140,6 +140,12 @@
                             (is (= 404 (:status resp)))))))))))))))
     (done)))
 
+;;
+;; CAUTION: If too many 'is' tests are added, the clojurescript compiler
+;; may cause the stack to overflow.  This is apparently related to the issue
+;; http://dev.clojure.org/jira/browse/ASYNC-40
+;; The immediate solution is to eliminate some of the less useful tests.
+;;
 (deftest attribute-lifecycle-async
   (async done
     (go
@@ -165,12 +171,12 @@
 
               ;; search for service-attributes
               (let [attrs (t/search token cep "serviceAttributes")]
-                (is (map? attrs))
+                #_(is (map? attrs))
                 (is (:count attrs))
 
                 ;; add a new attribute resource
                 (let [add-attr-resp (<! (t/add token cep "serviceAttributes" example-attr))]
-                  (is (map? add-attr-resp))
+                  #_(is (map? add-attr-resp))
                   (is (= 201 (:status add-attr-resp)))
                   (is (not (s/blank? (:message add-attr-resp))))
                   (is (not (s/blank? (:resource-id add-attr-resp))))
@@ -180,18 +186,15 @@
                         read-attr (<! (t/get token cep attr-id))
                         attrs (<! (t/search token cep "serviceAttributes"))]
                     (is (= (strip-fields example-attr) (strip-fields read-attr)))
-                    (is (pos? (:count attrs)))
+                    #_(is (pos? (:count attrs)))
 
                     ;; try editing the attribute
                     (let [updated-attr (assoc read-attr :major-version 10)
                           edit-resp (<! (t/edit token cep attr-id updated-attr))
                           reread-attr (<! (t/get token cep attr-id))]
-                      (is (map? edit-resp))
-                      (= (:body edit-resp) reread-attr)
-                      (= (strip-fields updated-attr) (strip-fields reread-attr))
-                      ;; FIXME: Uncommenting these tests causes a stack overflow! Why?
-                      #_(is (= (:body edit-resp) reread-attr)) ;; FIXME: double nesting of response!
-                      #_(is (= (strip-fields updated-attr) (strip-fields reread-attr))))
+                      #_(is (map? edit-resp))
+                      (is (= (:body edit-resp) reread-attr)) ;; FIXME: double nesting of response!
+                      (is (= (strip-fields updated-attr) (strip-fields reread-attr))))
 
                     ;; delete the attribute and ensure that it is gone
                     (let [delete-resp (<! (t/delete token cep attr-id))]
