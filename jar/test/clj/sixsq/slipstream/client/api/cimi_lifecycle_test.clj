@@ -127,7 +127,7 @@
                 (is (pos? (:count events)))
 
                 ;; events cannot be edited
-                (is (nil? (t/edit token cep event-id read-event)))
+                (is (thrown? Exception (t/edit token cep event-id read-event)))
 
                 ;; delete the event and ensure that it is gone
                 (let [delete-resp (t/delete token cep event-id)]
@@ -184,7 +184,7 @@
                       edit-resp (t/edit token cep attr-id updated-attr)
                       reread-attr (t/get token cep attr-id)]
                   (is (map? edit-resp))
-                  (is (= edit-resp reread-attr))
+                  (is (= (:body edit-resp) reread-attr))    ;; FIXME: double nesting of response!
                   (is (= (strip-fields updated-attr) (strip-fields reread-attr))))
 
                 ;; delete the attribute and ensure that it is gone

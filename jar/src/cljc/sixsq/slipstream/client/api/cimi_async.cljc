@@ -4,11 +4,12 @@
    obtained by logging into the server (see authn namespace). "
   {:doc/format :markdown}
   (:refer-clojure :exclude [get])
+  #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]]))
   (:require
     [sixsq.slipstream.client.api.utils.http-async :as http]
     [sixsq.slipstream.client.api.impl.cimi :as impl]
-    #?(:clj  [clojure.core.async :refer [chan]]
-       :cljs [cljs.core.async :refer [chan]])))
+    #?(:clj  [clojure.core.async :refer [go chan >!]]
+       :cljs [cljs.core.async :refer [chan >!]])))
 
 (def default-endpoint "https://nuv.la/api/cloud-entry-point")
 
@@ -37,10 +38,15 @@
    id."
   {:doc/format :markdown}
   [token cep url-or-id data]
-  (if-let [edit-url (:edit (impl/get-resource-operations token cep url-or-id))]
-    (let [opts (-> (impl/req-opts token (impl/edn->json data))
-                   (assoc :chan (create-chan)))]
-      (http/put edit-url opts))))                                         ;; FIXME: second :body selection needed?
+  (let [c (create-chan)]
+    (if-let [edit-url (:edit (impl/get-resource-operations token cep url-or-id))]
+      (let [opts (-> (impl/req-opts token (impl/edn->json data))
+                     (assoc :chan c))]
+        (http/put edit-url opts))                           ;; FIXME: second :body deref needed?
+      (let [exception (ex-info "unauthorized" {:status 403
+                                               :message "unauthorized"
+                                               :resource-id url-or-id})]
+        (go exception)))))
 
 (defn delete
   "Deletes the CIMI resource identified by the URL or resource id from
