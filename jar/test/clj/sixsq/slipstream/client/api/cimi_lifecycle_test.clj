@@ -172,7 +172,7 @@
               (is (not (s/blank? (:message add-attr-resp))))
               (is (not (s/blank? (:resource-id add-attr-resp))))
 
-              ;; read the event back; do a search for all events
+              ;; read the attribute back; do a search for all attributes
               (let [attr-id (:resource-id add-attr-resp)
                     read-attr (t/get token cep attr-id)
                     attrs (t/search token cep "serviceAttributes")]
