@@ -10,7 +10,7 @@
 [superstring]
 [clj-json]
 [org.clojure/data.xml]
-[io.nervous/kvlt "0.1.0"
+[io.nervous/kvlt
  :exclusions [org.clojure/clojurescript]]
 [org.clojure/core.async]
 ]
