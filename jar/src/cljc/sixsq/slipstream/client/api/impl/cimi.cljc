@@ -7,7 +7,7 @@
     [sixsq.slipstream.client.api.utils.http :as http]
     [clojure.walk :as w]
     #?(:clj
-    [clj-json.core :as json])
+    [clojure.data.json :as json])
     [superstring.core :as s]))
 
 (def action-uris {:add    "http://sixsq.com/slipstream/1/Action/add"
@@ -42,11 +42,11 @@
 
 (defn parse-json [s]
   (w/keywordize-keys
-    #?(:clj  (json/parse-string s)
+    #?(:clj  (json/read-str s)
        :cljs (JSON.parse s))))
 
 (defn parse-raw-json [s]
-  #?(:clj  (json/parse-string s)
+  #?(:clj  (json/read-str s)
      :cljs (JSON.parse s)))
 
 (defn kw->string [kw]
@@ -54,7 +54,7 @@
 
 (defn edn->json [json]
   (let [json (w/postwalk kw->string json)]
-    #?(:clj  (json/generate-string json)
+    #?(:clj  (json/write-str json)
        :cljs (JSON.stringify json))))
 
 (defn ensure-url [cep url-or-id]
