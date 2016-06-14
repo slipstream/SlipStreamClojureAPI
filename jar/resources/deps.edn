@@ -8,7 +8,7 @@
               com.sun.jmx/jmxri]]
 [clojure-ini]
 [superstring]
-[clj-json]
+[org.clojure/data.json]
 [org.clojure/data.xml]
 [io.nervous/kvlt
  :exclusions [org.clojure/clojurescript]]

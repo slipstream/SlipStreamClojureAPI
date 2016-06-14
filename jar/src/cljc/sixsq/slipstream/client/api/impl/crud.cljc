@@ -3,7 +3,7 @@
   (:require
     [sixsq.slipstream.client.api.utils.http-sync :as http]
     [sixsq.slipstream.client.api.utils.utils :as u]
-    #?(:clj [clj-json.core :as json])))
+    #?(:clj [clojure.data.json :as json])))
 
 
 (def as-json {:accept "application/json"})
@@ -38,7 +38,7 @@
   [ex]
   (-> ex
       :body
-      #?(:clj  (json/parse-string)
+      #?(:clj  (json/read-str)
          :cljs (JSON.parse))
       u/keywordize-keys
       reason-from-error))

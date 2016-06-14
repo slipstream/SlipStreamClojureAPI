@@ -7,7 +7,7 @@
     [sixsq.slipstream.client.api.utils.http-sync :as http]  ;; FIXME: Wrong library included.
     [sixsq.slipstream.client.api.utils.error :as e]
     [clojure.walk :as w]
-    #?(:clj [clj-json.core :as json])
+    #?(:clj [clojure.data.json :as json])
     [superstring.core :as s]))
 
 (def action-uris {:add    "http://sixsq.com/slipstream/1/Action/add"
@@ -43,25 +43,21 @@
        (assoc-body body))))
 
 (defn str->json [s]
-  #?(:clj  (w/keywordize-keys (json/parse-string s))
+  #?(:clj  (json/read-str s :key-fn keyword)
      :cljs (js->clj (JSON.parse s) {:keywordize-keys true})))
 
-(defn json->str [json]
-  #?(:clj  (json/generate-string json)
-     :cljs (JSON.stringify json)))
+(defn kw->string [kw]
+  (if (keyword? kw) (name kw) kw))
+
+(defn edn->json [json]
+  #?(:clj  (json/write-str json)
+     :cljs (JSON.stringify (w/postwalk kw->string json))))
 
 (defn json->edn [s]
   (cond
     (nil? s) {}
     (e/error? s) s
     :else (str->json s)))
-
-(defn kw->string [kw]
-  (if (keyword? kw) (name kw) kw))
-
-(defn edn->json [json]
-  (-> (w/postwalk kw->string json)
-      (json->str)))
 
 (defn ensure-url [cep url-or-id]
   (if (re-matches #"^((http://)|(https://))" url-or-id)
