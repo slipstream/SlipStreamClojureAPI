@@ -5,7 +5,7 @@
         repo-type (if (re-find #"SNAPSHOT" version)
                     "snapshots"
                     "releases")]
-    (str nexus-url repo-type "-" edition)))
+    (str nexus-url repo-type "-" edition "-rhel7")))
 
 (set-env!
  :project 'com.sixsq.slipstream/SlipStreamClientAPI-uber
