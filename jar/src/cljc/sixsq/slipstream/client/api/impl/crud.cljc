@@ -1,7 +1,7 @@
 (ns sixsq.slipstream.client.api.impl.crud
   (:refer-clojure :exclude [get])
   (:require
-    [sixsq.slipstream.client.api.utils.http :as http]
+    [sixsq.slipstream.client.api.utils.http-sync :as http]
     [sixsq.slipstream.client.api.utils.utils :as u]
     #?(:clj [clojure.data.json :as json])))
 

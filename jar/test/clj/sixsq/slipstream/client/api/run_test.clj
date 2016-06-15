@@ -17,9 +17,9 @@
     #(is (= '("10" "21" "30") (get-comp-ids run-uuid "foo")))))
 
 (deftest test-scale-up
-  (with-redefs-fn {#'sixsq.slipstream.client.api.utils.http/post (fn [_ _] {:body "comp.1,comp.2"})}
+  (with-redefs-fn {#'sixsq.slipstream.client.api.utils.http-sync/post (fn [_ _] {:body "comp.1,comp.2"})}
     #(is (= ["comp.1" "comp.2"] (scale-up run-uuid comp 2))))
 
-  (with-redefs-fn {#'sixsq.slipstream.client.api.utils.http/post (fn [_ _] {:body "comp.1,comp.2"})
-                   #'sixsq.slipstream.client.api.utils.http/put  (fn [_ _] nil)}
+  (with-redefs-fn {#'sixsq.slipstream.client.api.utils.http-sync/post (fn [_ _] {:body "comp.1,comp.2"})
+                   #'sixsq.slipstream.client.api.utils.http-sync/put  (fn [_ _] nil)}
     #(is (= ["comp.1" "comp.2"] (scale-up run-uuid comp 2 {"foo" 1 "bar" 2})))))

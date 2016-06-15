@@ -4,10 +4,10 @@
    API and may change without notice."
   (:refer-clojure :exclude [read])
   (:require
-    [sixsq.slipstream.client.api.utils.http :as http]
+    [sixsq.slipstream.client.api.utils.http-sync :as http]  ;; FIXME: Wrong library included.
+    [sixsq.slipstream.client.api.utils.error :as e]
     [clojure.walk :as w]
-    #?(:clj
-    [clojure.data.json :as json])
+    #?(:clj [clojure.data.json :as json])
     [superstring.core :as s]))
 
 (def action-uris {:add    "http://sixsq.com/slipstream/1/Action/add"
@@ -33,6 +33,8 @@
     m))
 
 (defn req-opts
+  ([]
+   (req-opts nil nil))
   ([token]
    (req-opts token nil))
   ([token body]
@@ -40,22 +42,22 @@
        (assoc-token token)
        (assoc-body body))))
 
-(defn parse-json [s]
-  (w/keywordize-keys
-    #?(:clj  (json/read-str s)
-       :cljs (JSON.parse s))))
-
-(defn parse-raw-json [s]
-  #?(:clj  (json/read-str s)
-     :cljs (JSON.parse s)))
+(defn str->json [s]
+  #?(:clj  (json/read-str s :key-fn keyword)
+     :cljs (js->clj (JSON.parse s) {:keywordize-keys true})))
 
 (defn kw->string [kw]
   (if (keyword? kw) (name kw) kw))
 
 (defn edn->json [json]
-  (let [json (w/postwalk kw->string json)]
-    #?(:clj  (json/write-str json)
-       :cljs (JSON.stringify json))))
+  #?(:clj  (json/write-str json)
+     :cljs (JSON.stringify (w/postwalk kw->string json))))
+
+(defn json->edn [s]
+  (cond
+    (nil? s) {}
+    (e/error? s) s
+    :else (str->json s)))
 
 (defn ensure-url [cep url-or-id]
   (if (re-matches #"^((http://)|(https://))" url-or-id)
@@ -77,7 +79,7 @@
     (into {}
           (->> (http/get url req)
                :body
-               parse-json
+               json->edn
                :operations
                (map (juxt :rel :href))
                (map (fn [[k v]] [(action-keyword k) (str baseURI v)]))))))
@@ -89,7 +91,18 @@
     (into {}
           (->> (http/get url req)
                :body
-               parse-json
+               json->edn
                :operations
                (map (juxt :rel :href))
                (map (fn [[k v]] [(action-keyword k) (str baseURI v)]))))))
+
+(defn body-as-json
+  "transducer that extracts the body of a response and parses
+   the result as JSON"
+  []
+  (comp
+    (map e/throw-if-error)
+    (map :body)
+    (map json->edn)))
+
+

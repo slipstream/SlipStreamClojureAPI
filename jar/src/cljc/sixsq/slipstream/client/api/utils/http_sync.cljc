@@ -1,4 +1,4 @@
-(ns sixsq.slipstream.client.api.utils.http
+(ns sixsq.slipstream.client.api.utils.http-sync
   "Simple synchronous wrapper around an HTTP library to produce consistent
   CRUD interface.
 
@@ -40,14 +40,15 @@
   "
   {:doc/format :markdown}
   (:refer-clojure :exclude [get])
-  (:require [kvlt.core :as kvlt]))
+  (:require
+    [kvlt.core :as kvlt]))
 
 (defn- re-throw-ex-info
   [e]
   (throw (let [data (ex-data (.getCause e))]
            (ex-info (str "HTTP Error: " (:status data)) data))))
 
-(defn request!
+(defn- request!
   "Synchronous request.  Throws `ExecutionInfo` on HTTP errors
    with `:data` as Ring-style response.
    To extract the response on error, catch `ExecutionInfo` and call

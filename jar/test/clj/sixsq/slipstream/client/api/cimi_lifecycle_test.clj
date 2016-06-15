@@ -17,7 +17,7 @@
    **NOTE**: The value for \"my-server-root\" must end with a slash!
    "
   (:require
-    [sixsq.slipstream.client.api.cimi :as t]
+    [sixsq.slipstream.client.api.cimi-sync :as t]
     [sixsq.slipstream.client.api.authn :as authn]
     [superstring.core :as s]
     [clojure.test :refer [deftest is are testing run-tests]]))
@@ -127,7 +127,7 @@
                 (is (pos? (:count events)))
 
                 ;; events cannot be edited
-                (is (nil? (t/edit token cep event-id read-event)))
+                (is (thrown? Exception (t/edit token cep event-id read-event)))
 
                 ;; delete the event and ensure that it is gone
                 (let [delete-resp (t/delete token cep event-id)]
@@ -172,7 +172,7 @@
               (is (not (s/blank? (:message add-attr-resp))))
               (is (not (s/blank? (:resource-id add-attr-resp))))
 
-              ;; read the event back; do a search for all events
+              ;; read the attribute back; do a search for all attributes
               (let [attr-id (:resource-id add-attr-resp)
                     read-attr (t/get token cep attr-id)
                     attrs (t/search token cep "serviceAttributes")]
@@ -184,7 +184,7 @@
                       edit-resp (t/edit token cep attr-id updated-attr)
                       reread-attr (t/get token cep attr-id)]
                   (is (map? edit-resp))
-                  (is (= edit-resp reread-attr))
+                  (is (= (:body edit-resp) reread-attr))    ;; FIXME: double nesting of response!
                   (is (= (strip-fields updated-attr) (strip-fields reread-attr))))
 
                 ;; delete the attribute and ensure that it is gone
