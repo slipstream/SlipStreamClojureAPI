@@ -11,7 +11,7 @@
     <parent>
         <groupId>com.sixsq.slipstream</groupId>
         <artifactId>SlipStreamClientAPI</artifactId>
-        <version>3.6</version>
+        <version>3.6-SNAPSHOT</version>
     </parent>
 
     <properties>
