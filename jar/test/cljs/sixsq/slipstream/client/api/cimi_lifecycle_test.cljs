@@ -103,7 +103,8 @@
             (is (:events cep))
 
             ;; log into the server
-            (let [token (<! (authn/login-async username password login-endpoint))]
+            (let [[status token] (<! (authn/login-async username password login-endpoint))]
+              (is (= 200 status))
               (is (string? token))
               (is (not (s/blank? token)))
 
@@ -165,7 +166,8 @@
             (is (:serviceAttributes cep))
 
             ;; log into the server
-            (let [token (<! (authn/login-async username password login-endpoint))]
+            (let [[status token] (<! (authn/login-async username password login-endpoint))]
+              (is (= 200 status))
               (is (string? token))
               (is (not (s/blank? token)))
 
