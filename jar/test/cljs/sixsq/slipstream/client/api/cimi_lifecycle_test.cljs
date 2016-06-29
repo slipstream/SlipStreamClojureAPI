@@ -19,7 +19,7 @@
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require
     [sixsq.slipstream.client.api.cimi-async :as t]
-    [sixsq.slipstream.client.api.authn :as authn]
+    [sixsq.slipstream.client.api.authn-async :as authn]
     [superstring.core :as s]
     [cljs.core.async :refer [put! chan <!]]
     [cljs.test :refer-macros [deftest is testing run-tests async]]))

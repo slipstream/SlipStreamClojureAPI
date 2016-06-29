@@ -4,7 +4,7 @@
   (:require
     [sixsq.slipstream.client.api.cimi-scrud-protocol :refer [CimiScrudProtocol]]
     [sixsq.slipstream.client.api.cimi-async :as cimi]
-    [sixsq.slipstream.client.api.authn :as authn]
+    [sixsq.slipstream.client.api.authn-async :as authn]
     #?(:clj
     [clojure.core.async :refer [go <!]]
        :cljs [cljs.core.async :refer [<!]])))
