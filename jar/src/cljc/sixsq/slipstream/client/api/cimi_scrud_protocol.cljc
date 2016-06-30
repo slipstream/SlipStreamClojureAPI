@@ -8,11 +8,11 @@
    concrete implementations of the protocol.  Specifically,
    asynchronous implementations always return channels where
    synchronous implementations will return the results directly."
-  (add [_ resource-type data & options])
-  (edit [_ url-or-id data & options])
-  (delete [_ url-or-id & options])
-  (get [_ url-or-id & options])
-  (search [_ resource-type & options])
+  (add [_ resource-type data])
+  (edit [_ url-or-id data])
+  (delete [_ url-or-id])
+  (get [_ url-or-id])
+  (search [_ resource-type])
   (cloud-entry-point [_])
   (login [_ credentials])
   (logout [_]))
