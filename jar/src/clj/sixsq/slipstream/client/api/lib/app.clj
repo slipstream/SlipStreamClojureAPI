@@ -45,7 +45,7 @@
   "Deploys an application identified by `uri` (e.g. `examples/my-app`).
   Deployment and component parameters are expected in `params` map.
 
-  The following reserved deployment parameters are recognised:
+  The following reserved deployment parameters are recognized:
 
   - `{:scalable true|false}` to start a scalable deployment;
   - `{:keep-running :never|:always|:on-error|:on-success}` to influence the runtime and

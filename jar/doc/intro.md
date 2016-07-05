@@ -41,6 +41,26 @@ run
 (r/terminate)
 ```
 
+### Contacting server in insecure mode
+
+For contacting server in insecure mode (i.e. w/o checking authenticity of the
+remote server), provide `:insecure? true` in `req` map in
+**sixsq.slipstream.client.api** namespaces.  Alternatively, re-set
+the root of authentication context with
+
+```clojure
+(require '[sixsq.slipstream.client.api.authn :as a])
+(a/set-context! {:insecure? true})
+(deploy ..)
+```
+
+or wrap the API call for the local rebinding of the authentication context as
+follows
+
+```clojure
+(a/with-context {:insecure? true} (deploy ..))
+```
+
 # License and copyright
 
 Copyright (C) 2016 SixSq Sarl (sixsq.com)

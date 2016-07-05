@@ -28,7 +28,7 @@
   (:body (get \"https://httpbin.org/get\"))
   ```
 
-  On HTTP error, thows ExceptionInfo with `:data` containing the full response.
+  On HTTP error, throws ExceptionInfo with `:data` containing the full response.
   The response can be obtained with `(ex-data ex)`
 
   ```clojure
@@ -41,6 +41,7 @@
   {:doc/format :markdown}
   (:refer-clojure :exclude [get])
   (:require
+    [sixsq.slipstream.client.api.utils.http-utils :as hu]
     [kvlt.core :as kvlt]))
 
 (defn- re-throw-ex-info
@@ -57,7 +58,7 @@
   [meth url req]
   (try
     @(kvlt/request!
-      (merge {:method (keyword meth) :url url} req))
+      (merge {:method (keyword meth) :url url} (hu/process-req req)))
     (catch java.util.concurrent.ExecutionException e (re-throw-ex-info e))))
 
 (defn get

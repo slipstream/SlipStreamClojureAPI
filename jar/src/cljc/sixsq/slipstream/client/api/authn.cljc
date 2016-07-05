@@ -34,7 +34,23 @@
             (with-context my-slipstream (p/deploy \"my/app\")))))
 
       (with-context my-slipstream
-        (r/get-run-info run-uuid))"
+        (r/get-run-info run-uuid))
+
+  To contact server in an insecure mode (i.e. w/o checking the authenticity of
+  the remote server) before calling login functions, re-set the root of the
+  authentication context with
+
+      (require '[sixsq.slipstream.client.api.authn :as a])
+
+      (a/set-context! {:insecure? true})
+      (a/login username password)
+
+  or wrap the API call for the local rebinding of the authentication context as 
+  follows
+
+      (a/with-context {:insecure? true}
+        (a/login! username password))
+  "
   {:doc/format :markdown}
   (:require
     [sixsq.slipstream.client.api.utils.http-async :as http]
@@ -59,13 +75,14 @@
 
 ;;
 ;; Authentication context management for the namespaces in client.api.lib/*.
-(def default-context {:serviceurl default-url})
+(def default-context {:serviceurl default-url
+                      :insecure? false})
 
 (def ^:dynamic *context* default-context)
 
 (defn select-context
   [context]
-  (select-keys context [:serviceurl :username :password :cookie]))
+  (select-keys context [:serviceurl :username :password :cookie :insecure?]))
 
 ;;
 #?(:clj
@@ -77,6 +94,7 @@
           :cookie     \"cookie\"}"
      {:doc/format :markdown}
      [context]
+     (println context)
      (alter-var-root #'*context* (fn [_] (merge default-context (select-context context))))))
 
 (defmacro with-context
@@ -102,7 +120,8 @@
    (let [data (str "authn-method=internal&username=" username "&password=" password)]
      (go
        (let [result (<! (http/post login-url {:follow-redirects false
-                                              :body             data}))]
+                                              :body             data
+                                              :insecure? (:insecure? *context*)}))]
          (-> result :headers :set-cookie))))))
 
 #?(:clj
@@ -134,7 +153,8 @@
       (login! username password default-login-url))
      ([username password login-url]
       (let [token (login username password login-url)]
-        (set-context! {:serviceurl (endpoint-from-url login-url)
-                       :cookie     token})
+        (set-context! (merge *context*
+                             {:serviceurl (endpoint-from-url login-url)
+                              :cookie     token}))
         token))))
 
