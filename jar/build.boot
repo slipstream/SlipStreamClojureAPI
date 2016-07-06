@@ -15,19 +15,19 @@
 
 (set-env!
   :source-paths #{"resources" "dev-resources" "test/clj" "test/cljc" "test/cljs"}
-  :resource-paths #{"src/clj" "src/cljc" "src/cljs"}
+  :resource-paths #{"src/clj" "src/cljc"}
 
   :repositories
   #(reduce conj % [["sixsq" {:url (sixsq-repo (get-env :version) (get-env :edition))}]])
 
   :dependencies
-  '[[org.clojure/clojure "1.8.0" :scope "provided"]
-    [org.clojure/clojurescript "1.8.40" :scope "provided"]
-    [adzerk/boot-test "1.1.0" :scope "test"]
+  '[[org.clojure/clojure "1.8.0"]
+    [org.clojure/clojurescript "1.8.40"]
+    [adzerk/boot-test "1.1.2" :scope "test"]
     [adzerk/boot-cljs "1.7.228-1" :scope "test"]
-    [adzerk/boot-cljs-repl "0.3.0" :scope "test"]
-    [adzerk/boot-reload "0.4.5" :scope "test"]
-    [tolitius/boot-check "0.1.1" :scope "test"]
+    [adzerk/boot-cljs-repl "0.3.2" :scope "test"]
+    [adzerk/boot-reload "0.4.11" :scope "test"]
+    [tolitius/boot-check "0.1.2" :scope "test"]
     [sixsq/boot-deputil "0.2.2" :scope "test"]
     [crisptrutski/boot-cljs-test "0.2.2-SNAPSHOT" :scope "test"]
     [boot-codox "0.9.5" :scope "test"]])
