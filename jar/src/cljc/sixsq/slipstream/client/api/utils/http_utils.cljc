@@ -2,15 +2,11 @@
 
 (def ^:const http-lib-insecure-key :kvlt.platform/insecure?)
 
-(defn- process-insecure
+(defn process-req
   [req]
   (if (contains? req :insecure?)
     (-> req
-      (merge {http-lib-insecure-key (:insecure? req)})
-      (dissoc :insecure?))
+        (merge {http-lib-insecure-key (:insecure? req)})
+        (dissoc :insecure?))
     req))
 
-(defn process-req
-  [req]
-  (-> req
-      process-insecure))
