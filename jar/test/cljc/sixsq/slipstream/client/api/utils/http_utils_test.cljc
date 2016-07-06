@@ -10,5 +10,9 @@
   (let [req (h/process-req {:insecure? true})]
     (is (not (contains? req :insecure?)))
     (is (contains? req h/http-lib-insecure-key))
-    (is (= true (h/http-lib-insecure-key req)))))
+    (is (true? (h/http-lib-insecure-key req))))
+  (let [req (h/process-req {:insecure? false})]
+    (is (not (contains? req :insecure?)))
+    (is (contains? req h/http-lib-insecure-key))
+    (is (false? (h/http-lib-insecure-key req)))))
 
