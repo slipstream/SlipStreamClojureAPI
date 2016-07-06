@@ -1,6 +1,6 @@
 (ns sixsq.slipstream.client.api.utils.http-utils)
 
-(def http-lib-insecure-key :kvlt.platform/insecure?)
+(def ^:const http-lib-insecure-key :kvlt.platform/insecure?)
 
 (defn- process-insecure
   [req]
