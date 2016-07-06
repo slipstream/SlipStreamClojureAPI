@@ -94,7 +94,6 @@
           :cookie     \"cookie\"}"
      {:doc/format :markdown}
      [context]
-     (println context)
      (alter-var-root #'*context* (fn [_] (merge default-context (select-context context))))))
 
 (defmacro with-context
