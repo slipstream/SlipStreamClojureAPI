@@ -5,8 +5,13 @@
        :cljs [cljs.test :refer-macros [deftest is testing run-tests]])))
 
 (deftest test-process-req
-  (is (= {} (h/process-req {})))
-  (is (= {:a 1} (h/process-req {:a 1})))
+  (let [req (h/process-req {})]
+    (is (contains? req h/http-lib-insecure-key))
+    (is (not (h/http-lib-insecure-key req))))
+  (let [req (h/process-req {:a 1})]
+    (is (contains? req :a))
+    (is (contains? req h/http-lib-insecure-key))
+    (is (not (h/http-lib-insecure-key req))))
   (let [req (h/process-req {:insecure? true})]
     (is (not (contains? req :insecure?)))
     (is (contains? req h/http-lib-insecure-key))

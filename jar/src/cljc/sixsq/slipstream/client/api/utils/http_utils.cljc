@@ -4,9 +4,7 @@
 
 (defn process-req
   [req]
-  (if (contains? req :insecure?)
-    (-> req
-        (merge {http-lib-insecure-key (:insecure? req)})
-        (dissoc :insecure?))
-    req))
+  (-> req
+      (assoc http-lib-insecure-key (:insecure? req))
+      (dissoc :insecure?)))
 
