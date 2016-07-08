@@ -8,7 +8,7 @@
 
 (def as-json {:accept "application/json"})
 (def as-xml {:accept "application/xml"})
-(def base-http-params {:insecure? true})
+(def base-http-params {:insecure? false})
 (def param-req-params (conj
                         base-http-params
                         {:content-type "text/plain"
@@ -58,6 +58,15 @@
       (and username password) {:basic-auth [username password]}
       :else (throw (ex-info "Cookie or user credentials are required." {})))))
 
+(defn query-params
+  "Extract and return query parameters from the provided context."
+  [conf]
+  (select-keys conf [:query-params]))
+
+(defn insecure
+  [conf]
+  (select-keys conf [:insecure?]))
+
 (defn map-merge
   [a b]
   (if (and (map? a) (map? b))
@@ -84,6 +93,8 @@
            (to-url conf uri)
            (with-default-request
              req
+             (insecure conf)
+             (query-params conf)
              (http-creds conf)))))
 
 (defn put
@@ -92,6 +103,7 @@
     (to-url conf uri)
     (with-default-request
       req
+      (insecure conf)
       (http-creds conf)
       {:body body})))
 
@@ -101,6 +113,7 @@
     (to-url conf uri)
     (with-default-request
       req
+      (insecure conf)
       (http-creds conf)
       (if (seq body-params)
         {:body (u/to-body-params body-params)}))))
@@ -111,6 +124,7 @@
     (to-url conf uri)
     (with-default-request
       req
+      (insecure conf)
       (http-creds conf)
       (if (seq body-params)
         {:body (u/to-body-params body-params)}))))
