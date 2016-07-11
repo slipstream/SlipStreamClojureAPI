@@ -23,28 +23,28 @@
   #(reduce conj % [["sixsq" {:url (sixsq-repo (get-env :version) (get-env :edition))}]])
 
   :dependencies
-  #(concat %
-           (merge-defaults
-             ['sixsq/default-deps (get-env :version)]
-             '[[org.clojure/clojure]
-               [org.clojure/clojurescript]
-
-               [org.clojure/tools.logging]
-               [log4j]
-               [clojure-ini]
-               [superstring]
-               [org.clojure/data.json]
-               [org.clojure/data.xml]
-               [org.clojure/core.async]
-               [io.nervous/kvlt]
-
-               [adzerk/boot-test]
-               [adzerk/boot-cljs]
-               [adzerk/boot-cljs-repl]
-               [adzerk/boot-reload]
-               [tolitius/boot-check]
-               [crisptrutski/boot-cljs-test]
-               [boot-codox]])))
+  #(vec (concat %
+                (merge-defaults
+                 ['sixsq/default-deps (get-env :version)]
+                 '[[org.clojure/clojure]
+                   [org.clojure/clojurescript]
+                   
+                   [org.clojure/tools.logging]
+                   [log4j]
+                   [clojure-ini]
+                   [superstring]
+                   [org.clojure/data.json]
+                   [org.clojure/data.xml]
+                   [org.clojure/core.async]
+                   [io.nervous/kvlt]
+                   
+                   [adzerk/boot-test]
+                   [adzerk/boot-cljs]
+                   [adzerk/boot-cljs-repl]
+                   [adzerk/boot-reload]
+                   [tolitius/boot-check]
+                   [crisptrutski/boot-cljs-test]
+                   [boot-codox]]))))
 
 (require
   '[adzerk.boot-test :refer [test]]
