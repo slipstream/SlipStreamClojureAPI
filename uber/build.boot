@@ -20,7 +20,7 @@
  #(reduce conj % [["sixsq" {:url (sixsq-repo (get-env :version) (get-env :edition))}]])
 
  :dependencies
- '[[org.clojure/clojure "1.8.0" :scope "provided"]
+ '[[org.clojure/clojure "1.8.0"]
    [sixsq/boot-deputil "0.2.2" :scope "test"]])
 
 (require
