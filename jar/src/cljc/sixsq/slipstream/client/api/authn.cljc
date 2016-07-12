@@ -119,7 +119,7 @@
    (let [data (str "authn-method=internal&username=" username "&password=" password)]
      (go
 
-       (let [result (<! (http/post login-url {:content-type     "x-www-form-urlencoded"
+       (let [result (<! (http/post login-url {:content-type     "application/x-www-form-urlencoded"
                                               :follow-redirects false
                                               :body             data
                                               :insecure?        (:insecure? *context*)}))]
