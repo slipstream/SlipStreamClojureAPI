@@ -6,11 +6,13 @@
   {:doc/format :markdown}
   (:refer-clojure :exclude [get])
   (:require
+    [sixsq.slipstream.client.api.utils.http-utils :as hu]
     [kvlt.chan :as kc]))
 
 (defn- request-async!
   [meth url {:keys [chan] :as req}]
-  (kc/request! (merge {:method (keyword meth) :url url} req) {:chan chan}))
+  (kc/request! (merge {:method (keyword meth) :url url} (hu/process-req req))
+               {:chan chan}))
 
 (defn get
   [url & [req]]

@@ -1,46 +1,58 @@
-(def +version+ "3.7-SNAPSHOT")
-
-(defn sixsq-repo [version edition]
-  (let [nexus-url "http://nexus.sixsq.com/content/repositories/"
-        repo-type (if (re-find #"SNAPSHOT" version)
-                    "snapshots"
-                    "releases")]
-    (str nexus-url repo-type "-" edition "-rhel7")))
+(def +version+ "3.9-SNAPSHOT")
 
 (set-env!
   :project 'com.sixsq.slipstream/SlipStreamClientAPI-jar
   :version +version+
   :license {"Apache 2.0" "http://www.apache.org/licenses/LICENSE-2.0.txt"}
-  :edition "community")
+  :edition "community"
+
+  :dependencies '[[org.clojure/clojure "1.8.0"]
+                  [sixsq/build-utils "0.1.3" :scope "test"]])
+
+(require '[sixsq.build-fns :refer [merge-defaults
+                                   sixsq-nexus-url
+                                   lein-generate]])
 
 (set-env!
-  :source-paths #{"resources" "dev-resources" "test/clj" "test/cljc" "test/cljs"}
-  :resource-paths #{"src/clj" "src/cljc" "src/cljs"}
-
   :repositories
-  #(reduce conj % [["sixsq" {:url (sixsq-repo (get-env :version) (get-env :edition))}]])
+  #(reduce conj % [["sixsq" {:url (sixsq-nexus-url)}]])
 
   :dependencies
-  '[[org.clojure/clojure "1.8.0" :scope "provided"]
-    [org.clojure/clojurescript "1.8.40" :scope "provided"]
-    [adzerk/boot-test "1.1.0" :scope "test"]
-    [adzerk/boot-cljs "1.7.228-1" :scope "test"]
-    [adzerk/boot-cljs-repl "0.3.0" :scope "test"]
-    [adzerk/boot-reload "0.4.5" :scope "test"]
-    [tolitius/boot-check "0.1.1" :scope "test"]
-    [sixsq/boot-deputil "0.2.2" :scope "test"]
-    [crisptrutski/boot-cljs-test "0.2.2-SNAPSHOT" :scope "test"]
-    [boot-codox "0.9.5" :scope "test"]])
+  #(vec (concat %
+                (merge-defaults
+                 ['sixsq/default-deps (get-env :version)]
+                 '[[org.clojure/clojure]
+                   [org.clojure/clojurescript]
+                   
+                   [org.clojure/tools.logging]
+                   [log4j]
+                   [clojure-ini]
+                   [superstring]
+                   [org.clojure/data.json]
+                   [org.clojure/data.xml]
+                   [org.clojure/core.async]
+                   [io.nervous/kvlt]
+                   
+                   [adzerk/boot-test]
+                   [adzerk/boot-cljs]
+                   [adzerk/boot-cljs-repl]
+                   [adzerk/boot-reload]
+                   [tolitius/boot-check]
+                   [crisptrutski/boot-cljs-test]
+                   [boot-codox]]))))
 
 (require
   '[adzerk.boot-test :refer [test]]
   '[adzerk.boot-cljs :refer [cljs]]
   '[adzerk.boot-cljs-repl :refer [cljs-repl]]
   '[adzerk.boot-reload :refer [reload]]
-  '[sixsq.boot-deputil :refer [set-deps!]]
   '[tolitius.boot-check :refer [with-yagni with-eastwood with-kibit with-bikeshed]]
   '[crisptrutski.boot-cljs-test :refer [test-cljs]]
   '[codox.boot :refer [codox]])
+
+(set-env!
+  :source-paths #{"dev-resources" "test/clj" "test/cljc" "test/cljs"}
+  :resource-paths #{"src/clj" "src/cljc"})
 
 (task-options!
   pom {:project (get-env :project)
@@ -126,10 +138,3 @@
          (comp
            (mvn-build)
            (push :repo "sixsq")))
-
-(deftask setup-deps
-         "setup dependencies for project"
-         []
-         (comp (checkout) (set-deps!)))
-
-(boot (setup-deps))

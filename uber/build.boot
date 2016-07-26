@@ -1,4 +1,4 @@
-(def +version+ "3.7-SNAPSHOT")
+(def +version+ "3.9-SNAPSHOT")
 
 (defn sixsq-repo [version edition]
   (let [nexus-url "http://nexus.sixsq.com/content/repositories/"
@@ -20,7 +20,7 @@
  #(reduce conj % [["sixsq" {:url (sixsq-repo (get-env :version) (get-env :edition))}]])
 
  :dependencies
- '[[org.clojure/clojure "1.8.0" :scope "provided"]
+ '[[org.clojure/clojure "1.8.0"]
    [sixsq/boot-deputil "0.2.2" :scope "test"]])
 
 (require
