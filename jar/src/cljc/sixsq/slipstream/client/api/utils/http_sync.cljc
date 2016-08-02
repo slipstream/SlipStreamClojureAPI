@@ -46,8 +46,10 @@
 
 (defn- re-throw-ex-info
   [e]
-  (throw (let [data (ex-data (.getCause e))]
-           (ex-info (str "HTTP Error: " (:status data)) data))))
+  (let [data (ex-data (.getCause e))
+        body (or (:body data) "")
+        msg (str "HTTP Error: " (:status data) ". " body)]
+    (throw (ex-info msg data))))
 
 (defn- request!
   "Synchronous request.  Throws `ExecutionInfo` on HTTP errors
