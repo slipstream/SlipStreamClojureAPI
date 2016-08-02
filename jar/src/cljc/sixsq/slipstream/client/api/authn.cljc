@@ -65,7 +65,7 @@
 
 (def ^:const default-url "https://nuv.la")
 
-(def ^:const login-resource "login")
+(def ^:const login-resource "auth/login")
 
 (defn to-login-url
   [service-url]
