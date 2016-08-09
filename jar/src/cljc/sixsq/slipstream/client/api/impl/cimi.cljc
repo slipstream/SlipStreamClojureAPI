@@ -6,9 +6,7 @@
   (:require
     [sixsq.slipstream.client.api.utils.http-sync :as http]  ;; FIXME: Wrong library included.
     [sixsq.slipstream.client.api.utils.error :as e]
-    [clojure.walk :as w]
-    #?(:clj [clojure.data.json :as json])
-    [superstring.core :as s]))
+    #?(:clj [clojure.data.json :as json])))
 
 (def action-uris {:add    "http://sixsq.com/slipstream/1/Action/add"
                   :delete "http://sixsq.com/slipstream/1/Action/delete"
@@ -44,14 +42,11 @@
 
 (defn str->json [s]
   #?(:clj  (json/read-str s :key-fn keyword)
-     :cljs (js->clj (JSON.parse s) {:keywordize-keys true})))
-
-(defn kw->string [kw]
-  (if (keyword? kw) (name kw) kw))
+     :cljs (js->clj (JSON.parse s) :keywordize-keys true)))
 
 (defn edn->json [json]
   #?(:clj  (json/write-str json)
-     :cljs (JSON.stringify (w/postwalk kw->string json))))
+     :cljs (JSON.stringify (clj->js json))))
 
 (defn json->edn [s]
   (cond
