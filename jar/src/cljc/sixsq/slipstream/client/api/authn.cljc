@@ -45,13 +45,12 @@
       (a/set-context! {:insecure? true})
       (a/login username password)
 
-  or wrap the API call for the local rebinding of the authentication context as 
+  or wrap the API call for the local rebinding of the authentication context as
   follows
 
       (a/with-context {:insecure? true}
         (a/login! username password))
   "
-  {:doc/format :markdown}
   (:require
     [sixsq.slipstream.client.api.utils.http-async :as http]
     [superstring.core :as s]
@@ -92,7 +91,6 @@
 
          {:serviceurl \"https://nuv.la\"
           :cookie     \"cookie\"}"
-     {:doc/format :markdown}
      [context]
      (alter-var-root #'*context* (fn [_] (merge default-context (select-context context))))))
 
@@ -100,25 +98,61 @@
   [context & body]
   `(binding [*context* (merge *context* ~context)] (do ~@body)))
 
+(defn result-tuple [result]
+  ((juxt :status #(get-in % [:headers :set-cookie])) result))
+
+(defn extract-response [result]
+  (if (instance? #?(:clj Exception :cljs js/Error) result)
+    (if-let [data (ex-data result)]
+      (result-tuple data)
+      result)
+    (result-tuple result)))
+
+(defn login-async-with-status
+  "Uses the given username and password to log into the SlipStream
+   server.
+
+   This method returns a channel that will contain the results as a
+   map with the keys :login-status and :token.  Depending on the
+   underlying HTTP client, the token may be nil even when the login
+   request succeeded.
+
+   If called without an explicit login-url, then the default on Nuvla
+   is used.
+
+   **FIXME**: Ideally the login-url should be discovered from the cloud
+   entry point."
+  ([username password]
+   (login-async-with-status username password default-login-url))
+  ([username password login-url]
+   (let [data (str "authn-method=internal&username=" username "&password=" password)]
+     (go
+       (let [result (<! (http/post login-url {:content-type     "application/x-www-form-urlencoded"
+                                              :follow-redirects false
+                                              :throw-exceptions false
+                                              :body             data
+                                              :insecure?        (:insecure? *context*)}))]
+         (extract-response result))))))
 
 (defn login-async
   "Uses the given username and password to log into the SlipStream
-   server.  Returns the token (cookie) to be used in subsequent
-   requests.  If called without an explicit login-url, then the
-   default on Nuvla is used.
+   server.
 
-   This method returns a channel that will contain the result.
+   This method returns a channel that will contain the results as a
+   tuple of the status and token (cookie).  Depending on the
+   underlying HTTP client, the token may be nil even when the login
+   request succeeded.
+
+   If called without an explicit login-url, then the default on Nuvla
+   is used.
 
    **FIXME**: Ideally the login-url should be discovered from the cloud
-   entry point. This requires that the cloud entry point be accessible
-   without credentials."
-  {:doc/format :markdown}
+   entry point."
   ([username password]
    (login-async username password default-login-url))
   ([username password login-url]
    (let [data (str "authn-method=internal&username=" username "&password=" password)]
      (go
-
        (let [result (<! (http/post login-url {:content-type     "application/x-www-form-urlencoded"
                                               :follow-redirects false
                                               :body             data
@@ -149,7 +183,6 @@
      **sixsq.slipstream.client.api.lib** to interact with the service.
      Returns the access token.
      Not available in clojurescript."
-     {:doc/format :markdown}
      ([username password]
       (login! username password default-login-url))
      ([username password login-url]

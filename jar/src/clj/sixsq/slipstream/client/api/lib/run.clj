@@ -55,7 +55,6 @@
                  \"253194ea-f982-4e1e-881e-7642408eae21\"])
       (for [run-uuid runs]
         (a/with-context my-slipstream (r/get-run-info run-uuid)))"
-  {:doc/format :markdown}
   (:require
     [sixsq.slipstream.client.api.utils.utils :as u]
     [sixsq.slipstream.client.api.utils.wait :as wu]
@@ -76,7 +75,6 @@
   "Get parameter 'param' of application component instance 'comp.id' in run `run-uuid`
   as 'run-uuid/comp.id:param'.
   When 'id' is nil, gets parameter of the application component as 'run-uuid/comp:param'."
-  {:doc/format :markdown}
   [run-uuid comp id param & [req]]
   (h/get (ri/to-param-uri run-uuid comp id param) *context* req))
 

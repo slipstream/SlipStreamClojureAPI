@@ -18,7 +18,6 @@
 (defn wait-for-async
   "Asynchronous wait for 'predicate' for 'time-out' seconds with
    'interval' seconds.  Returns channel that will contain the returned value."
-  {:doc/format :markdown}
   [predicate time-out interval]
   (let [interval    (validate-interval interval)
         max-n       (iterations time-out interval)
@@ -35,6 +34,5 @@
 #?(:clj
    (defn wait-for
      "Wait for 'predicate' for 'time-out' seconds with 'interval' seconds."
-     {:doc/format :markdown}
      [predicate time-out interval]
      (<!! (wait-for-async predicate time-out interval))))

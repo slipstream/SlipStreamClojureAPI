@@ -96,7 +96,6 @@
       (rw/contextualize! conf)
 
       (r/get-run-info)"
-  {:doc/format :markdown}
   (:require
     [sixsq.slipstream.client.api.lib.run :as r]
     [sixsq.slipstream.client.api.authn :as a]
