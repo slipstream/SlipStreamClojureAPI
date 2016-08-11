@@ -77,14 +77,16 @@
 (defn set-server-info [username password server-root]
   (when (and username password server-root)
     (let [endpoint (str server-root "api/cloud-entry-point")
-          login-endpoint (str server-root "auth/login")]
-      {:username       username
-       :password       password
-       :cep-endpoint   endpoint
-       :login-endpoint login-endpoint})))
+          login-endpoint (str server-root "auth/login")
+          logout-endpoint (str server-root "auth/logout")]
+      {:username        username
+       :password        password
+       :cep-endpoint    endpoint
+       :login-endpoint  login-endpoint
+       :logout-endpoint logout-endpoint})))
 
 ;; FIXME: Caution!  Do not commit credentials.
-(def ^:dynamic *server-info* (set-server-info nil nil "https://nuv.la/"))
+(def ^:dynamic *server-info* (set-server-info "loomis" "whoson1st" "https://nuv.la/"))
 
 (defn strip-fields [m]
   (dissoc m :id :created :updated :acl :operations))
@@ -102,16 +104,17 @@
   ([done]
    (go
      (if *server-info*
-       (let [{:keys [username password cep-endpoint login-endpoint]} *server-info*]
+       (let [{:keys [username password cep-endpoint login-endpoint logout-endpoint]} *server-info*]
 
          ;; check configuration sanity
          (is username)
          (is password)
          (is cep-endpoint)
          (is login-endpoint)
+         (is logout-endpoint)
 
          ;; get the cloud entry point for server
-         (let [context (i/create-cimi-async cep-endpoint login-endpoint)
+         (let [context (i/instance cep-endpoint login-endpoint logout-endpoint)
                cep (<! (c/cloud-entry-point context))]
            (is context)
            (is (map? cep))
@@ -120,8 +123,7 @@
 
            ;; try logging in with false credentials
            (let [result (<! (c/login context {:username "UNKNOWN" :password "USER"}))]
-             (is (= 401 (:login-status result)))
-             (is (nil? (:token result))))
+             (is (= 401 (:login-status result))))
 
            ;; log into the server
            (let [{:keys [login-status]} (<! (c/login context {:username username :password password}))]
@@ -129,8 +131,7 @@
 
            ;; search for events
            (let [events (<! (c/search context "events"))]
-             (is (:count events))
-             (is (not (neg? (:count events)))))
+             (is (:count events)))
 
            ;; add a new event resource
            (let [add-event-resp (<! (c/add context "events" example-event))]
@@ -150,7 +151,11 @@
                (let [delete-resp (<! (c/delete context event-id))]
                  (is (= 200 (:status delete-resp)))
                  (let [get-resp (<! (c/get context event-id))]
-                   (is (instance? #?(:clj Exception :cljs js/Error) get-resp)))))))))
+                   (is (instance? #?(:clj Exception :cljs js/Error) get-resp))))))
+
+           ;; logout from the server
+           (let [logout-status (<! (c/logout context))]
+             (is (= 200 logout-status))))))
      (if done (done)))))
 
 (deftest check-event-lifecycle
@@ -163,16 +168,17 @@
   ([done]
    (go
      (if *server-info*
-       (let [{:keys [username password cep-endpoint login-endpoint]} *server-info*]
+       (let [{:keys [username password cep-endpoint login-endpoint logout-endpoint]} *server-info*]
 
          ;; check configuration sanity
          (is username)
          (is password)
          (is cep-endpoint)
          (is login-endpoint)
+         (is logout-endpoint)
 
          ;; get the cloud entry point for server
-         (let [context (i/create-cimi-async cep-endpoint login-endpoint)
+         (let [context (i/instance cep-endpoint login-endpoint logout-endpoint)
                cep (<! (c/cloud-entry-point context))]
            (is context)
            (is (map? cep))
@@ -181,8 +187,7 @@
 
            ;; try logging in with false credentials
            (let [result (<! (c/login context {:username "UNKNOWN" :password "USER"}))]
-             (is (= 401 (:login-status result)))
-             (is (nil? (:token result))))
+             (is (= 401 (:login-status result))))
 
            ;; log into the server
            (let [{:keys [login-status]} (<! (c/login context {:username username :password password}))]
@@ -190,8 +195,7 @@
 
            ;; search for service attributes
            (let [attrs (<! (c/search context "serviceAttributes"))]
-             (is (:count attrs))
-             (is (not (neg? (:count attrs)))))
+             (is (:count attrs)))
 
            ;; add a new service attribute
            (let [add-attr-resp (<! (c/add context "serviceAttributes" example-attr))]
@@ -214,7 +218,11 @@
                (let [delete-resp (<! (c/delete context attr-id))]
                  (is (= 200 (:status delete-resp)))
                  (let [get-resp (<! (c/get context attr-id))]
-                   (is (instance? #?(:clj Exception :cljs js/Error) get-resp)))))))))
+                   (is (instance? #?(:clj Exception :cljs js/Error) get-resp))))))
+
+           ;; logout from the server
+           (let [logout-status (<! (c/logout context))]
+             (is (= 200 logout-status))))))
      (if done (done)))))
 
 (deftest check-attribute-lifecycle-async

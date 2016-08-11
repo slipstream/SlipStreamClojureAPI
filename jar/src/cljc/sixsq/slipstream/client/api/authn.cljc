@@ -75,7 +75,7 @@
 ;;
 ;; Authentication context management for the namespaces in client.api.lib/*.
 (def default-context {:serviceurl default-url
-                      :insecure? false})
+                      :insecure?  false})
 
 (def ^:dynamic *context* default-context)
 
@@ -133,6 +133,17 @@
                                               :body             data
                                               :insecure?        (:insecure? *context*)}))]
          (extract-response result))))))
+
+(defn logout-async-with-status
+  "Removes cached credentials and tokens from the http client."
+  ([]
+   (logout-async-with-status default-login-url))
+  ([logout-url]
+   (go
+     (let [result (<! (http/post logout-url {:follow-redirects false
+                                             :throw-exceptions false
+                                             :insecure?        (:insecure? *context*)}))]
+       (first (extract-response result))))))
 
 (defn login-async
   "Uses the given username and password to log into the SlipStream

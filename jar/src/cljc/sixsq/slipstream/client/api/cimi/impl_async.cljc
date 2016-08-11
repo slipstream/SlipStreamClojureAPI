@@ -16,6 +16,8 @@
 
 (def default-login-endpoint "https://nuv.la/auth/login")
 
+(def default-logout-endpoint "https://nuv.la/auth/logout")
+
 (defn- create-chan
   "Creates a channel that extracts the JSON body and then
    transforms the body into a clojure data structure with
