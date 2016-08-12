@@ -38,7 +38,7 @@
                    [adzerk/boot-cljs-repl]
                    [adzerk/boot-reload]
                    [tolitius/boot-check]
-                   [crisptrutski/boot-cljs-test "0.2.2-SNAPSHOT"]
+                   [org.clojars.sixsq/boot-cljs-test] ;; non-canonical fork
                    [boot-codox]]))))
 
 (require
