@@ -101,9 +101,10 @@
   "Search for CIMI resources of the given type, returning a list of the
    matching resources (in a channel). The list will be wrapped within
    an envelope containing the metadata of the collection and search."
-  [token cep resource-type]
+  [token cep resource-type options]
   (let [url (impl/get-collection-url cep resource-type)
         opts (-> (impl/req-opts token)
+                 (assoc :query-params options)
                  (assoc :chan (create-chan)))]
     (http/get url opts)))
 

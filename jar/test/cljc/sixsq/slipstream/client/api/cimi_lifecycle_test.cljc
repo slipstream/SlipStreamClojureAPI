@@ -86,7 +86,7 @@
        :logout-endpoint logout-endpoint})))
 
 ;; FIXME: Caution!  Do not commit credentials.
-(def ^:dynamic *server-info* (set-server-info "loomis" "whoson1st" "https://nuv.la/"))
+(def ^:dynamic *server-info* (set-server-info nil nil "https://nuv.la/"))
 
 (defn strip-fields [m]
   (dissoc m :id :created :updated :acl :operations))
@@ -129,9 +129,10 @@
            (let [{:keys [login-status]} (<! (c/login context {:username username :password password}))]
              (is (= 200 login-status)))
 
-           ;; search for events
-           (let [events (<! (c/search context "events"))]
-             (is (:count events)))
+           ;; search for events (tests assume that real account with lots of events is used)
+           (let [events (<! (c/search context "events" {:$first 10 :$last 20}))]
+             (is (= 11 (count (:events events))))
+             (is (pos? (:count events))))
 
            ;; add a new event resource
            (let [add-event-resp (<! (c/add context "events" example-event))]

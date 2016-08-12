@@ -73,7 +73,7 @@
     (go
       (let [cep (<! (cimi/cloud-entry-point this))
             token (:token @state)]
-        (<! (impl/search token cep resource-type))))))
+        (<! (impl/search token cep resource-type options))))))
 
 (defn instance
   "A convenience function for creating an instance that
