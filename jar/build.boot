@@ -1,5 +1,16 @@
 (def +version+ "3.10-SNAPSHOT")
 
+;; NOTE: for nodejs, you must install the websocket, eventsource,
+;; and request modules locally in your home directory:
+;;
+;; $ cd ~
+;; $ npm install websocket eventsource request
+;; $ mv node_modules .node_modules
+;;
+;; With those, you can run the lifecycle unit tests with the
+;; flags in the code below.
+;;
+
 (set-env!
   :project 'com.sixsq.slipstream/SlipStreamClientAPI-jar
   :version +version+
@@ -64,8 +75,11 @@
          :source-uri   "https://github.com/slipstream/SlipStreamClientAPI/blob/master/jar/{filepath}#L{line}"
          :language     :clojure
          :metadata     {:doc/format :markdown}}
-  cljs {:optimizations :advanced}
-  test-cljs {:js-env :phantom
+  cljs {:optimizations :advanced
+        ;; :compiler-options {:target :nodejs} ;; use for nodejs
+        }
+  test-cljs {:js-env :phantomjs
+             ;; :js-env :node ;; use for node js
              :doo-opts {:paths {:phantom "phantomjs --web-security=false"}}}
   test {:junit-output-to ""}
   )
