@@ -60,7 +60,6 @@
 
   `{\"comp-name:cloudservice\" \"cloud-connector-name\"}`
   "
-  {:doc/format :markdown}
   [uri & [params req]]
   (-> (h/post "run" *context* req (->> params
                                        (parse-params)
@@ -77,7 +76,6 @@
   `{\"param-name\" val}`
 
   For details see documentation to [[deploy]]."
-  {:doc/format :markdown}
   [uri & [params req]]
   (deploy uri (assoc params :type "Run") req))
 
@@ -85,7 +83,6 @@
 (defn build-comp
   "Builds new component identified by `uri`. For details see documentation
   to [[deploy]]."
-  {:doc/format :markdown}
   [uri & [params req]]
   (deploy uri (assoc params :type "Machine") req))
 

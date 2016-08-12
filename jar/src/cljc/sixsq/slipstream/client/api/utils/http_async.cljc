@@ -3,7 +3,6 @@
 
   All actions accept requests in Ring-like format and return a channel.  All results
   and errors are placed on the returned channel."
-  {:doc/format :markdown}
   (:refer-clojure :exclude [get])
   (:require
     [sixsq.slipstream.client.api.utils.http-utils :as hu]

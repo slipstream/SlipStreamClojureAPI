@@ -1,8 +1,8 @@
-(ns sixsq.slipstream.client.api.impl.cimi-test
+(ns sixsq.slipstream.client.api.cimi.utils-test
   (:refer-clojure :exclude [get])
   #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]]))
   (:require
-    [sixsq.slipstream.client.api.impl.cimi :as t]
+    [sixsq.slipstream.client.api.cimi.utils :as t]
     [sixsq.slipstream.client.api.utils.error :as e]
     #?(:clj
     [clojure.core.async :as a :refer [go chan <!! <! >!]]
@@ -28,6 +28,18 @@
                :acl              {:owner {:principal "ADMIN", :type "ROLE"}
                                   :rules [{:principal "ANON", :type "ROLE", :right "VIEW"}]}})
 
+(def ops-example {:operations [{:rel  "add"
+                                :href "add"}
+                               {:rel  "edit"
+                                :href "edit"}
+                               {:rel  "delete"
+                                :href "delete"}]})
+
+(def body-example {:alpha 1
+                   :beta  "2"
+                   :gamma 3.0
+                   :delta false})
+
 (deftest correct-collection-urls
   (are [x y] (= x (t/get-collection-url test-cep y))
              "https://localhost:8201/api/attribute" "attribute"
@@ -40,15 +52,18 @@
              "https://localhost:8201/api/service-info" "service-info"
              "https://localhost:8201/api/usage-record" "usage-records"))
 
+(deftest check-body-as-json-trans
+  (let [body body-example
+        json (t/edn->json body)
+        req {:body json}]
+    (is (= body-example (first (eduction (t/body-as-json) [req]))))))
+
 (defn body-tests
   ([]
-    (body-tests nil))
+   (body-tests nil))
   ([done]
    (go
-     (let [body {:alpha 1
-                 :beta  "2"
-                 :gamma 3.0
-                 :delta false}
+     (let [body body-example
            json (t/edn->json body)
            c (chan 1 (t/body-as-json) identity)
            _ (>! c {:body json})
@@ -57,12 +72,12 @@
      (if done (done)))))
 
 (deftest check-body-as-json
-  #?(:clj (<!! (body-tests))
+  #?(:clj  (<!! (body-tests))
      :cljs (async done (body-tests done))))
 
 (defn exception-tests
   ([]
-    (exception-tests nil))
+   (exception-tests nil))
   ([done]
    (go
      (let [msg "msg-to-match"
@@ -78,5 +93,41 @@
      (if done (done)))))
 
 (deftest check-body-as-json-error
-  #?(:clj (<!! (exception-tests))
+  #?(:clj  (<!! (exception-tests))
      :cljs (async done (exception-tests done))))
+
+(deftest check-extract-op-url-tests
+  (let [baseURI "https://localhost:8201/api/"
+        body ops-example
+        json (t/edn->json body)
+        req {:body json}]
+    (are [op] (= (str baseURI op) (first (eduction (t/extract-op-url op baseURI) [req])))
+              "add"
+              "edit"
+              "delete")))
+
+(defn extract-op-url-tests
+  ([]
+   (extract-op-url-tests nil))
+  ([done]
+   (go
+     (let [baseURI "https://localhost:8201/api/"
+           body ops-example
+           json (t/edn->json body)]
+       (let [c (chan 1 (t/extract-op-url "add" baseURI) identity)
+             _ (>! c {:body json})
+             result (<! c)]
+         (is (= (str baseURI "add") result)))
+       (let [c (chan 1 (t/extract-op-url "edit" baseURI) identity)
+             _ (>! c {:body json})
+             result (<! c)]
+         (is (= (str baseURI (name "edit")) result)))
+       (let [c (chan 1 (t/extract-op-url "delete" baseURI) identity)
+             _ (>! c {:body json})
+             result (<! c)]
+         (is (= (str baseURI "delete") result))))
+     (if done (done)))))
+
+(deftest check-extract-op-url-tests-with-chan
+  #?(:clj  (<!! (extract-op-url-tests))
+     :cljs (async done (extract-op-url-tests done))))

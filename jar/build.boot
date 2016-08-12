@@ -38,7 +38,7 @@
                    [adzerk/boot-cljs-repl]
                    [adzerk/boot-reload]
                    [tolitius/boot-check]
-                   [crisptrutski/boot-cljs-test]
+                   [org.clojars.sixsq/boot-cljs-test] ;; non-canonical fork
                    [boot-codox]]))))
 
 (require
@@ -51,7 +51,7 @@
   '[codox.boot :refer [codox]])
 
 (set-env!
-  :source-paths #{"dev-resources" "test/clj" "test/cljc" "test/cljs"}
+  :source-paths #{"dev-resources" "test/clj" "test/cljc"}
   :resource-paths #{"src/clj" "src/cljc"})
 
 (task-options!
@@ -62,9 +62,11 @@
          :version      (get-env :version)
          :source-paths #{"src/clj" "src/cljc" "src/cljs"}
          :source-uri   "https://github.com/slipstream/SlipStreamClientAPI/blob/master/jar/{filepath}#L{line}"
-         :language     :clojure}
+         :language     :clojure
+         :metadata     {:doc/format :markdown}}
   cljs {:optimizations :advanced}
-  test-cljs {:js-env :phantom}
+  test-cljs {:js-env :phantom
+             :doo-opts {:paths {:phantom "phantomjs --web-security=false"}}}
   test {:junit-output-to ""}
   )
 
