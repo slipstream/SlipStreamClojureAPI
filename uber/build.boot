@@ -1,4 +1,4 @@
-(def +version+ "3.10")
+(def +version+ "3.11-SNAPSHOT")
 
 (defn sixsq-repo [version edition]
   (let [nexus-url "http://nexus.sixsq.com/content/repositories/"
