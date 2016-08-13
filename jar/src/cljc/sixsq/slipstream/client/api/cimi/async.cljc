@@ -8,8 +8,8 @@
     [sixsq.slipstream.client.api.authn :as authn]
     [sixsq.slipstream.client.api.cimi.impl-async :as impl]
     [sixsq.slipstream.client.api.cimi :as cimi]
-    #?(:clj  [clojure.core.async :refer [go chan >! <!]]
-       :cljs [cljs.core.async :refer [chan >! <!]])))
+    [clojure.core.async :refer #?(:clj  [chan >! <! go]
+                                  :cljs [chan >! <!])]))
 
 (deftype cimi-async [endpoint login-endpoint logout-endpoint state]
   cimi/cimi

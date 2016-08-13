@@ -1,8 +1,7 @@
 (ns sixsq.slipstream.client.api.utils.http-utils-test
   (:require
     [sixsq.slipstream.client.api.utils.http-utils :as h]
-    #?(:clj [clojure.test :refer [deftest is are testing run-tests]]
-       :cljs [cljs.test :refer-macros [deftest is testing run-tests]])))
+    [clojure.test :refer [deftest is are testing run-tests]]))
 
 (deftest test-process-req
   (let [req (h/process-req {})]

@@ -1,8 +1,7 @@
 (ns sixsq.slipstream.client.api.utils.wait-test
   (:require
     [sixsq.slipstream.client.api.utils.wait :as w]
-    #?(:clj [clojure.test :refer [deftest is are testing run-tests]]
-       :cljs [cljs.test :refer-macros [deftest is testing run-tests]])))
+    [clojure.test :refer [deftest is are testing run-tests]]))
 
 (deftest test-interval
   (is (= 1 (w/iterations 0 0)))

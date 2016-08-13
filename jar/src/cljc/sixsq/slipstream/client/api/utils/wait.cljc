@@ -1,9 +1,8 @@
 (ns sixsq.slipstream.client.api.utils.wait
+  #?(:cljs (:require-macros [cljs.core.async.macros :refer [go-loop]]))
   (:require
-    #?(:clj [clojure.core.async :refer [timeout go-loop <! <!!]]
-       :cljs [cljs.core.async :refer [timeout <!]]))
-  #?(:cljs (:require-macros
-             [cljs.core.async.macros :refer [go-loop]])))
+   [clojure.core.async :refer #?(:clj  [timeout <! go-loop <!!]
+                                 :cljs [timeout <!])]))
 
 (def default_interval 1)
 (defn- validate-interval [interval]

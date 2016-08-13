@@ -1,8 +1,7 @@
 (ns sixsq.slipstream.client.api.utils.utils-test
   (:require
     [sixsq.slipstream.client.api.utils.utils :as t]
-    #?(:clj [clojure.test :refer [deftest is are testing run-tests]]
-       :cljs [cljs.test :refer-macros [deftest is testing run-tests]])))
+    [clojure.test :refer [deftest is are testing run-tests]]))
 
 (deftest test-in?
   (is (true? (t/in? :a [:a :b])))

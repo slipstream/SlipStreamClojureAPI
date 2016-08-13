@@ -51,16 +51,13 @@
       (a/with-context {:insecure? true}
         (a/login! username password))
   "
+  #?(:cljs (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
   (:require
     [sixsq.slipstream.client.api.utils.http-async :as http]
     [superstring.core :as s]
     [sixsq.slipstream.client.api.utils.utils :as u]
-    #?(:clj
-    [clojure.core.async :refer [go go-loop <! <!!]]
-       :cljs [cljs.core.async :refer [<!]]))
-  #?(:cljs (:require-macros
-             [cljs.core.async.macros :refer [go go-loop]])))
-
+    [clojure.core.async :refer #?(:clj  [<! go go-loop <!!]
+                                  :cljs [<!])]))
 
 (def ^:const default-url "https://nuv.la")
 

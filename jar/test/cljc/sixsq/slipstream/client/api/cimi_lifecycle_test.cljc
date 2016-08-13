@@ -18,13 +18,9 @@
     [sixsq.slipstream.client.api.cimi.async :as i]
     [sixsq.slipstream.client.api.cimi :as c]
 
-    #?(:clj
-    [clojure.core.async :as a :refer [go chan <!! <! >!]]
-       :cljs [cljs.core.async :refer [chan <! >!]])
-    #?(:clj
-    [clojure.test :refer [deftest is are testing run-tests]]
-       :cljs [cljs.test :refer-macros [deftest is are testing run-tests async]])
-    ))
+    [clojure.core.async :refer #?(:clj  [chan <! >! go <!!]
+                                  :cljs [chan <! >!])]
+    [clojure.test :refer [deftest is are testing run-tests #?(:cljs async)]]))
 
 ;; silence the request/response debugging
 (kvlt.core/quiet!)

@@ -8,9 +8,8 @@
     [sixsq.slipstream.client.api.utils.error :as e]
     [sixsq.slipstream.client.api.utils.http-async :as http]
     [sixsq.slipstream.client.api.cimi.utils :as impl]
-    #?(:clj
-    [clojure.core.async :refer [go chan <! >!]]
-       :cljs [cljs.core.async :refer [chan <! >!]])))
+    [clojure.core.async :refer #?(:clj  [chan <! >! go]
+                                  :cljs [chan <! >!])]))
 
 (def default-cep-endpoint "https://nuv.la/api/cloud-entry-point")
 
