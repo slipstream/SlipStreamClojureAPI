@@ -1,4 +1,0 @@
-[
-[org.clojure/clojure :scope "provided"]
-[com.sixsq.slipstream/SlipStreamClientAPI-jar]
-]
