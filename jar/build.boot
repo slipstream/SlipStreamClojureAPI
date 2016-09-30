@@ -32,7 +32,8 @@
                    [org.clojure/data.xml]
                    [org.clojure/core.async]
                    [io.nervous/kvlt]
-                   
+                   [com.taoensso/timbre]
+
                    [adzerk/boot-test]
                    [adzerk/boot-cljs]
                    [adzerk/boot-cljs-repl]
