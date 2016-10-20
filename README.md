@@ -7,7 +7,7 @@ repository](https://slipstream.github.com/SlipStreamClientAPI).
 
 ## Clojure library
 
-See https://github.com/slipstream/SlipStreamClientAPI/blob/master/clj/README.md
+See https://github.com/slipstream/SlipStreamClojureAPI/blob/master/clj/README.md
 
 # License and copyright
 
