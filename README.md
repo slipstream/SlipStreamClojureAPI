@@ -1,6 +1,6 @@
-# SlipStream Client API
+# SlipStream Clojure API
 
-SlipStream client library to query [SlipStream server API][ss-api].
+SlipStream Clojure library to query [SlipStream server API][ss-api].
 
 The API documentation is available on the [GitHub Pages site for this
 repository](https://slipstream.github.com/SlipStreamClientAPI).
