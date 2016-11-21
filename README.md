@@ -5,10 +5,6 @@ SlipStream Clojure library to query [SlipStream server API][ss-api].
 The API documentation is available on the [GitHub Pages site for this
 repository][gh-pages].
 
-## Clojure library
-
-See https://github.com/slipstream/SlipStreamClojureAPI/blob/master/clj/README.md
-
 # License and copyright
 
 Copyright (C) 2016 SixSq Sarl (sixsq.com)
