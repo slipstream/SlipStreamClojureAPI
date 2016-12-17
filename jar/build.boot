@@ -34,6 +34,8 @@
                    [io.nervous/kvlt]
                    [com.taoensso/timbre]
 
+                   [org.json/json "20160810"]
+
                    [adzerk/boot-test]
                    [adzerk/boot-cljs]
                    [adzerk/boot-cljs-repl]
