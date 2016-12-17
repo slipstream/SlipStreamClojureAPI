@@ -55,7 +55,7 @@
 
 (set-env!
   :source-paths #{"dev-resources" "test/clj" "test/cljc"}
-  :resource-paths #{"src/clj" "src/cljc"})
+  :resource-paths #{"src/clj" "src/cljc" "src/cljs"})
 
 (task-options!
   pom {:project (get-env :project)

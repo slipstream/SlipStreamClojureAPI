@@ -7,6 +7,8 @@
   (:require
     [sixsq.slipstream.client.api.utils.error :as e]
     [sixsq.slipstream.client.api.utils.http-async :as http]
+    [sixsq.slipstream.client.api.utils.common :as cu]
+    [sixsq.slipstream.client.api.utils.json :as json]
     [sixsq.slipstream.client.api.cimi.utils :as impl]
     [clojure.core.async :refer #?(:clj  [chan <! >! go]
                                   :cljs [chan <! >!])]))
@@ -23,7 +25,7 @@
    keywordized keys.  Any exceptions that occur in processing
    are pushed onto the channel."
   []
-  (chan 1 (impl/body-as-json) identity))
+  (chan 1 (json/body-as-json) identity))
 
 (defn create-op-url-chan
   "Creates a channel that extracts the operations from a
@@ -37,7 +39,7 @@
   [token cep op collection-name]
   (let [baseURI (:baseURI cep)
         url (impl/get-collection-url cep collection-name)
-        req (-> (impl/req-opts token)
+        req (-> (cu/req-opts token)
                 (assoc :chan (create-op-url-chan op baseURI)))]
     (http/get url req)))
 
@@ -46,8 +48,8 @@
    within a channel."
   [token cep op url-or-id]
   (let [baseURI (:baseURI cep)
-        url (impl/ensure-url cep url-or-id)
-        req (-> (impl/req-opts token)
+        url (cu/ensure-url baseURI url-or-id)
+        req (-> (cu/req-opts token)
                 (assoc :chan (create-op-url-chan op baseURI)))]
     (http/get url req)))
 
@@ -58,7 +60,7 @@
   [token cep resource-type data]
   (go
     (if-let [add-url (<! (get-collection-op-url token cep "add" resource-type))]
-      (let [opts (-> (impl/req-opts token (impl/edn->json data))
+      (let [opts (-> (cu/req-opts token (json/edn->json data))
                      (assoc :chan (create-chan)))]
         (<! (http/post add-url opts))))))
 
@@ -69,7 +71,7 @@
   (let [c (create-chan)]
     (go
       (if-let [edit-url (<! (get-resource-op-url token cep "edit" url-or-id))]
-        (let [opts (-> (impl/req-opts token (impl/edn->json data))
+        (let [opts (-> (cu/req-opts token (json/edn->json data))
                        (assoc :chan c))]
           (<! (http/put edit-url opts)))                    ;; FIXME: second :body deref needed?
         (let [exception (ex-info "unauthorized" {:status      403
@@ -83,7 +85,7 @@
   [token cep url-or-id]
   (go
     (let [delete-url (<! (get-resource-op-url token cep "delete" url-or-id))]
-      (let [opts (-> (impl/req-opts token)
+      (let [opts (-> (cu/req-opts token)
                      (assoc :chan (create-chan)))]
         (<! (http/delete delete-url opts))))))
 
@@ -91,8 +93,8 @@
   "Reads the CIMI resource identified by the URL or resource id.  Returns
    the resource as an edn data structure in a channel."
   [token cep url-or-id]
-  (let [url (impl/ensure-url cep url-or-id)
-        opts (-> (impl/req-opts token)
+  (let [url (cu/ensure-url (:baseURI cep) url-or-id)
+        opts (-> (cu/req-opts token)
                  (assoc :chan (create-chan)))]
     (http/get url opts)))
 
@@ -102,7 +104,7 @@
    an envelope containing the metadata of the collection and search."
   [token cep resource-type options]
   (let [url (impl/get-collection-url cep resource-type)
-        opts (-> (impl/req-opts token)
+        opts (-> (cu/req-opts token)
                  (assoc :query-params options)
                  (assoc :chan (create-chan)))]
     (http/get url opts)))
@@ -115,7 +117,7 @@
   ([]
    (cloud-entry-point default-cep-endpoint))
   ([endpoint]
-   (let [opts (-> (impl/req-opts)
+   (let [opts (-> (cu/req-opts)
                   (assoc :chan (create-chan)))]
      (http/get endpoint opts))))
 
