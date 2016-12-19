@@ -39,7 +39,7 @@
                    [adzerk/boot-cljs-repl]
                    [adzerk/boot-reload]
                    [tolitius/boot-check]
-                   [org.clojars.sixsq/boot-cljs-test] ;; non-canonical fork
+                   [crisptrutski/boot-cljs-test]
                    [boot-codox]]))))
 
 (require
@@ -48,7 +48,7 @@
   '[adzerk.boot-cljs-repl :refer [cljs-repl]]
   '[adzerk.boot-reload :refer [reload]]
   '[tolitius.boot-check :refer [with-yagni with-eastwood with-kibit with-bikeshed]]
-  '[crisptrutski.boot-cljs-test :refer [test-cljs]]
+  '[crisptrutski.boot-cljs-test :refer [test-cljs fs-snapshot fs-restore]]
   '[codox.boot :refer [codox]])
 
 (set-env!
@@ -67,35 +67,26 @@
          :metadata     {:doc/format :markdown}}
   cljs {:optimizations :advanced}
   test-cljs {:js-env :phantom
-             :doo-opts {:paths {:phantom "phantomjs --web-security=false"}}}
+             :doo-opts {:paths {:phantom "phantomjs --web-security=false"}}
+             :exit? true}
   test {:junit-output-to ""}
   )
 
-(deftask failed-test-cljs?
-         "Raise exception on clojurescript test errors. Works around an issue
-          with the provided crisptrutski.boot-cljs-test/exit! function that
-          aborts the entire JVM with a System/exit!"
-         []
-         (fn [_]
-           (fn [_]
-             (when @crisptrutski.boot-cljs-test/failures?
-               (throw (ex-info "ERROR: clojurescript test failures!" {}))))))
-
-(deftask run-cljs-tests
-         "run only the clojurescript tests"
+(deftask test-compile
+         "compile all files, discarding changes to fileset"
          []
          (comp
-           (test-cljs)
-           (failed-test-cljs?)))
-
-(deftask run-tests
-         "runs all tests and performs full compilation"
-         []
-         (comp
+           (fs-snapshot)
            (aot :all true)
+           (fs-restore)))
+
+(deftask test-all
+         "performs full compilation then runs all tests"
+         []
+         (comp
+           (test-compile)
            (test)
-           (test-cljs)
-           (failed-test-cljs?)))
+           (test-cljs)))
 
 (deftask build []
          (comp
@@ -105,7 +96,7 @@
 (deftask mvn-test
          "run all tests of project"
          []
-         (run-tests))
+         (test-all))
 
 (deftask docs
          "builds API documentation and puts into target"
