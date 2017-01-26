@@ -2,6 +2,7 @@
   "Provides methods for reading modules from the SlipStream server."
   (:refer-clojure :exclude [get])
   (:require
+    [sixsq.slipstream.client.api.defaults :as defaults]
     [sixsq.slipstream.client.api.utils.error :as e]
     [sixsq.slipstream.client.api.utils.http-async :as http]
     [sixsq.slipstream.client.api.utils.common :as cu]
@@ -9,12 +10,6 @@
     [sixsq.slipstream.client.api.modules.utils :as impl]
     [clojure.core.async :refer #?(:clj  [chan]
                                   :cljs [chan])]))
-
-(def default-modules-endpoint "https://nuv.la/module")     ;; must NOT end with a slash!
-
-(def default-login-endpoint "https://nuv.la/auth/login")
-
-(def default-logout-endpoint "https://nuv.la/auth/logout")
 
 (defn- create-chan
   "Creates a channel that extracts the JSON body and then

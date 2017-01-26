@@ -5,6 +5,7 @@
   (:refer-clojure :exclude [get])
   #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]]))
   (:require
+    [sixsq.slipstream.client.api.defaults :as defaults]
     [sixsq.slipstream.client.api.utils.error :as e]
     [sixsq.slipstream.client.api.utils.http-async :as http]
     [sixsq.slipstream.client.api.utils.common :as cu]
@@ -12,12 +13,6 @@
     [sixsq.slipstream.client.api.cimi.utils :as impl]
     [clojure.core.async :refer #?(:clj  [chan <! >! go]
                                   :cljs [chan <! >!])]))
-
-(def default-cep-endpoint "https://nuv.la/api/cloud-entry-point")
-
-(def default-login-endpoint "https://nuv.la/auth/login")
-
-(def default-logout-endpoint "https://nuv.la/auth/logout")
 
 (defn- create-chan
   "Creates a channel that extracts the JSON body and then
@@ -115,7 +110,7 @@
    the CIMI server. This returns a channel which will contain the cloud
    entry point in edn format."
   ([]
-   (cloud-entry-point default-cep-endpoint))
+   (cloud-entry-point defaults/cep-endpoint))
   ([endpoint]
    (let [opts (-> (cu/req-opts)
                   (assoc :chan (create-chan)))]

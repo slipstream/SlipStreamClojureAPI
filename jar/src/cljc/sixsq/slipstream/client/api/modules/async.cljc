@@ -5,6 +5,7 @@
   (:refer-clojure :exclude [get])
   #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]]))
   (:require
+    [sixsq.slipstream.client.api.defaults :as defaults]
     [sixsq.slipstream.client.api.authn :as authn]
     [sixsq.slipstream.client.api.modules.impl-async :as impl]
     [sixsq.slipstream.client.api.modules.utils :as utils]
@@ -52,8 +53,8 @@
    implements the modules protocol asynchronously.  Use of
    this function is preferred to the raw constructor."
   ([]
-   (instance impl/default-modules-endpoint
-             impl/default-login-endpoint
-             impl/default-logout-endpoint))
+   (instance defaults/modules-endpoint
+             defaults/login-endpoint
+             defaults/logout-endpoint))
   ([modules-endpoint login-endpoint logout-endpoint]
     (->modules-async modules-endpoint login-endpoint logout-endpoint (atom {}))))
