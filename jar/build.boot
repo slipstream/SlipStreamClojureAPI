@@ -64,7 +64,7 @@
   codox {:name         (str (get-env :project))
          :version      (get-env :version)
          :source-paths #{"src/clj" "src/cljc" "src/cljs"}
-         :source-uri   "https://github.com/slipstream/SlipStreamClientAPI/blob/master/jar/{filepath}#L{line}"
+         :source-uri   "https://github.com/slipstream/SlipStreamClojureAPI/blob/master/jar/{filepath}#L{line}"
          :language     :clojure
          :metadata     {:doc/format :markdown}}
   cljs {:optimizations :advanced}
