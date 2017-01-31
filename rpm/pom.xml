@@ -67,7 +67,7 @@
                     <classifier>${package.os}</classifier>
                     <release>${BUILD_NUMBER}.${package.os}</release>
                     <summary>SlipStream Clojure Client API</summary>
-                    <name>slipstream-client-clojure${slipstream.edition}</name>
+                    <name>slipstream-client-clojure</name>
                     <group>System</group>
                     <vendor>SlipStream</vendor>
                     <packager>SlipStream</packager>
@@ -77,8 +77,12 @@
                     <description>
                         SlipStream Clojure Client API
                     </description>
+                    <obsoletes>
+                      <obsolete>slipstream-client-clojure-community</obsolete>
+                      <obsolete>slipstream-client-clojure-enterprise</obsolete>
+                    </obsoletes>
                     <requires>
-                        <require>slipstream-useradd${slipstream.edition}</require>
+                        <require>slipstream-useradd</require>
                     </requires>
 
                     <defaultDirmode>755</defaultDirmode>
