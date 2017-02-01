@@ -31,7 +31,8 @@
         :exclude       #{#".*/pom.xml"
                          #"META-INF/.*\.SF"
                          #"META-INF/.*\.DSA"
-                         #"META-INF/.*\.RSA"}})
+                         #"META-INF/.*\.RSA"}}
+  push {:repo "sixsq"})
 
  (deftask build []
    (comp
@@ -45,11 +46,6 @@
    (comp
     (build)
     (install)
-    (target)))
-
- (deftask mvn-deploy
-   "build full project through maven"
-   []
-   (comp
-    (mvn-build)
-    (push :repo "sixsq")))
+    (if (= "true" (System/getenv "BOOT_PUSH"))
+      (push)
+      identity)))

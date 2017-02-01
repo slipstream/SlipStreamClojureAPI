@@ -72,7 +72,7 @@
              :doo-opts {:paths {:phantom "phantomjs --web-security=false"}}
              :exit? true}
   test {:junit-output-to ""}
-  )
+  push {:repo "sixsq"})
 
 (deftask test-compile
          "compile all files, discarding changes to fileset"
@@ -126,11 +126,6 @@
          (comp
            (build)
            (install)
-           (target)))
-
-(deftask mvn-deploy
-         "build full project through maven"
-         []
-         (comp
-           (mvn-build)
-           (push :repo "sixsq")))
+           (if (= "true" (System/getenv "BOOT_PUSH"))
+             (push)
+             identity)))
