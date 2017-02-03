@@ -25,31 +25,20 @@
       <groupId>sixsq</groupId>
       <artifactId>default-deps</artifactId>
       <version>${project.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.sixsq.slipstream</groupId>
-      <artifactId>SlipStreamClientAPI-jar</artifactId>
+      <artifactId>SlipStreamClientAPI-jar-dep</artifactId>
       <version>${project.version}</version>
+      <type>pom</type>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 
   <build>
     <plugins>
 
-      <plugin>
-        <artifactId>maven-install-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
-      
-      <plugin>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
-      
      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
