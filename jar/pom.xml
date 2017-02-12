@@ -3,8 +3,7 @@
 
   <artifactId>SlipStreamClientAPI-jar-dep</artifactId>
   <packaging>pom</packaging>
-  <name>SlipStreamClientAPI - JAR</name>
-  <description>SlipStream Clojure Client API (JAR)</description>
+  <name>SlipStreamClojureAPI/jar</name>
 
   <url>http://sixsq.com</url>
   <parent>

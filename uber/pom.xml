@@ -3,8 +3,7 @@
 
   <artifactId>SlipStreamClientAPI-uber</artifactId>
   <packaging>pom</packaging>
-  <name>SlipStreamClientAPI - UBER JAR</name>
-  <description>SlipStream Clojure Client API (UBER)</description>
+  <name>SlipStreamClojureAPI/uber</name>
 
   <url>http://sixsq.com</url>
   <parent>

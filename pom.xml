@@ -5,8 +5,7 @@
   <artifactId>SlipStreamClientAPI</artifactId>
   <packaging>pom</packaging>
   <version>3.22-SNAPSHOT</version>
-  <name>SlipStreamClientAPI - POM</name>
-  <description>SlipStream Client API</description>
+  <name>SlipStreamClojureAPI</name>
   <url>http://sixsq.com</url>
 
   <parent>

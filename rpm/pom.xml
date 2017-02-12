@@ -4,8 +4,7 @@
 
     <artifactId>SlipStreamClientAPI-rpm</artifactId>
     <packaging>pom</packaging>
-    <name>SlipStreamClientAPI - RPM</name>
-    <description>SlipStream Clojure Client API (RPM)</description>
+    <name>SlipStreamClojureAPI/rpm</name>
 
     <url>http://sixsq.com</url>
     <parent>
