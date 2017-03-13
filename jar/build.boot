@@ -23,9 +23,10 @@
                  ['sixsq/default-deps (get-env :version)]
                  '[[org.clojure/clojure]
                    [org.clojure/clojurescript]
-                   
+
                    [org.clojure/tools.logging]
                    [log4j]
+                   [com.cemerick/url]
                    [clojure-ini]
                    [superstring]
                    [org.clojure/data.json]

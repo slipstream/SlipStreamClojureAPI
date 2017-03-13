@@ -11,8 +11,12 @@
     [sixsq.slipstream.client.api.utils.common :as cu]
     [sixsq.slipstream.client.api.utils.json :as json]
     [sixsq.slipstream.client.api.cimi.utils :as impl]
+    [cemerick.url :as url]
+    [clojure.set :as set]
     [clojure.core.async :refer #?(:clj  [chan <! >! go]
                                   :cljs [chan <! >!])]))
+
+(def ^:const cimi-params #{:$first :$last :$filter :$select :$expand :$orderby})
 
 (defn- create-chan
   "Creates a channel that extracts the JSON body and then
@@ -100,9 +104,10 @@
   [token cep resource-type options]
   (let [url (impl/get-collection-url cep resource-type)
         opts (-> (cu/req-opts token)
-                 (assoc :query-params options)
+                 (assoc :query-params (select-keys (set/difference (keys options) cimi-params) options))
+                 (cu/assoc-body (url/map->query (select-keys options cimi-params)))
                  (assoc :chan (create-chan)))]
-    (http/get url opts)))
+    (http/put url opts)))
 
 (defn cloud-entry-point
   "Retrieves the cloud entry point from the given endpoint.  The cloud
