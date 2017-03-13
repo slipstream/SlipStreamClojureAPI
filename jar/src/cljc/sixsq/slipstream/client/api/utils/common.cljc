@@ -9,9 +9,14 @@
   #?(:clj
      (:import (org.json XML))))
 
-(def std-opts {:type             :json
-               :accept           :json
-               :follow-redirects false})
+(def ^:dynamic *std-opts* {:type             :json
+                           :accept           :json
+                           :follow-redirects false})
+
+(defn merge-std-opts!
+  [m]
+  #?(:clj (alter-var-root (var *std-opts*) merge m))
+  #?(:cljs (set! *std-opts* (merge *std-opts* m))))
 
 (defn assoc-token [m token]
   (if token
@@ -29,7 +34,7 @@
   ([token]
    (req-opts token nil))
   ([token body]
-   (-> std-opts
+   (-> *std-opts*
        (assoc-token token)
        (assoc-body body))))
 

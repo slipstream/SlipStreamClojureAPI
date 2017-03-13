@@ -18,6 +18,16 @@
 
 (def ^:const cimi-params #{:$first :$last :$filter :$select :$expand :$orderby})
 
+(defn select-cimi-params
+  [m]
+  (when m
+    (select-keys m cimi-params)))
+
+(defn remove-cimi-params
+  [m]
+  (when m
+    (select-keys m (set/difference (set (keys m)) cimi-params))))
+
 (defn- create-chan
   "Creates a channel that extracts the JSON body and then
    transforms the body into a clojure data structure with
@@ -103,9 +113,9 @@
    an envelope containing the metadata of the collection and search."
   [token cep resource-type options]
   (let [url (impl/get-collection-url cep resource-type)
-        opts (-> (cu/req-opts token)
-                 (assoc :query-params (select-keys (set/difference (keys options) cimi-params) options))
-                 (cu/assoc-body (url/map->query (select-keys options cimi-params)))
+        opts (-> (cu/req-opts token (url/map->query (select-cimi-params options)))
+                 (assoc :type "application/x-www-form-urlencoded")
+                 (assoc :query-params (remove-cimi-params options))
                  (assoc :chan (create-chan)))]
     (http/put url opts)))
 
