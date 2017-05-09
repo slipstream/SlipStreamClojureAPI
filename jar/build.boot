@@ -43,6 +43,7 @@
                    [adzerk/boot-reload]
                    [tolitius/boot-check]
                    [crisptrutski/boot-cljs-test]
+                   [onetom/boot-lein-generate]
                    [boot-codox]]))))
 
 (require
@@ -52,6 +53,7 @@
   '[adzerk.boot-reload :refer [reload]]
   '[tolitius.boot-check :refer [with-yagni with-eastwood with-kibit with-bikeshed]]
   '[crisptrutski.boot-cljs-test :refer [test-cljs fs-snapshot fs-restore]]
+  '[boot.lein :refer [generate]]
   '[codox.boot :refer [codox]])
 
 (set-env!
