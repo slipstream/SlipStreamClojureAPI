@@ -53,13 +53,13 @@
     :else (str->json s)))
 
 (defn ensure-url [endpoint url-or-id]
-  (if (re-matches #"^((http://)|(https://))" url-or-id)
+  (if (re-matches #"^((http://)|(https://).*)" url-or-id)
     url-or-id
     (str endpoint url-or-id)))
 
 (defn ensure-url-slash [endpoint url-or-id]
   (if url-or-id
-    (if (re-matches #"^((http://)|(https://))" url-or-id)
+    (if (re-matches #"^((http://)|(https://).*)" url-or-id)
       url-or-id
       (str endpoint "/" url-or-id))
     endpoint))
