@@ -1,7 +1,7 @@
 (ns sixsq.slipstream.client.api.cimi-lifecycle-test
-  "Runs lifecycle tests for CIMI resources against a live server.  If no
-   user credentials are provided, the lifecycle tests are 'no-ops'.  To run
-   these tests (typically from the REPL), do the following:
+  "Runs lifecycle tests for CIMI resources against a live server. If no user
+   credentials are provided, the lifecycle tests are 'no-ops'. To run these
+   tests (typically from the REPL), do the following:
 
    ```clojure
    (require '[sixsq.slipstream.client.api.cimi-lifecycle-test :as t])
