@@ -1,10 +1,9 @@
 (ns sixsq.slipstream.client.api.cimi.sync
-  "Defines the type that implements the CIMI protocol.  All of the
-   defined methods are synchronous and return the results directly
-   as a clojure data structure.
+  "Defines the type that implements the CIMI protocol. All of the defined
+   methods are synchronous and return the results directly as a clojure data
+   structure.
 
-   **NOTE: The synchronous version of the API is only available
-   in clojure.**"
+   **NOTE: The synchronous version of the API is only available in clojure.**"
   (:refer-clojure :exclude [get])
   (:require
     [sixsq.slipstream.client.api.cimi.async :as async]
@@ -41,10 +40,10 @@
     (<!! (cimi/search async-context resource-type options))))
 
 (defn instance
-  "A convenience function for creating an instance that
-   implements the CIMI protocol synchronously.  Use of
-   this function is preferred to the raw constructor."
+  "A convenience function for creating an instance that implements the CIMI
+   protocol synchronously. Use of this function is preferred to the raw
+   constructor."
   ([]
    (->cimi-sync (async/instance)))
-  ([endpoint login-endpoint logout-endpoint]
-   (->cimi-sync (async/instance endpoint login-endpoint logout-endpoint))))
+  ([endpoint]
+   (->cimi-sync (async/instance endpoint))))

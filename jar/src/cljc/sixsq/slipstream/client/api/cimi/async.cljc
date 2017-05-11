@@ -52,40 +52,45 @@
   (add [this resource-type data options]
     (go
       (<! (cimi/cloud-entry-point this))
-      (let [_ true ]
-        (<! (impl/add @state resource-type data)))))
+      (let [[response token] (<! (impl/add @state resource-type data))]
+        (u/update-state state :token token)
+        response)))
 
   (edit [this url-or-id data]
     (cimi/edit this url-or-id data nil))
   (edit [this url-or-id data options]
     (go
       (<! (cimi/cloud-entry-point this))
-      (let [_ true ]
-        (<! (impl/edit @state url-or-id data)))))
+      (let [[response token] (<! (impl/edit @state url-or-id data))]
+        (u/update-state state :token token)
+        response)))
 
   (delete [this url-or-id]
     (cimi/delete this url-or-id nil))
   (delete [this url-or-id options]
     (go
       (<! (cimi/cloud-entry-point this))
-      (let [_ true ]
-        (<! (impl/delete @state url-or-id)))))
+      (let [[response token] (<! (impl/delete @state url-or-id))]
+        (u/update-state state :token token)
+        response)))
 
   (get [this url-or-id]
     (cimi/get this url-or-id nil))
   (get [this url-or-id options]
     (go
       (<! (cimi/cloud-entry-point this))
-      (let [_ true ]
-        (<! (impl/get @state url-or-id)))))
+      (let [[response token] (<! (impl/get @state url-or-id))]
+        (u/update-state state :token token)
+        response)))
 
   (search [this resource-type]
     (cimi/search this resource-type nil))
   (search [this resource-type options]
     (go
       (<! (cimi/cloud-entry-point this))
-      (let [_ true ]
-        (<! (impl/search @state resource-type options))))))
+      (let [[response token] (<! (impl/search @state resource-type options))]
+        (u/update-state state :token token)
+        response))))
 
 (defn instance
   "A convenience function for creating an instance that implements the CIMI
@@ -94,4 +99,4 @@
   ([]
    (instance defaults/cep-endpoint))
   ([cep-endpoint]
-    (->cimi-async cep-endpoint (atom {}))))
+   (->cimi-async cep-endpoint (atom {}))))

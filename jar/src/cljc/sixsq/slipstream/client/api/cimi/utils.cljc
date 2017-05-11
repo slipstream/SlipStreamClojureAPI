@@ -35,9 +35,14 @@
 (defn error-tuple
   "Produces a response tuple containing the exception/error and a nil cookie
    value. Used to provide a uniform response from channels, even when errors
-   occur."
+   occur. If the exception/error contains data, it is just passed on; if not,
+   then the exception is wrapped in a ex-info exception and given a 500 status."
   [error]
-  [error nil])
+  (if (ex-data error)
+    [error nil]
+    (let [msg (str "unexpected error: " (str error))
+          data {:status 500, :message msg}]
+      [(ex-info msg data) nil])))
 
 (defn response-tuple
   "This extracts the HTTP response body (rendered as keywordized EDN) and the
