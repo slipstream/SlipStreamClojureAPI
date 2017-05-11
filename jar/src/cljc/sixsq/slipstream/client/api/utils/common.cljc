@@ -11,7 +11,7 @@
 
 (def ^:dynamic *std-opts* {:type             :json
                            :accept           :json
-                           :follow-redirects false})
+                           :follow-redirects true})
 
 (defn merge-std-opts!
   [m]

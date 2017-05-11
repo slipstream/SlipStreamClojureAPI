@@ -1,11 +1,11 @@
-(ns sixsq.slipstream.client.api.cimi-lifecycle-test
+(ns sixsq.slipstream.client.api.cimi-async-lifecycle-test
   "Runs lifecycle tests for CIMI resources against a live server. If no user
    credentials are provided, the lifecycle tests are 'no-ops'. To run these
    tests (typically from the REPL), do the following:
 
    ```clojure
-   (require '[sixsq.slipstream.client.api.cimi-lifecycle-test :as t])
-   (in-ns 'sixsq.slipstream.client.api.cimi-lifecycle-test)
+   (require '[sixsq.slipstream.client.api.cimi-async-lifecycle-test :as t] :reload)
+   (in-ns 'sixsq.slipstream.client.api.cimi-async-lifecycle-test)
    (def ^:dynamic *server-info* (set-server-info \"username\" \"password\" \"https://nuv.la/\"))
    (run-tests)
    ```
@@ -74,32 +74,36 @@
      (if *server-info*
        (let [{:keys [username password cep-endpoint]} *server-info*]
 
-         ;; check configuration sanity
-         (is username)
-         (is password)
-         (is cep-endpoint)
+         ;; check errors when using a bad endpoint
+         (let [bad-endpoint "https://unknown.example.com/"
+               context (i/instance bad-endpoint)
+               response (<! (c/cloud-entry-point context))]
+           #_(is context)
+           (is (instance? #?(:clj Exception :cljs js/Error) response))
+           (is (ex-data response)))
 
-         ;; get the cloud entry point for server
+         ;; get the cloud entry point for working server
          (let [context (i/instance cep-endpoint)
                cep (<! (c/cloud-entry-point context))]
-           (is context)
-           (is (map? cep))
-           (is (:baseURI cep))
-           (is (:events cep))
+           #_(is context)
+           #_(is (map? cep))
+           #_(is (:baseURI cep))
+           #_(is (:events cep))
 
-           ;; try logging in with false credentials
-           (let [result (<! (c/login context {:href     "session-template/internal"
-                                              :username "UNKNOWN"
-                                              :password "USER"}))]
-             (is (instance? #?(:clj Exception :cljs js/Error) result))
-             (is (= 403 (:status (ex-data result))))
+           ;; try logging in with incorrect credentials
+           (let [response (<! (c/login context {:href     "session-template/internal"
+                                                :username "UNKNOWN"
+                                                :password "USER"}))]
+             (is (instance? #?(:clj Exception :cljs js/Error) response))
+             (is (= 403 (:status (ex-data response))))
              (is (false? (<! (c/authenticated? context)))))
 
-           ;; log into the server
-           (let [{:keys [status]} (<! (c/login context {:href     "session-template/internal"
-                                                        :username username
-                                                        :password password}))]
-             (is (= 201 status))
+           ;; log into the server with correct credentials
+           (let [response (<! (c/login context {:href     "session-template/internal"
+                                                :username username
+                                                :password password}))]
+             (is (= 201 (:status response)))
+             (is (re-matches #"session/.+" (:resource-id response)))
              (is (true? (<! (c/authenticated? context)))))
 
            ;; search for events (tests assume that real account with lots of events is used)
@@ -108,15 +112,14 @@
              (is (pos? (:count events))))
 
            ;; add a new event resource
-           (let [add-event-resp (<! (c/add context "events" example-event))]
-             (is (= 201 (:status add-event-resp)))
+           (let [response (<! (c/add context "events" example-event))]
+             (is (= 201 (:status response)))
+             (is (re-matches #"event/.+" (:resource-id response)))
 
-             ;; read the event back; do a search for all events
-             (let [event-id (:resource-id add-event-resp)
-                   read-event (<! (c/get context event-id))
-                   events (<! (c/search context "events"))]
+             ;; read the event back
+             (let [event-id (:resource-id response)
+                   read-event (<! (c/get context event-id))]
                (is (= (strip-fields example-event) (strip-fields read-event)))
-               (is (pos? (:count events)))
 
                ;; events cannot be edited
                (let [edit-resp (<! (c/edit context event-id read-event))]
@@ -125,6 +128,7 @@
                ;; delete the event and ensure that it is gone
                (let [delete-resp (<! (c/delete context event-id))]
                  (is (= 200 (:status delete-resp)))
+                 (is (re-matches #"event/.+" (:resource-id delete-resp)))
                  (let [get-resp (<! (c/get context event-id))]
                    (is (instance? #?(:clj Exception :cljs js/Error) get-resp))
                    (is (= 404 (:status (ex-data get-resp))))))))
@@ -132,6 +136,11 @@
            ;; logout from the server
            (let [logout-response (<! (c/logout context))]
              (is (= 200 (:status logout-response)))
+             (is (false? (<! (c/authenticated? context)))))
+
+           ;; try logging out again
+           (let [logout-response (<! (c/logout context))]
+             (is (nil? logout-response))
              (is (false? (<! (c/authenticated? context))))))))
      (if done (done)))))
 
