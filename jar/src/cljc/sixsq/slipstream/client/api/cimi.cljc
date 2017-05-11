@@ -9,9 +9,6 @@
    example, an asynchronous implementation will return channels from all of the
    functions."
 
-  ;; FIXME: REMOVE.  For debugging ONLY.
-  (get-state [this])
-
   (login
     [this login-params]
     "Uses the given login-params to log into the SlipStream server. The

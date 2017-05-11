@@ -87,7 +87,7 @@
    server."
   [{:keys [token cep] :as state} url-or-id]
   (go
-    (let [delete-url (<! (get-resource-op-url state "delete" url-or-id))]
+    (if-let [delete-url (<! (get-resource-op-url state "delete" url-or-id))]
       (let [opts (-> (cu/req-opts token)
                      (assoc :chan (create-chan)))]
         (<! (http/delete delete-url opts)))
@@ -142,8 +142,9 @@
    method will return nil if there was no current session."
   [{:keys [token cep] :as state}]
   (go
-    (when-let [[session-id _] (<! (current-session state))]
-      (<! (delete state session-id)))))
+    (let [[session-id _] (<! (current-session state))]
+      (when session-id
+        (<! (delete state session-id))))))
 
 (defn login
   "Creates a session create template from the provided login parameters and

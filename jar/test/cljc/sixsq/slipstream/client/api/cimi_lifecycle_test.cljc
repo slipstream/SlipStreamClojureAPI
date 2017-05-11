@@ -72,14 +72,10 @@
 
 (defn set-server-info [username password server-root]
   (when (and username password server-root)
-    (let [endpoint (str server-root "api/cloud-entry-point")
-          login-endpoint (str server-root "auth/login")
-          logout-endpoint (str server-root "auth/logout")]
+    (let [endpoint (str server-root "api/cloud-entry-point")]
       {:username        username
        :password        password
-       :cep-endpoint    endpoint
-       :login-endpoint  login-endpoint
-       :logout-endpoint logout-endpoint})))
+       :cep-endpoint    endpoint})))
 
 ;; FIXME: Caution!  Do not commit credentials.
 (def ^:dynamic *server-info* (set-server-info nil nil "https://nuv.la/"))
@@ -100,17 +96,15 @@
   ([done]
    (go
      (if *server-info*
-       (let [{:keys [username password cep-endpoint login-endpoint logout-endpoint]} *server-info*]
+       (let [{:keys [username password cep-endpoint]} *server-info*]
 
          ;; check configuration sanity
          (is username)
          (is password)
          (is cep-endpoint)
-         (is login-endpoint)
-         (is logout-endpoint)
 
          ;; get the cloud entry point for server
-         (let [context (i/instance cep-endpoint login-endpoint logout-endpoint)
+         (let [context (i/instance cep-endpoint)
                cep (<! (c/cloud-entry-point context))]
            (is context)
            (is (map? cep))
@@ -118,11 +112,15 @@
            (is (:events cep))
 
            ;; try logging in with false credentials
-           (let [result (<! (c/login context {:username "UNKNOWN" :password "USER"}))]
+           (let [result (<! (c/login context {:href "session-template/internal"
+                                              :username "UNKNOWN"
+                                              :password "USER"}))]
              (is (= 401 (:login-status result))))
 
            ;; log into the server
-           (let [{:keys [login-status]} (<! (c/login context {:username username :password password}))]
+           (let [{:keys [login-status]} (<! (c/login context {:href "session-template/internal"
+                                                              :username username
+                                                              :password password}))]
              (is (= 200 login-status)))
 
            ;; search for events (tests assume that real account with lots of events is used)
@@ -175,7 +173,7 @@
          (is logout-endpoint)
 
          ;; get the cloud entry point for server
-         (let [context (i/instance cep-endpoint login-endpoint logout-endpoint)
+         (let [context (i/instance cep-endpoint)
                cep (<! (c/cloud-entry-point context))]
            (is context)
            (is (map? cep))
@@ -183,11 +181,15 @@
            (is (:serviceAttributes cep))
 
            ;; try logging in with false credentials
-           (let [result (<! (c/login context {:username "UNKNOWN" :password "USER"}))]
+           (let [result (<! (c/login context {:href "session-template/internal"
+                                              :username "UNKNOWN"
+                                              :password "USER"}))]
              (is (= 401 (:login-status result))))
 
            ;; log into the server
-           (let [{:keys [login-status]} (<! (c/login context {:username username :password password}))]
+           (let [{:keys [login-status]} (<! (c/login context {:href "session-template/internal"
+                                                              :username username
+                                                              :password password}))]
              (is (= 200 login-status)))
 
            ;; search for service attributes

@@ -43,12 +43,8 @@
   "This extracts the HTTP response body (rendered as keywordized EDN) and the
    value of the set-cookie header and returns a tuple with the two values in
    that order."
-  [{:keys [body headers] :as response}]
-  (println "DEBUG RESPONSE")
-  (clojure.pprint/pprint response)
-  (println "END DEBUG")
-  (let [token (get headers "set-cookie")]
-    [(json/json->edn body) token]))
+  [{:keys [body] {:keys [set-cookie]} :headers :as response}]
+  [(json/json->edn body) set-cookie])
 
 (defn response-xduce
   "Transducer that extracts the HTTP response body and any set-cookie header

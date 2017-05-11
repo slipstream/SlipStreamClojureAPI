@@ -15,10 +15,6 @@
 (deftype cimi-async [endpoint state]
   cimi/cimi
 
-  ;; FIXME: REMOVE. For debugging ONLY.
-  (get-state [this]
-    state)
-
   (login
     [this login-params]
     (go

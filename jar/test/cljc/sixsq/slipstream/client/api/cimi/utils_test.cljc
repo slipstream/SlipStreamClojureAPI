@@ -75,6 +75,26 @@
         data (ex-data (first v))]
     (is (= id (:resource-id data)))))
 
+(deftest check-response-tuple
+  (let [cookie-value "com.sixsq.slipstream.cookie=ok"
+        response {:headers
+                          {:server                    "nginx"
+                           :content-type              "application/json"
+                           :content-length            "156"
+                           :strict-transport-security "max-age=31536000; includeSubdomains"
+                           :connection                "keep-alive"
+                           :location                  "session/ac3251c5-7cc0-4578-9c34-feaf5b91c200"
+                           :set-cookie                cookie-value
+                           :date                      "Thu, 11 May 2017 08:53:15 GMT"}
+                  :status 201
+                  :body   "{\"status\" : 201,
+                            \"message\" : \"created session/ac3251c5-7cc0-4578-9c34-feaf5b91c200\",
+                            \"resource-id\" : \"session/ac3251c5-7cc0-4578-9c34-feaf5b91c200\"}"}
+        [resp token] (t/response-tuple response)]
+    (is (= cookie-value token))
+    (is (= 201 (:status resp)))
+    (is (= "session/ac3251c5-7cc0-4578-9c34-feaf5b91c200" (:resource-id resp)))))
+
 (deftest correct-collection-urls
   (is (nil? (t/get-collection-url nil nil)))
   (is (nil? (t/get-collection-url nil "connectors")))
