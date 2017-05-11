@@ -45,9 +45,10 @@
   [token cep op collection-name]
   (let [baseURI (:baseURI cep)
         url (u/get-collection-url cep collection-name)
-        opts (-> (cu/req-opts token)
+        opts (-> (cu/req-opts token (url/map->query {"$last" 0}))
+                 (assoc :type "application/x-www-form-urlencoded")
                  (assoc :chan (create-op-url-chan op baseURI)))]
-    (http/get url opts)))
+    (http/put url opts)))
 
 (defn get-resource-op-url
   "Returns the URL for the given operation and collection within a channel."
