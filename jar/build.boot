@@ -10,8 +10,7 @@
                   [sixsq/build-utils "0.1.4" :scope "test"]])
 
 (require '[sixsq.build-fns :refer [merge-defaults
-                                   sixsq-nexus-url
-                                   lein-generate]])
+                                   sixsq-nexus-url]])
 
 (set-env!
   :repositories
@@ -37,6 +36,7 @@
 
                    [org.json/json "20160810"]
 
+                   [doo]
                    [adzerk/boot-test]
                    [adzerk/boot-cljs]
                    [adzerk/boot-cljs-repl]
@@ -70,9 +70,11 @@
          :source-uri   "https://github.com/slipstream/SlipStreamClojureAPI/blob/master/jar/{filepath}#L{line}"
          :language     :clojure
          :metadata     {:doc/format :markdown}}
-  cljs {:optimizations :advanced}
+  cljs {:optimizations :advanced
+        :compiler-options {:language-in :ecmascript5}}
   test-cljs {:js-env :phantom
              :doo-opts {:paths {:phantom "phantomjs --web-security=false"}}
+             :cljs-opts {:language-in :ecmascript5}
              :exit? true}
   test {:junit-output-to ""}
   push {:repo "sixsq"})
