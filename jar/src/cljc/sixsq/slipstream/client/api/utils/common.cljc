@@ -9,9 +9,13 @@
   #?(:clj
      (:import (org.json XML))))
 
+;; The the :follow-redirects setting asks that redirects are handled
+;; directly by the client rather than by the underlying HTTP library.
+;; However those HTTP libraries, particularly XHR from browsers, will
+;; still handle redirects automatically. Be careful of this behavior.
 (def ^:dynamic *std-opts* {:type             :json
                            :accept           :json
-                           :follow-redirects true})
+                           :follow-redirects false})
 
 (defn merge-std-opts!
   [m]
