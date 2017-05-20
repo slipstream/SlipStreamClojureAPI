@@ -9,6 +9,8 @@
     [sixsq.slipstream.client.api.cimi.impl-async :as impl]
     [sixsq.slipstream.client.api.cimi.utils :as u]
     [sixsq.slipstream.client.api.cimi :as cimi]
+    [sixsq.slipstream.client.api.pricing :as pricing]
+    [sixsq.slipstream.client.api.cimi.impl-pricing-async :as pi]
     [clojure.core.async :refer #?(:clj  [chan >! <! go]
                                   :cljs [chan >! <!])]))
 
@@ -90,7 +92,15 @@
       (<! (cimi/cloud-entry-point this))
       (let [[response token] (<! (impl/search @state resource-type options))]
         (u/update-state state :token token)
-        response))))
+        response)))
+
+  pricing/pricing
+
+  (place-and-rank [this module-uri connectors]
+    (go
+      (let [{:keys [baseURI]} (<! (cimi/cloud-entry-point this))
+            endpoint (second (re-matches #"^(https?://[^/]+)/.*$" baseURI))]
+        (<! (pi/place-and-rank @state endpoint module-uri connectors))))))
 
 (defn instance
   "A convenience function for creating an instance that implements the CIMI

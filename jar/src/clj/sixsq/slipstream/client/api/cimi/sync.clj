@@ -8,7 +8,8 @@
   (:require
     [sixsq.slipstream.client.api.cimi.async :as async]
     [sixsq.slipstream.client.api.cimi :as cimi]
-    [clojure.core.async]))
+    [clojure.core.async]
+    [sixsq.slipstream.client.api.pricing :as pricing]))
 
 (defmacro <??
   "Extracts a value from the channel with <!!. If the value is a Throwable, it
@@ -48,7 +49,11 @@
   (search [_ resource-type]
     (<?? (cimi/search async-context resource-type nil)))
   (search [_ resource-type options]
-    (<?? (cimi/search async-context resource-type options))))
+    (<?? (cimi/search async-context resource-type options)))
+
+  pricing/pricing
+  (place-and-rank [_ module-uri connectors]
+    (<?? (pricing/place-and-rank async-context module-uri connectors))))
 
 (defn instance
   "A convenience function for creating an instance that implements the CIMI
