@@ -4,14 +4,14 @@
 
   <artifactId>SlipStreamClientAPI</artifactId>
   <packaging>pom</packaging>
-  <version>3.29-SNAPSHOT</version>
+  <version>3.29</version>
   <name>SlipStreamClojureAPI</name>
   <url>http://sixsq.com</url>
 
   <parent>
     <groupId>com.sixsq.slipstream</groupId>
     <artifactId>SlipStreamCommunity</artifactId>
-    <version>3.29-SNAPSHOT</version>
+    <version>3.29</version>
     <relativePath>../SlipStream/community</relativePath>
   </parent>
 
