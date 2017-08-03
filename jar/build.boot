@@ -72,9 +72,12 @@
          :metadata     {:doc/format :markdown}}
   cljs {:optimizations :advanced
         :compiler-options {:language-in :ecmascript5}}
+  ;; FIXME: Remove :process-shim flag when possible.
+  ;; See https://github.com/bensu/doo/pull/141 
   test-cljs {:js-env :phantom
              :doo-opts {:paths {:phantom "phantomjs --web-security=false"}}
-             :cljs-opts {:language-in :ecmascript5}
+             :cljs-opts {:language-in :ecmascript5
+                         :process-shim false}
              :exit? true}
   test {:junit-output-to ""}
   push {:repo "sixsq"})
