@@ -76,12 +76,26 @@
    The capitalization of the collection name is significant; normally the value
    is camel-cased and has a trailing 's'. Returns nil if the collection does
    not exist."
-  [cep collection-name]
-  (when (and cep collection-name)
-    (let [collection (keyword collection-name)
-          baseURI (:baseURI cep)]
+  [{:keys [baseURI] :as cep} collection-name]
+  (when (and baseURI collection-name)
+    (let [collection (keyword collection-name)]
       (when-let [href (-> cep collection :href)]
         (str baseURI href)))))
+
+(defn verify-collection-url
+  "Verifies that the value of `collection-url` is the URL for one of the
+   collections defined in the cloud entry point. If it is, then the URL is
+   returned; if not, then nil is returned."
+  [{:keys [baseURI] :as cep} collection-url]
+  (when (and baseURI collection-url)
+    (let [collection-urls-set (->> cep
+                                   vals
+                                   (filter map?)
+                                   (map :href)
+                                   (remove nil?)
+                                   (map #(str baseURI %))
+                                   set)]
+      (collection-urls-set collection-url))))
 
 (defn extract-op-url
   "Transducer that extracts the operation URL for the given operation. The

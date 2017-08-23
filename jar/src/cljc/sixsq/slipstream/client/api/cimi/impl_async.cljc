@@ -41,10 +41,11 @@
   (chan 1 (u/extract-op-url op baseURI) identity))
 
 (defn get-collection-op-url
-  "Returns the URL for the given operation and collection within a channel."
-  [token cep op collection-name]
-  (let [baseURI (:baseURI cep)
-        url (u/get-collection-url cep collection-name)
+  "Returns the URL for the given operation and collection within a channel.
+   The collection can be identified either by its name or URL."
+  [token {:keys [baseURI] :as cep} op collection-name-or-url]
+  (let [url (or (u/get-collection-url cep collection-name-or-url)
+                (u/verify-collection-url cep collection-name-or-url))
         opts (-> (cu/req-opts token (url/map->query {"$last" 0}))
                  (assoc :type "application/x-www-form-urlencoded")
                  (assoc :chan (create-op-url-chan op baseURI)))]
@@ -60,16 +61,16 @@
     (http/get url opts)))
 
 (defn add
-  "Creates a new CIMI resource of the given type. The data will be converted
-   into a JSON string before being sent to the server. The data must match the
-   schema of the resource type."
-  [{:keys [token cep] :as state} resource-type data]
+  "Creates a new CIMI resource within the collection identified by the
+   collection type or URL. The data will be converted into a JSON string before
+   being sent to the server. The data must match the schema of the resource."
+  [{:keys [token cep] :as state} collection-type-or-url data]
   (go
-    (if-let [add-url (<! (get-collection-op-url token cep "add" resource-type))]
+    (if-let [add-url (<! (get-collection-op-url token cep "add" collection-type-or-url))]
       (let [opts (-> (cu/req-opts token (json/edn->json data))
                      (assoc :chan (create-chan)))]
         (<! (http/post add-url opts)))
-      (u/unauthorized resource-type))))
+      (u/unauthorized collection-type-or-url))))
 
 (defn edit
   "Updates an existing CIMI resource identified by the URL or resource id."
@@ -103,11 +104,13 @@
     (http/get url opts)))
 
 (defn search
-  "Search for CIMI resources of the given type, returning a list of the
-   matching resources (in a channel). The list will be wrapped within an
-   envelope containing the metadata of the collection and search."
-  [{:keys [token cep] :as state} resource-type options]
-  (let [url (u/get-collection-url cep resource-type)
+  "Search for CIMI resources within the collection identified by its type or
+   URL, returning a list of the matching resources (in a channel). The list
+   will be wrapped within an envelope containing the metadata of the collection
+   and search."
+  [{:keys [token cep] :as state} collection-type-or-url options]
+  (let [url (or (u/get-collection-url cep collection-type-or-url)
+                (u/verify-collection-url cep collection-type-or-url))
         opts (-> (cu/req-opts token (url/map->query (u/select-cimi-params options)))
                  (assoc :type "application/x-www-form-urlencoded")
                  (assoc :query-params (u/remove-cimi-params options))

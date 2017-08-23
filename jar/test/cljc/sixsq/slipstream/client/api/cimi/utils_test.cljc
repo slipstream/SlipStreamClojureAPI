@@ -121,6 +121,20 @@
              "https://localhost:8201/api/usage-record" "usageRecords"
              "https://localhost:8201/api/usage-record" :usageRecords))
 
+(deftest check-verify-collection-url
+  (is (nil? (t/verify-collection-url nil nil)))
+  (is (nil? (t/verify-collection-url (dissoc test-cep :baseURI) nil)))
+  (are [url] (= url (t/verify-collection-url test-cep url))
+             "https://localhost:8201/api/attribute"
+             "https://localhost:8201/api/connector"
+             "https://localhost:8201/api/event"
+             "https://localhost:8201/api/license"
+             "https://localhost:8201/api/license-template"
+             "https://localhost:8201/api/usage"
+             "https://localhost:8201/api/network-service"
+             "https://localhost:8201/api/service-offer"
+             "https://localhost:8201/api/usage-record"))
+
 (deftest check-extract-op-url-tests
   (let [baseURI "https://localhost:8201/api/"
         body ops-example
