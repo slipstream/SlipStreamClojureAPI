@@ -101,6 +101,7 @@
 (deftask build []
          (comp
            (pom)
+           (aot :namespace #{'sixsq.slipstream.client.api.cimi})
            (jar)))
 
 (deftask mvn-test
