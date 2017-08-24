@@ -17,6 +17,7 @@ pom.xml.next
 pom.xml.releaseBackup
 pom.xml.tag
 release.properties
+dependency-reduced-pom.xml
 
 /target
 /classes
