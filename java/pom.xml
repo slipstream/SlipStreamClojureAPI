@@ -50,6 +50,10 @@
       <name>SlipStream Snapshots</name>
       <url>${nexus}/snapshots-community${platform.os}</url>
     </repository>
+    <repository>
+      <id>clojars.org</id>
+      <url>http://clojars.org/repo</url>
+    </repository>
   </repositories>
 
   <dependencies>
