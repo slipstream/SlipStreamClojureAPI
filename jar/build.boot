@@ -31,7 +31,7 @@
                    [org.clojure/data.json]
                    [org.clojure/data.xml]
                    [org.clojure/core.async]
-                   [io.nervous/kvlt "0.1.4"]
+                   [io.nervous/kvlt]
                    [com.taoensso/timbre]
 
                    [org.json/json "20160810"]
