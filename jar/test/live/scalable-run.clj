@@ -52,15 +52,15 @@ output.  Example:
   ")
 
 ;;
-;; Boot related scafolding.
-(def artifact-version "3.3-SNAPSHOT")
+;; Boot related scaffolding.
+(def artifact-version "3.37-SNAPSHOT")
 (def repo-type (if (re-find #"SNAPSHOT" artifact-version) "snapshots" "releases"))
 (def edition "community")
 (def nexus-url "http://nexus.sixsq.com/content/repositories/")
 
 (set-env!
   :source-paths #{"src/clj" "src/cljc"}
-  :resource-paths #{"resources"}
+  ;:resource-paths #{"resources"}
 
   :repositories #(reduce conj %
                          [["boot-releases" {:url (str nexus-url "releases-boot")}]
@@ -94,10 +94,10 @@ output.  Example:
 
 ;;
 ;; Imports.
-(require '[sixsq.slipstream.client.api.authn :as a])
-(require '[sixsq.slipstream.client.api.lib.app :as p])
+(require '[sixsq.slipstream.client.api.deprecated-authn :as a])
+(require '[sixsq.slipstream.client.run-impl.lib.app :as p])
 
-(require '[sixsq.slipstream.client.api.run :as r] :reload)
+(require '[sixsq.slipstream.client.run :as r] :reload)
 (use '[clojure.pprint :only [pprint]])
 
 

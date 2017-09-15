@@ -1,202 +1,59 @@
-(ns sixsq.slipstream.client.api.authn
-  "Provides a utility to log into the SlipStream server and to
-  recover an access token.  No logout function is provided as
-  the access can be removed by just destroying the token.
+(ns sixsq.slipstream.client.api.authn)
 
-  The library API functions in namespaces under **sixsq.slipstream.client.api.lib**
-  use dynamic context defined in this namespace.  To bootstrap
-  the API with the context use [[login!]].  Each time
-  when called, it alters the root of the context with the new
-  authentication token obtained after performing basic authn
-  with the username/password provided to [[login!]].
+(defprotocol authn
+  "This protocol (interface) defines convenience functions that simplify
+   authentication with the SlipStream server.
 
-  `(with-context new-context (api-function ...))` can be used to
-  rebind the global context to the new provided one for the time of
-  the invocation of a specific API function. The
-  new context can, for example, be obtained by
+   To use the protocol you must instantiate a concrete implementation of the
+   protocol. Synchronous and asynchronous implementations are available in the
+   following namespaces:
 
-      {:serviceurl \"https://my.slipstream\"
-       :cookie (login username password)}
+    * `sixsq.slipstream.client.async`
+    * `sixsq.slipstream.client.sync`
 
-  Full example
+   and can be created easily via the `instance` function. Note that the
+   concrete return types will depend on the implementation. The asynchronous
+   implementation, for example, returns core.async channels from all functions.
 
-      (require '[sixsq.slipstream.client.api.authn :as a])
-      (require '[sixsq.slipstream.client.api.lib.app :as p])
-      (require '[sixsq.slipstream.client.api.lib.run :as r])
+   All functions take an optional options map.  All functions support:
 
-      (def my-slipstream
-        {:serviceurl \"https://my.slipstream\"
-         :cookie (a/login username password)}
+    * `:insecure?` - Will not check the validity of SSL certificates if true.
+      Defaults to false. The option is only effective with the Clojure
+      implementation.
 
-      (def run-uuid
-        (last
-          (clojure.string/split
-            (with-context my-slipstream (p/deploy \"my/app\")))))
+   Options for individual functions are noted in the function descriptions.
+   Unknown options for any function are silently ignored.
+   "
 
-      (with-context my-slipstream
-        (r/get-run-info run-uuid))
+  (login
+    [this login-params]
+    [this login-params options]
+    "Uses the given `login-params` to log into the SlipStream server. The
+     `login-params` must be a map containing an `:href` element giving the id
+     of the sessionTemplate resource and any other attributes required for the
+     login method. The `login-params` for logging in with a username and
+     password would be similar to the following:
 
-  To contact server in an insecure mode (i.e. w/o checking the authenticity of
-  the remote server) before calling login functions, re-set the root of the
-  authentication context with
+     ```
+     {:href \"session-template/internal\"
+      :username \"user\"
+      :password \"password\"}
+     ```
 
-      (require '[sixsq.slipstream.client.api.authn :as a])
+     The function returns a map with the response. Successful responses will
+     contain a status code of 201, the resource-id of the created session, and
+     a message. Errors will return a similar map with an error code and
+     descriptive message.")
 
-      (a/set-context! {:insecure? true})
-      (a/login username password)
+  (logout
+    [this]
+    [this options]
+    "Performs a logout of the client by deleting the current session. On
+     success, returns a map with a 200 status code and a message. The function
+     returns nil if the user is not currently authenticated.")
 
-  or wrap the API call for the local rebinding of the authentication context as
-  follows
-
-      (a/with-context {:insecure? true}
-        (a/login! username password))
-  "
-  #?(:cljs (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
-  (:require
-    [sixsq.slipstream.client.api.utils.http-async :as http]
-    [superstring.core :as s]
-    [sixsq.slipstream.client.api.utils.utils :as u]
-    [clojure.core.async :refer #?(:clj  [<! go go-loop <!!]
-                                  :cljs [<!])]))
-
-(def ^:const default-url "https://nuv.la")
-
-(def ^:const login-resource "auth/login")
-
-(defn to-login-url
-  [service-url]
-  (u/url-join [service-url login-resource]))
-
-(def ^:const default-login-url (to-login-url default-url))
-
-;;
-;; Authentication context management for the namespaces in client.api.lib/*.
-(def default-context {:serviceurl default-url
-                      :insecure?  false})
-
-(def ^:dynamic *context* default-context)
-
-(defn select-context
-  [context]
-  (select-keys context [:serviceurl :username :password :cookie :insecure?]))
-
-;;
-#?(:clj
-   (defn set-context!
-     "Should be called to provide service URL and connection token.
-     The following map is expected
-
-         {:serviceurl \"https://nuv.la\"
-          :cookie     \"cookie\"}"
-     [context]
-     (alter-var-root #'*context* (fn [_] (merge default-context (select-context context))))))
-
-(defmacro with-context
-  [context & body]
-  `(binding [*context* (merge *context* ~context)] (do ~@body)))
-
-(defn result-tuple [result]
-  ((juxt :status #(get-in % [:headers :set-cookie])) result))
-
-(defn extract-response [result]
-  (if (instance? #?(:clj Exception :cljs js/Error) result)
-    (if-let [data (ex-data result)]
-      (result-tuple data)
-      result)
-    (result-tuple result)))
-
-(defn login-async-with-status
-  "Uses the given username and password to log into the SlipStream
-   server.
-
-   This method returns a channel that will contain the results as a
-   map with the keys :login-status and :token.  Depending on the
-   underlying HTTP client, the token may be nil even when the login
-   request succeeded.
-
-   If called without an explicit login-url, then the default on Nuvla
-   is used.
-
-   **FIXME**: Ideally the login-url should be discovered from the cloud
-   entry point."
-  ([username password]
-   (login-async-with-status username password default-login-url))
-  ([username password login-url]
-   (let [data (str "authn-method=internal&username=" username "&password=" password)]
-     (go
-       (let [result (<! (http/post login-url {:content-type     "application/x-www-form-urlencoded"
-                                              :follow-redirects false
-                                              :throw-exceptions false
-                                              :body             data
-                                              :insecure?        (:insecure? *context*)}))]
-         (extract-response result))))))
-
-(defn logout-async-with-status
-  "Removes cached credentials and tokens from the http client."
-  ([]
-   (logout-async-with-status default-login-url))
-  ([logout-url]
-   (go
-     (let [result (<! (http/post logout-url {:follow-redirects false
-                                             :throw-exceptions false
-                                             :insecure?        (:insecure? *context*)}))]
-       (first (extract-response result))))))
-
-(defn login-async
-  "Uses the given username and password to log into the SlipStream
-   server.
-
-   This method returns a channel that will contain the results as a
-   tuple of the status and token (cookie).  Depending on the
-   underlying HTTP client, the token may be nil even when the login
-   request succeeded.
-
-   If called without an explicit login-url, then the default on Nuvla
-   is used.
-
-   **FIXME**: Ideally the login-url should be discovered from the cloud
-   entry point."
-  ([username password]
-   (login-async username password default-login-url))
-  ([username password login-url]
-   (let [data (str "authn-method=internal&username=" username "&password=" password)]
-     (go
-       (let [result (<! (http/post login-url {:content-type     "application/x-www-form-urlencoded"
-                                              :follow-redirects false
-                                              :body             data
-                                              :insecure?        (:insecure? *context*)}))]
-         (-> result :headers :set-cookie))))))
-
-#?(:clj
-   (defn login
-     "Synchronous login to the server.  Directly returns the access token.
-      Not available in clojurescript."
-     ([username password]
-      (login username password default-login-url))
-     ([username password login-url]
-      (<!! (login-async username password login-url)))))
-
-#?(:clj
-   (defn endpoint-from-url
-     [url]
-     (->> (s/split url #"/")
-          (take 3)
-          (filter #(not (= % "")))
-          (s/join "//"))))
-
-#?(:clj
-   (defn login!
-     "Synchronous login to the server.  Alters the root of the global dynamic
-     authentication context used in the namespaces under
-     **sixsq.slipstream.client.api.lib** to interact with the service.
-     Returns the access token.
-     Not available in clojurescript."
-     ([username password]
-      (login! username password default-login-url))
-     ([username password login-url]
-      (let [token (login username password login-url)]
-        (set-context! (merge *context*
-                             {:serviceurl (endpoint-from-url login-url)
-                              :cookie     token}))
-        token))))
-
+  (authenticated?
+    [this]
+    [this options]
+    "Returns true if the client has an active, valid session; returns false
+     otherwise (even for errors)."))

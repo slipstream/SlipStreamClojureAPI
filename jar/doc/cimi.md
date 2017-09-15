@@ -7,42 +7,87 @@ already follow the CIMI REST interface.
 
 ## Usage
 
-The CIMI SCRUD operations are defined in the `cimi` protocol in the
-`sixsq.slipstream.client.api.cimi` namespace.  To use those functions,
-you must instantiate either a synchronous or asynchronous
-implementation of that protocol.
+The CIMI search (search), create (add), read (get), update (edit), and
+delete (delete) operations are defined in the `cimi` protocol in the
+`sixsq.slipstream.client.api.cimi` namespace.  A separate namespace 
+`sixsq.slipstream.client.api.authn` wraps some of the CIMI functions to
+simplify the authentication process. 
+
+To use the CIMI and authn protocol functions, you must instantiate either
+a synchronous or asynchronous implementation of those protocols.  The
+synchronous implementation directly returns the results of the
+functions, while the asynchronous implementation always returns a
+core.async channel.
 
 ```clojure
-(ns my.namespace
- (:require
-   [sixsq.slipstream.client.api.cimi :as cimi]
-   [sixsq.slipstream.client.api.cimi.async :as async]
-   [sixsq.slipstream.client.api.cimi.sync :as sync]))
+;; Demonstrating use from the REPL
 
-;; Create an asynchronous client context.  Note that the
-;; asynchronous client can be used from Clojure or ClojureScript.
-(def async (async/create-cimi-async))
+(require '[sixsq.slipstream.client.api.cimi :as cimi])
+(require '[sixsq.slipstream.client.api.authn :as authn])
+(require '[sixsq.slipstream.client.async :as async])
+(require '[sixsq.slipstream.client.sync :as sync])
+(require '[clojure.core.async :refer [<!! close!]])
+(require '[kvlt.core :as kvlt])
+
+;; Turn off logging from underlying HTTP library to keep the noise down.
+(kvlt/quiet!)
+
+;; Create an asynchronous client context.  The asynchronous client
+;; can be used from Clojure or ClojureScript.
+(def client-async (async/instance))
+;; #'boot.user/client-async
 
 ;; Returns a channel on which a document with directory of available
 ;; resource is pushed. User does not need to be authenticated.
-(cimi/cloud-entry-point async)
+(pprint (<!! (cimi/cloud-entry-point client-async)))
+;; {:baseURI "https://nuv.la/api/",
+;;  :connectors {:href "connector"},
+;; ...
+
 
 ;; Returns a channel with login status (HTTP code).
-(cimi/login async {:username "user" :password "pass"})
+(def username "user") ;; replace with real value
+(def password "pass") ;; replace with real value
+(pprint (<!! (authn/login client-async {:href "session-template/internal"
+                                        :username username
+                                        :password password})))
+;; {:status 201,
+;;  :message "created session/884000e0-94a2-44af-9598-135060347557",
+;;  :resource-id "session/884000e0-94a2-44af-9598-135060347557"}
 
 ;; Returns channel with document containing list of events.
-(cimi/search async "events")
+(pprint (<!! (cimi/search client-async "events")))
+
+;; {:count 7254,
+;;  :resourceURI "http://schemas.dmtf.org/cimi/2/EventCollection",
+;;  :id "event",
+;;  ...
+
 
 ;; Same can be done with synchronous client, but in this case
 ;; all values are directly returned, rather than being pushed
-;; onto a channel.
-;; NOTE: Synchronous client is only available in Clojure.
+;; onto a channel.  The synchronous client is only available 
+;; in Clojure!
 
-(def sync (sync/create-cimi-sync))
-(cimi/login sync {:username "user" :password "pass"})
-(cimi/search sync "events")
+(def client-sync (sync/instance))
+(pprint (authn/login client-sync {:href "session-template/internal"
+                                  :username username
+                                  :password password}))
+                                  
+;; {:status 201,
+;;  :message "created session/45824c04-d454-4474-b3e6-4fdbb6389613",
+;;  :resource-id "session/45824c04-d454-4474-b3e6-4fdbb6389613"}
+
+(pprint (cimi/search client-sync "events" {:$last 2}))
+
+;; {:count 7254,
+;;  :resourceURI "http://schemas.dmtf.org/cimi/2/EventCollection",
+;;  :id "event",
+;;  ...
+
 ```
 
 When creating the client context without specific endpoints, then
 the endpoints for the Nuvla service will be used.  See the API
-documentation for details on specifying the endpoints.
+documentation for details on specifying the endpoints or other
+options. 
