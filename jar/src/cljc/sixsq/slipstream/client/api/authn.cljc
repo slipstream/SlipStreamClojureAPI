@@ -43,7 +43,20 @@
      The function returns a map with the response. Successful responses will
      contain a status code of 201, the resource-id of the created session, and
      a message. Errors will return a similar map with an error code and
-     descriptive message.")
+     descriptive message.
+
+     Authenticating using other methods requires referencing different
+     Session Template resources.  For example, `login-params` like:
+
+     ```
+     {:href \"session-template/api-key\"
+      :key \"credential/uuid\"
+      :secret \"secret.value\"}
+     ```
+
+     could be used to authenticate with an API key/secret.  Note that the
+     template names will depend on the configuration of the SlipStream
+     server.")
 
   (logout
     [this]
