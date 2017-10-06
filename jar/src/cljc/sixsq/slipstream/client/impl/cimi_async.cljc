@@ -138,14 +138,15 @@
    URL, returning a list of the matching resources (in a channel). The list
    will be wrapped within an envelope containing the metadata of the collection
    and search."
-  [{:keys [token cep] :as state} collection-type-or-url {:keys [insecure?] :as options}]
+  [{:keys [token cep] :as state} collection-type-or-url {:keys [insecure? user-token] :as options}]
   (let [url (or (u/get-collection-url cep collection-type-or-url)
                 (u/verify-collection-url cep collection-type-or-url))
+        token-request (if user-token user-token token)
         query-string (url/map->query (u/select-cimi-params options))]
     (let [query-params (-> options
                            u/remove-cimi-params
                            u/remove-req-params)
-          opts (-> (cu/req-opts token query-string)
+          opts (-> (cu/req-opts token-request query-string)
                    (assoc :type "application/x-www-form-urlencoded")
                    (assoc :query-params query-params)
                    (assoc :insecure? insecure?)
