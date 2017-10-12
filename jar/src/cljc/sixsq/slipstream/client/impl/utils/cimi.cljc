@@ -29,7 +29,7 @@
   "Strips the insecure? and sse? options from the provided map."
   [m]
   (when (map? m)
-    (into {} (remove (fn [[k v]] (contains? #{:insecure? :sse?} k)) m))))
+    (into {} (remove (fn [[k v]] (contains? #{:insecure? :sse? :user-token} k)) m))))
 
 (defn update-state
   "If the token is not nil, then updates the value of the :token key inside
