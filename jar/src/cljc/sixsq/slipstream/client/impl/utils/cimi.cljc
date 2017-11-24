@@ -26,10 +26,10 @@
     (select-keys m (set/difference (set (keys m)) cimi-params))))
 
 (defn remove-req-params
-  "Strips the insecure? and sse? options from the provided map."
+  "Strips the insecure?, sse? and :user-token options from the provided map."
   [m]
   (when (map? m)
-    (into {} (remove (fn [[k v]] (contains? #{:insecure? :sse? :user-token} k)) m))))
+    (dissoc m :insecure? :sse? :user-token)))
 
 (defn update-state
   "If the token is not nil, then updates the value of the :token key inside

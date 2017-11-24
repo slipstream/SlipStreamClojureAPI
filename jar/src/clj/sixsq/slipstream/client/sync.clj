@@ -76,6 +76,8 @@
 
   (place-and-rank [_ module-uri connectors]
     (<?? (pricing/place-and-rank async-context module-uri connectors)))
+  (place-and-rank [_ module-uri connectors options]
+    (<?? (pricing/place-and-rank async-context module-uri connectors options)))
 
   modules/modules
 
@@ -94,6 +96,14 @@
     (<?? (runs/get-run async-context url-or-id nil)))
   (get-run [_ url-or-id options]
     (<?? (runs/get-run async-context url-or-id options)))
+  (start-run [_ url-or-id]
+    (<?? (runs/start-run async-context url-or-id nil)))
+  (start-run [_ url-or-id options]
+    (<?? (runs/start-run async-context url-or-id options)))
+  (terminate-run [_ url-or-id]
+    (<?? (runs/terminate-run async-context url-or-id nil)))
+  (terminate-run [_ url-or-id options]
+    (<?? (runs/terminate-run async-context url-or-id options)))
   (search-runs [_]
     (<?? (runs/search-runs async-context nil)))
   (search-runs [_ options]

@@ -1,15 +1,22 @@
 (ns ^{:no-doc true} sixsq.slipstream.client.impl.utils.modules
   "Utilities specific to working with modules.")
 
-(defn extract-children [module]
-  (if-let [children (get-in module [:projectModule :children :item])]
+
+(defn select-child-fields [child]
+  (select-keys child #{:name :description :category :version}))
+
+
+(defn process-children [module path-vector]
+  (when-let [children (get-in module path-vector)]
     (let [children (if (map? children) [children] children)] ;; may be single item!
-      (map :name children))))
+      (map select-child-fields children))))
 
-(defn fix-module-name [mname]
-  (first (map second (re-seq #"module/(.+)/[\d+]+" mname))))
 
-(defn extract-xml-children [xml]
-  (->> (re-seq #"resourceUri=\"([^\"]*)\"" xml)
-       (map second)
-       (map fix-module-name)))
+(defn extract-children [module]
+  (process-children module [:projectModule :children :item]))
+
+
+(defn extract-root-children [root]
+  (process-children root [:list :item]))
+
+

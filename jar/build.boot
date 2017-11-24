@@ -58,7 +58,7 @@
 
 (set-env!
   :source-paths #{"dev-resources" "test/clj" "test/cljc"}
-  :resource-paths #{"src/clj" "src/cljc" "src/cljs"})
+  :resource-paths #{"src/clj" "src/cljc"})
 
 (task-options!
   pom {:project (get-env :project)
@@ -66,18 +66,15 @@
   checkout {:dependencies [['sixsq/default-deps (get-env :version)]]}
   codox {:name         (str (get-env :project))
          :version      (get-env :version)
-         :source-paths #{"src/clj" "src/cljc" "src/cljs"}
+         :source-paths #{"src/clj" "src/cljc"}
          :source-uri   "https://github.com/slipstream/SlipStreamClojureAPI/blob/master/jar/{filepath}#L{line}"
          :language     :clojure
          :metadata     {:doc/format :markdown}}
   cljs {:optimizations :advanced
         :compiler-options {:language-in :ecmascript5}}
-  ;; FIXME: Remove :process-shim flag when possible.
-  ;; See https://github.com/bensu/doo/pull/141
   test-cljs {:js-env :phantom
              :doo-opts {:paths {:phantom "phantomjs --web-security=false"}}
-             :cljs-opts {:language-in :ecmascript5
-                         :process-shim false}
+             :cljs-opts {:language-in :ecmascript5}
              :exit? true}
   test {:junit-output-to ""}
   push {:repo "sixsq"})

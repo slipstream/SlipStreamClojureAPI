@@ -14,16 +14,14 @@
   (:refer-clojure :exclude [get])
   #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]]))
   (:require
-    [sixsq.slipstream.client.impl.utils.error :as e]
     [sixsq.slipstream.client.impl.utils.http-async :as http]
     [sixsq.slipstream.client.impl.utils.common :as cu]
     [sixsq.slipstream.client.impl.utils.json :as json]
     [sixsq.slipstream.client.impl.utils.cimi :as u]
-    [sixsq.slipstream.client.api.deprecated-authn :as authn]
     [cemerick.url :as url]
-    [clojure.set :as set]
     [clojure.core.async :refer #?(:clj  [chan <! >! go]
                                   :cljs [chan <! >!])]))
+
 
 (defn- create-chan
   "Creates a channel that extracts returns the JSON body as a keywordized EDN
@@ -33,9 +31,11 @@
   []
   (chan 1 (u/response-xduce) u/error-tuple))
 
+
 (defn- assoc-chan
   [m]
   (assoc m :chan (create-chan)))
+
 
 (defn- create-sse-chan
   "Creates a channel that extracts the data from an SSE message and returns
@@ -43,9 +43,11 @@
   []
   (chan 1 (u/event-transducer) identity))
 
+
 (defn- assoc-sse-chan
   [m]
   (assoc m :chan (create-sse-chan)))
+
 
 (defn- create-op-url-chan
   "Creates a channel that extracts the operations from a collection or
@@ -53,9 +55,11 @@
   [op baseURI]
   (chan 1 (u/extract-op-url op baseURI) identity))
 
+
 (defn- assoc-op-url-chan
   [m op baseURI]
   (assoc m :chan (create-op-url-chan op baseURI)))
+
 
 (defn get-collection-op-url
   "Returns the URL for the given operation and collection within a channel.
@@ -69,6 +73,7 @@
                  (assoc-op-url-chan op baseURI))]
     (http/put url opts)))
 
+
 (defn get-resource-op-url
   "Returns the URL for the given operation and collection within a channel."
   [{:keys [token cep] :as state} op url-or-id options]
@@ -78,6 +83,7 @@
                  (merge options)
                  (assoc-op-url-chan op baseURI))]
     (http/get url opts)))
+
 
 (defn add
   "Creates a new CIMI resource within the collection identified by the
@@ -92,6 +98,7 @@
         (<! (http/post add-url opts)))
       (u/unauthorized collection-type-or-url))))
 
+
 (defn edit
   "Updates an existing CIMI resource identified by the URL or resource id."
   [{:keys [token cep] :as state} url-or-id data options]
@@ -102,6 +109,7 @@
                      assoc-chan)]
         (<! (http/put edit-url opts)))
       (u/unauthorized url-or-id))))
+
 
 (defn delete
   "Deletes the CIMI resource identified by the URL or resource id from the
@@ -115,6 +123,7 @@
         (<! (http/delete delete-url opts)))
       (u/unauthorized url-or-id))))
 
+
 (defn get
   "Reads the CIMI resource identified by the URL or resource id. Returns the
    resource as an edn data structure in a channel."
@@ -125,6 +134,7 @@
                    assoc-chan)]
       (http/get url opts))))
 
+
 (defn get-sse
   "Reads the CIMI resource identified by the URL or resource id. Returns the
    resource as an edn data structure in a channel."
@@ -132,6 +142,7 @@
   (http/sse (cu/ensure-url (:baseURI cep) url-or-id)
             (cond-> (assoc-sse-chan options)
                     token (assoc :options {:headers {:cookie token}}))))
+
 
 (defn search
   "Search for CIMI resources within the collection identified by its type or
@@ -153,6 +164,7 @@
                    assoc-chan)]
       (http/put url opts))))
 
+
 (defn search-sse
   "Search for CIMI resources within the collection identified by its type or
    URL, returning a list of the matching resources (in a channel). The list
@@ -166,6 +178,7 @@
               (cond-> (assoc-sse-chan (u/remove-cimi-params options))
                       token (assoc :options {:headers {:cookie token}})))))
 
+
 (defn operation
   "Reads the CIMI resource identified by the URL or resource id and then
    'executes' the given operation."
@@ -178,6 +191,7 @@
         (<! (http/post operation-url opts)))
       (u/unknown-operation url-or-id))))
 
+
 (defn cloud-entry-point
   "Retrieves the cloud entry point from the given endpoint. The cloud entry
    point acts as a directory of the available resources within the CIMI server.
@@ -189,6 +203,7 @@
                  assoc-chan)]
     (http/get endpoint opts)))
 
+
 (defn current-session
   "Returns (on a channel) the resource ID of the current session. If there is
    no current session (user is not logged in) or an error occurs, then nil will
@@ -197,6 +212,7 @@
   (go
     (let [[sessions token] (<! (search state "sessions" options))]
       [(-> sessions :sessions first :id) token])))
+
 
 (defn logout
   "Logs out a user by sending a DELETE request for the current session. The
@@ -208,6 +224,7 @@
     (let [[session-id _] (<! (current-session state options))]
       (when session-id
         (<! (delete state session-id options))))))
+
 
 (defn login
   "Creates a session create template from the provided login parameters and
