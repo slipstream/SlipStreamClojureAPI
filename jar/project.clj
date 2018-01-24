@@ -1,4 +1,4 @@
-(def +version+ "3.44")
+(def +version+ "3.45-SNAPSHOT")
 
 ;; FIXME: Provide HTTPS access to Nexus.
 (require 'cemerick.pomegranate.aether)
@@ -7,7 +7,7 @@
 
 (defproject
   com.sixsq.slipstream/SlipStreamClientAPI-jar
-  "3.44"
+  "3.45-SNAPSHOT"
   :license
   {"Apache 2.0" "http://www.apache.org/licenses/LICENSE-2.0.txt"}
 
@@ -19,7 +19,7 @@
             ;; (leinjacker 0.4.3 is published and lein-codox update their leinjacker dependency to 0.4.3) 
             [lein-shell "0.5.0"]]
 
-  :parent-project {:coords  [com.sixsq.slipstream/parent "3.44"]
+  :parent-project {:coords  [com.sixsq.slipstream/parent "3.45-SNAPSHOT"]
                    :inherit [:min-lein-version :managed-dependencies :repositories :deploy-repositories]}
 
   :pom-location "target/"
