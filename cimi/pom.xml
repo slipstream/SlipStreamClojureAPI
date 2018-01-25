@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>SlipStreamClientAPI-jar-dep</artifactId>
+  <artifactId>SlipStreamClojureAPI-cimi-dep</artifactId>
   <packaging>pom</packaging>
-  <name>SlipStreamClojureAPI/jar</name>
+  <name>SlipStreamClojureAPI/cimi</name>
 
   <url>http://sixsq.com</url>
   <parent>
     <groupId>com.sixsq.slipstream</groupId>
-    <artifactId>SlipStreamClientAPI</artifactId>
+    <artifactId>SlipStreamClojureAPI</artifactId>
     <version>3.45-SNAPSHOT</version>
   </parent>
 
@@ -27,7 +27,7 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
-  
+
   <profiles>
     <profile>
       <id>run-tests</id>
@@ -70,7 +70,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <executions>
           <execution>
-            <id>lein-build</id>
+            <id>lein-install</id>
             <phase>install</phase>
             <goals>
               <goal>exec</goal>
@@ -79,6 +79,19 @@
               <executable>lein</executable>
               <arguments>
                 <argument>install</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>lein-deploy</id>
+            <phase>deploy</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>lein</executable>
+              <arguments>
+                <argument>deploy</argument>
               </arguments>
             </configuration>
           </execution>

@@ -6,21 +6,24 @@
   "http" #(org.apache.maven.wagon.providers.http.HttpWagon.))
 
 (defproject
-  com.sixsq.slipstream/SlipStreamClientAPI-jar
+  com.sixsq.slipstream/SlipStreamClojureAPI-cimi
   "3.45-SNAPSHOT"
   :license
   {"Apache 2.0" "http://www.apache.org/licenses/LICENSE-2.0.txt"}
 
   :plugins [[lein-parent "0.3.2"]
             [lein-doo "0.1.8"]
-            [kirasystems/lein-codox "0.10.4"] 
-            ;; FIXME update to lein-codox (remove kirasystems) after fix of 
+            [kirasystems/lein-codox "0.10.4"]
+            ;; FIXME update to lein-codox (remove kirasystems) after fix of
             ;; https://github.com/sattvik/leinjacker/issues/14
-            ;; (leinjacker 0.4.3 is published and lein-codox update their leinjacker dependency to 0.4.3) 
+            ;; (leinjacker 0.4.3 is published and lein-codox update their leinjacker dependency to 0.4.3)
             [lein-shell "0.5.0"]]
 
   :parent-project {:coords  [com.sixsq.slipstream/parent "3.45-SNAPSHOT"]
-                   :inherit [:min-lein-version :managed-dependencies :repositories :deploy-repositories]}
+                   :inherit [:min-lein-version
+                             :managed-dependencies
+                             :repositories
+                             :deploy-repositories]}
 
   :pom-location "target/"
 
@@ -31,7 +34,7 @@
   :aot [sixsq.slipstream.client.api.cimi
         sixsq.slipstream.client.api.authn]
 
-  :codox {:name         "com.sixsq.slipstream/SlipStreamClientAPI-jar"
+  :codox {:name         "com.sixsq.slipstream/SlipStreamClojureAPI-cimi"
           :version      ~+version+
           :source-paths #{"src/clj" "src/cljc"}
           :source-uri   "https://github.com/slipstream/SlipStreamClojureAPI/blob/master/jar/{filepath}#L{line}"
@@ -39,23 +42,18 @@
           :metadata     {:doc/format :markdown}}
 
   :doo {:verbose true
-        :debug true
-        :paths {:phantom "phantomjs --web-security=false"}}
+        :debug   true
+        :paths   {:phantom "phantomjs --web-security=false"}}
 
   :dependencies
-  [[org.clojure/clojure]
-   [org.clojure/clojurescript]
-   [org.clojure/tools.logging]
-   [log4j]
+  [[org.clojure/tools.logging]                              ;; run utils
+   [log4j]                                                  ;; run utils
    [com.cemerick/url]
-   [clojure-ini]
-   [superstring]
+   [clojure-ini]                                            ;; run utils
    [org.clojure/data.json]
-   [org.clojure/data.xml]
+   [org.clojure/data.xml]                                   ;; run utils
    [org.clojure/core.async]
-   [io.nervous/kvlt]
-   [com.taoensso/timbre]
-   [org.json/json]]
+   [io.nervous/kvlt]]
 
   :cljsbuild {:builds [{:id           "test"
                         :source-paths ["test/cljc" "test/cljs"]
@@ -63,9 +61,11 @@
                                        :output-to     "target/clienttest.js"
                                        :optimizations :none}}]}
 
-  :profiles {:test {:aot            :all
-                    :source-paths   ["test/clj" "test/cljc"]
-                    :resource-paths ["dev-resources"]}}
+  :profiles {:provided {:dependencies [[org.clojure/clojure]
+                                       [org.clojure/clojurescript]]}
+             :test     {:aot            :all
+                        :source-paths   ["test/clj" "test/cljc"]
+                        :resource-paths ["dev-resources"]}}
 
   :aliases {"test"    ["do"
                        ["test"]

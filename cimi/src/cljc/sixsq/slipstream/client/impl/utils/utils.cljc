@@ -1,5 +1,5 @@
 (ns ^{:no-doc true} sixsq.slipstream.client.impl.utils.utils
-  (:require [superstring.core :as s]
+  (:require [clojure.string :as s]
             [clojure.walk :as walk]))
 
 (defn in?

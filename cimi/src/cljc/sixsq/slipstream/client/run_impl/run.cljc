@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [get])
   (:require
     [sixsq.slipstream.client.impl.utils.utils :as u]
-    [superstring.core :as s]))
+    [clojure.string :as s]))
 
 (def ^:const global-ns "ss")
 

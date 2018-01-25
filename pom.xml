@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>SlipStreamClientAPI</artifactId>
+  <artifactId>SlipStreamClojureAPI</artifactId>
   <packaging>pom</packaging>
   <version>3.45-SNAPSHOT</version>
   <name>SlipStreamClojureAPI</name>
@@ -23,39 +23,13 @@
   </licenses>
 
   <modules>
-    <module>jar</module>
-    <module>uber</module>
+    <module>cimi</module>
   </modules>
 
-  <profiles>
-    <profile>
-      <id>build-api-client-rpm</id>
-      <activation>
-        <file>
-          <exists>/usr/bin/rpmbuild</exists>
-        </file>
-      </activation>
-      <modules>
-        <module>rpm</module>
-      </modules>
-    </profile>
-    <profile>
-      <id>build-api-client-rpm-local</id>
-      <activation>
-        <file>
-          <exists>/usr/local/bin/rpmbuild</exists>
-        </file>
-      </activation>
-      <modules>
-        <module>rpm</module>
-      </modules>
-    </profile>
-  </profiles>
-
   <scm>
-    <connection>${scm.read}/SlipStreamClientAPI.git</connection>
-    <developerConnection>${scm.write}/SlipStreamClientAPI.git</developerConnection>
-    <url>${scm.public}/SlipStreamClientAPI</url>
+    <connection>${scm.read}/SlipStreamClojureAPI.git</connection>
+    <developerConnection>${scm.write}/SlipStreamClojureAPI.git</developerConnection>
+    <url>${scm.public}/SlipStreamClojureAPI</url>
     <tag>HEAD</tag>
   </scm>
 

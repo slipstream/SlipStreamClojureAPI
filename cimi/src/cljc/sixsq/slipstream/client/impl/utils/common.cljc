@@ -5,9 +5,7 @@
   (:require
     [sixsq.slipstream.client.impl.utils.error :as e]
     #?(:clj
-    [clojure.data.json :as json]))
-  #?(:clj
-     (:import (org.json XML))))
+    [clojure.data.json :as json])))
 
 ;; The the :follow-redirects setting asks that redirects are handled
 ;; directly by the client rather than by the underlying HTTP library.
