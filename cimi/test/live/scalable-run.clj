@@ -56,7 +56,7 @@ output.  Example:
 (def artifact-version "3.37-SNAPSHOT")
 (def repo-type (if (re-find #"SNAPSHOT" artifact-version) "snapshots" "releases"))
 (def edition "community")
-(def nexus-url "http://nexus.sixsq.com/content/repositories/")
+  (def nexus-url "https://nexus.sixsq.com/content/repositories/")
 
 (set-env!
   :source-paths #{"src/clj" "src/cljc"}

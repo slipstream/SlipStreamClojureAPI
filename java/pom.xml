@@ -22,7 +22,7 @@
 
     <!-- root URL for the nexus repositories         -->
     <!-- The value should NOT have a trailing slash! -->
-    <nexus>http://nexus.sixsq.com/content/repositories</nexus>
+    <nexus>https://nexus.sixsq.com/content/repositories</nexus>
     <package.os>el7</package.os>
   </properties>
 
