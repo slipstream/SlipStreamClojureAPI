@@ -1,8 +1,10 @@
 (def +version+ "3.45-SNAPSHOT")
 
-(defproject
-  com.sixsq.slipstream/SlipStreamClojureAPI-cimi
-  "3.45-SNAPSHOT"
+(defproject com.sixsq.slipstream/SlipStreamClojureAPI-cimi "3.45-SNAPSHOT"
+
+  :description "Clojure CIMI API"
+  :url "https://github.com/slipstream/SlipStreamClojureAPI"
+
   :license
   {"Apache 2.0" "http://www.apache.org/licenses/LICENSE-2.0.txt"}
 
