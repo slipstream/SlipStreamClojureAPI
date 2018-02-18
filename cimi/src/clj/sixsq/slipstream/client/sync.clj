@@ -9,9 +9,11 @@
     [sixsq.slipstream.client.async :as async]
     [sixsq.slipstream.client.api.authn :as authn]
     [sixsq.slipstream.client.api.cimi :as cimi]
+    [sixsq.slipstream.client.api.metrics :as metrics]
     [sixsq.slipstream.client.api.modules :as modules]
     [sixsq.slipstream.client.api.pricing :as pricing]
     [sixsq.slipstream.client.api.runs :as runs]))
+
 
 (defmacro ^{:no-doc true} <??
   "Extracts a value from the channel with <??. If the value is a Throwable, it
@@ -21,6 +23,7 @@
      (if (instance? Throwable v#)
        (throw v#)
        v#)))
+
 
 (deftype cimi-sync [async-context]
 
@@ -107,7 +110,13 @@
   (search-runs [_]
     (<?? (runs/search-runs async-context nil)))
   (search-runs [_ options]
-    (<?? (runs/search-runs async-context options))))
+    (<?? (runs/search-runs async-context options)))
+
+  metrics/metrics
+
+  (get-metrics [_ options]
+    (<?? (metrics/get-metrics async-context options))))
+
 
 (defn instance
   "A convenience function for creating a synchronous, concrete instance of the

@@ -7,13 +7,14 @@
   (:require
     [sixsq.slipstream.client.api.authn :as authn]
     [sixsq.slipstream.client.api.cimi :as cimi]
-    [sixsq.slipstream.client.api.authn :as authn]
+    [sixsq.slipstream.client.api.metrics :as metrics]
     [sixsq.slipstream.client.api.modules :as modules]
     [sixsq.slipstream.client.api.pricing :as pricing]
     [sixsq.slipstream.client.api.runs :as runs]
     [sixsq.slipstream.client.impl.utils.cimi :as u]
     [sixsq.slipstream.client.impl.cimi-async :as cimi-impl]
     [sixsq.slipstream.client.impl.pricing-async :as pi]
+    [sixsq.slipstream.client.impl.metrics-async :as metrics-impl]
     [sixsq.slipstream.client.impl.modules-async :as modules-impl]
     [sixsq.slipstream.client.impl.runs-async :as runs-impl]
     [sixsq.slipstream.client.impl.utils.modules :as modules-utils]
@@ -209,7 +210,17 @@
     (go
       (let [opts (merge (:default-options @state) options)
             token (:token @state)]
-        (<! (runs-impl/search-runs token runs-endpoint opts))))))
+        (<! (runs-impl/search-runs token runs-endpoint opts)))))
+
+  metrics/metrics
+
+  (get-metrics [this options]
+    (let [opts (merge (:default-options @state) options)]
+      (go
+        (<! (cimi/cloud-entry-point this opts))
+        (let [[response token] (<! (metrics-impl/get-metrics @state opts))]
+          (u/update-state state :token token)
+          response)))))
 
 
 (defn instance
