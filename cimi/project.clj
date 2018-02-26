@@ -1,6 +1,6 @@
-(def +version+ "3.46-SNAPSHOT")
+(def +version+ "3.46")
 
-(defproject com.sixsq.slipstream/SlipStreamClojureAPI-cimi "3.46-SNAPSHOT"
+(defproject com.sixsq.slipstream/SlipStreamClojureAPI-cimi "3.46"
 
   :description "Clojure CIMI API"
 
@@ -18,7 +18,7 @@
             ;; (leinjacker 0.4.3 is published and lein-codox update their leinjacker dependency to 0.4.3)
             [lein-shell "0.5.0"]]
 
-  :parent-project {:coords  [com.sixsq.slipstream/parent "3.46-SNAPSHOT"]
+  :parent-project {:coords  [com.sixsq.slipstream/parent "3.46"]
                    :inherit [:min-lein-version
                              :managed-dependencies
                              :repositories
