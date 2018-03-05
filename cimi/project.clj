@@ -6,8 +6,8 @@
 
   :url "https://github.com/slipstream/SlipStreamClojureAPI"
 
-  :license {:name "Apache 2.0"
-            :url "http://www.apache.org/licenses/LICENSE-2.0.txt"
+  :license {:name         "Apache 2.0"
+            :url          "http://www.apache.org/licenses/LICENSE-2.0.txt"
             :distribution :repo}
 
   :plugins [[lein-parent "0.3.2"]
@@ -41,8 +41,7 @@
           :metadata     {:doc/format :markdown}}
 
   :doo {:verbose true
-        :debug   true
-        :paths   {:phantom "phantomjs --web-security=false"}}
+        :debug   true}
 
   :dependencies
   [[org.clojure/tools.logging]                              ;; run utils
@@ -58,7 +57,8 @@
                         :source-paths ["test/cljc" "test/cljs"]
                         :compiler     {:main          'sixsq.slipstream.client.runner
                                        :output-to     "target/clienttest.js"
-                                       :optimizations :none}}]}
+                                       :output-dir    "target"
+                                       :optimizations :whitespace}}]}
 
   :profiles {:provided {:dependencies [[org.clojure/clojure]
                                        [org.clojure/clojurescript]]}
@@ -68,7 +68,6 @@
 
   :aliases {"test"    ["do"
                        ["test"]
-                       ["with-profiles" "test" ["doo" "phantom" "test" "once"]]]
+                       ["with-profiles" "test" ["doo" "nashorn" "test" "once"]]]
             "docs"    ["codox"]
-            "publish" ["shell" "../publish-docs.sh"]
-            })
+            "publish" ["shell" "../publish-docs.sh"]})
