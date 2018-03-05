@@ -32,6 +32,8 @@ jobs:
 
       - run: mvn clean dependency:go-offline
 
+      - run: (cd cimi; lein deps)
+
       - save_cache:
           paths:
             - ~/.m2
