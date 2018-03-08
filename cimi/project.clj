@@ -18,7 +18,7 @@
             ;; (leinjacker 0.4.3 is published and lein-codox update their leinjacker dependency to 0.4.3)
             [lein-shell "0.5.0"]]
 
-  :parent-project {:coords  [sixsq/slipstream-parent "5.0.0"]
+  :parent-project {:coords  [sixsq/slipstream-parent "5.0.1"]
                    :inherit [:min-lein-version
                              :managed-dependencies
                              :repositories
