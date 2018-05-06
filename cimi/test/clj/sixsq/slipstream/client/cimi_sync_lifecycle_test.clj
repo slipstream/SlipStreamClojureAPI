@@ -13,12 +13,12 @@
    **NOTE**: The value for \"my-server-root\" must end with a slash!
    "
   (:require
+    [clojure.test :refer [are deftest is run-tests testing]]
     [kvlt.core]
-    [sixsq.slipstream.client.sync :as i]
-    [sixsq.slipstream.client.api.cimi :as cimi]
     [sixsq.slipstream.client.api.authn :as authn]
+    [sixsq.slipstream.client.api.cimi :as cimi]
 
-    [clojure.test :refer [deftest is are testing run-tests]]))
+    [sixsq.slipstream.client.sync :as i]))
 
 ;; silence the request/response debugging
 (kvlt.core/quiet!)

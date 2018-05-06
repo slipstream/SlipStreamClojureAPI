@@ -3,11 +3,11 @@
    server. The CIMI Cloud Entry Point is used to find the baseURI for the
    server; the metrics are located at a fixed relative URL below that."
   (:require
-    [sixsq.slipstream.client.impl.utils.http-async :as http]
-    [sixsq.slipstream.client.impl.utils.common :as cu]
-    [sixsq.slipstream.client.impl.utils.cimi :as u]
     [clojure.core.async :refer #?(:clj  [chan]
-                                  :cljs [chan])]))
+                                  :cljs [chan])]
+    [sixsq.slipstream.client.impl.utils.cimi :as u]
+    [sixsq.slipstream.client.impl.utils.common :as cu]
+    [sixsq.slipstream.client.impl.utils.http-async :as http]))
 
 
 (def ^:const metrics-url "metrics")

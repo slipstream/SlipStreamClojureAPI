@@ -1,9 +1,9 @@
 (ns ^{:no-doc true} sixsq.slipstream.client.run-impl.utils.context
   (:require
-    [sixsq.slipstream.client.run-impl.utils.path :as cu]
+    [clojure-ini.core :refer [read-ini]]
     [clojure.java.io :as io]
     [clojure.tools.logging :as log]
-    [clojure-ini.core :refer [read-ini]]))
+    [sixsq.slipstream.client.run-impl.utils.path :as cu]))
 
 ;;
 ;; Location defaults.

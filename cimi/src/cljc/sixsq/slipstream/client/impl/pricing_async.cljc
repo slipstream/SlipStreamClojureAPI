@@ -1,12 +1,12 @@
 (ns ^{:no-doc true} sixsq.slipstream.client.impl.pricing-async
   #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]]))
   (:require
+    [clojure.core.async :refer #?(:clj  [chan <! >! go]
+                                  :cljs [chan <! >!])]
+    [sixsq.slipstream.client.impl.utils.common :as cu]
     [sixsq.slipstream.client.impl.utils.error :as e]
     [sixsq.slipstream.client.impl.utils.http-async :as http]
-    [sixsq.slipstream.client.impl.utils.common :as cu]
-    [sixsq.slipstream.client.impl.utils.json :as json]
-    [clojure.core.async :refer #?(:clj  [chan <! >! go]
-                                  :cljs [chan <! >!])]))
+    [sixsq.slipstream.client.impl.utils.json :as json]))
 
 
 (defn json-body

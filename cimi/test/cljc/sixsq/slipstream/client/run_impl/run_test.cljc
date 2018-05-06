@@ -1,9 +1,9 @@
 (ns sixsq.slipstream.client.run-impl.run-test
   (:refer-clojure :exclude [get])
   (:require
-   [sixsq.slipstream.client.run-impl.run :as t]
+   [clojure.test :refer [are deftest is run-tests testing]]
    [sixsq.slipstream.client.run-impl.crud :as h]
-   [clojure.test :refer [deftest is are testing run-tests]]))
+   [sixsq.slipstream.client.run-impl.run :as t]))
 
 (deftest test-to-ids
   (are [x y] (= x (t/extract-ids y))

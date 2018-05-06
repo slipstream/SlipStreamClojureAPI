@@ -1,10 +1,10 @@
 (ns ^{:no-doc true} sixsq.slipstream.client.impl.modules-async
   "Provides methods for reading modules from the SlipStream server."
   (:require
-    [sixsq.slipstream.client.impl.utils.http-async :as http]
+    [clojure.core.async :refer [chan]]
     [sixsq.slipstream.client.impl.utils.common :as cu]
-    [sixsq.slipstream.client.impl.utils.json :as json]
-    [clojure.core.async :refer [chan]]))
+    [sixsq.slipstream.client.impl.utils.http-async :as http]
+    [sixsq.slipstream.client.impl.utils.json :as json]))
 
 
 (defn- create-chan

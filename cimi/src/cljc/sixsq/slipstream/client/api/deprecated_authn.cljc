@@ -56,11 +56,11 @@
   "
   #?(:cljs (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
   (:require
-    [sixsq.slipstream.client.impl.utils.http-async :as http]
-    [clojure.string :as s]
-    [sixsq.slipstream.client.impl.utils.utils :as u]
     [clojure.core.async :refer #?(:clj  [<! go go-loop <!!]
-                                  :cljs [<!])]))
+                                  :cljs [<!])]
+    [clojure.string :as s]
+    [sixsq.slipstream.client.impl.utils.http-async :as http]
+    [sixsq.slipstream.client.impl.utils.utils :as u]))
 
 (def ^:const default-url "https://nuv.la")
 

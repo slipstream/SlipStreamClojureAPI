@@ -1,9 +1,9 @@
 (ns ^{:no-doc true} sixsq.slipstream.client.impl.utils.json
   "Utilities for handling JSON data."
   (:require
-    [sixsq.slipstream.client.impl.utils.error :as e]
     #?(:clj
-    [clojure.data.json :as json])))
+    [clojure.data.json :as json])
+    [sixsq.slipstream.client.impl.utils.error :as e]))
 
 (defn str->json [s]
   #?(:clj  (json/read-str s :key-fn keyword)

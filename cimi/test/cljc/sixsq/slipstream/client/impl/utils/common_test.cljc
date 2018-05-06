@@ -1,7 +1,7 @@
 (ns sixsq.slipstream.client.impl.utils.common-test
   (:require
-    [sixsq.slipstream.client.impl.utils.common :as t]
-    [clojure.test :refer [deftest is are testing run-tests]]))
+    [clojure.test :refer [are deftest is run-tests testing]]
+    [sixsq.slipstream.client.impl.utils.common :as t]))
 
 (deftest test-ensure-url
   (let [baseUrl "https://nuv.la"

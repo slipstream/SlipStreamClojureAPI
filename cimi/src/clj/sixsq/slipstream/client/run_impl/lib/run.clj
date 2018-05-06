@@ -56,14 +56,14 @@
       (for [run-uuid runs]
         (a/with-context my-slipstream (r/get-run-info run-uuid)))"
   (:require
-    [sixsq.slipstream.client.impl.utils.utils :as u]
-    [sixsq.slipstream.client.impl.utils.wait :as wu]
-    [sixsq.slipstream.client.run-impl.run :as ri]
-    [sixsq.slipstream.client.run-impl.crud :as h]
-    [sixsq.slipstream.client.api.deprecated-authn :refer [*context*]]
+    [clojure.data.xml :as xml]
     [clojure.string :as str]
     [clojure.tools.logging :as log]
-    [clojure.data.xml :as xml])
+    [sixsq.slipstream.client.api.deprecated-authn :refer [*context*]]
+    [sixsq.slipstream.client.impl.utils.utils :as u]
+    [sixsq.slipstream.client.impl.utils.wait :as wu]
+    [sixsq.slipstream.client.run-impl.crud :as h]
+    [sixsq.slipstream.client.run-impl.run :as ri])
   (:use [clojure.walk :only [stringify-keys]]))
 
 

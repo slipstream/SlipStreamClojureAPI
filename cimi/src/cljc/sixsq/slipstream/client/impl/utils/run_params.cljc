@@ -1,7 +1,7 @@
 (ns sixsq.slipstream.client.impl.utils.run-params
   (:require
-    [sixsq.slipstream.client.impl.utils.error :as e]
-    [clojure.string :as str]))
+    [clojure.string :as str]
+    [sixsq.slipstream.client.impl.utils.error :as e]))
 
 (def param-refqname "refqname")
 (def param-scalable "mutable")

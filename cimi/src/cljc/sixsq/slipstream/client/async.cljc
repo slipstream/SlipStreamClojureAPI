@@ -5,21 +5,21 @@
   (:refer-clojure :exclude [get])
   #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]]))
   (:require
+    [clojure.core.async :refer #?(:clj  [chan >! <! go]
+                                  :cljs [chan >! <!])]
     [sixsq.slipstream.client.api.authn :as authn]
     [sixsq.slipstream.client.api.cimi :as cimi]
     [sixsq.slipstream.client.api.metrics :as metrics]
     [sixsq.slipstream.client.api.modules :as modules]
     [sixsq.slipstream.client.api.pricing :as pricing]
     [sixsq.slipstream.client.api.runs :as runs]
-    [sixsq.slipstream.client.impl.utils.cimi :as u]
     [sixsq.slipstream.client.impl.cimi-async :as cimi-impl]
-    [sixsq.slipstream.client.impl.pricing-async :as pi]
     [sixsq.slipstream.client.impl.metrics-async :as metrics-impl]
     [sixsq.slipstream.client.impl.modules-async :as modules-impl]
+    [sixsq.slipstream.client.impl.pricing-async :as pi]
     [sixsq.slipstream.client.impl.runs-async :as runs-impl]
-    [sixsq.slipstream.client.impl.utils.modules :as modules-utils]
-    [clojure.core.async :refer #?(:clj  [chan >! <! go]
-                                  :cljs [chan >! <!])]))
+    [sixsq.slipstream.client.impl.utils.cimi :as u]
+    [sixsq.slipstream.client.impl.utils.modules :as modules-utils]))
 
 (def
   ^{:doc "Default cloud entry point endpoint defaults to the Nuvla service."}

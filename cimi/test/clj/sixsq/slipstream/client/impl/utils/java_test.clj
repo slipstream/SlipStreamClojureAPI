@@ -1,7 +1,7 @@
 (ns sixsq.slipstream.client.impl.utils.java-test
-  (:require [clojure.test :refer [deftest is are]]
-            [sixsq.slipstream.client.impl.utils.java :as t]
-            [clojure.walk :as walk]))
+  (:require [clojure.test :refer [are deftest is]]
+            [clojure.walk :as walk]
+            [sixsq.slipstream.client.impl.utils.java :as t]))
 
 (deftest check-roundtrip
   (are [input] (= input (-> input t/to-java t/to-clojure))

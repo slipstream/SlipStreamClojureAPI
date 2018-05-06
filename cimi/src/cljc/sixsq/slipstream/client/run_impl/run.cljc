@@ -1,8 +1,8 @@
 (ns ^{:no-doc true} sixsq.slipstream.client.run-impl.run
   (:refer-clojure :exclude [get])
   (:require
-    [sixsq.slipstream.client.impl.utils.utils :as u]
-    [clojure.string :as s]))
+    [clojure.string :as s]
+    [sixsq.slipstream.client.impl.utils.utils :as u]))
 
 (def ^:const global-ns "ss")
 

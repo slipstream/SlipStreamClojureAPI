@@ -14,13 +14,13 @@
   (:refer-clojure :exclude [get])
   #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]]))
   (:require
-    [sixsq.slipstream.client.impl.utils.http-async :as http]
-    [sixsq.slipstream.client.impl.utils.common :as cu]
-    [sixsq.slipstream.client.impl.utils.json :as json]
-    [sixsq.slipstream.client.impl.utils.cimi :as u]
     [cemerick.url :as url]
     [clojure.core.async :refer #?(:clj  [chan <! >! go]
-                                  :cljs [chan <! >!])]))
+                                  :cljs [chan <! >!])]
+    [sixsq.slipstream.client.impl.utils.cimi :as u]
+    [sixsq.slipstream.client.impl.utils.common :as cu]
+    [sixsq.slipstream.client.impl.utils.http-async :as http]
+    [sixsq.slipstream.client.impl.utils.json :as json]))
 
 
 (defn- create-chan

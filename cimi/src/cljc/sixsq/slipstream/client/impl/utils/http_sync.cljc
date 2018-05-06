@@ -40,8 +40,8 @@
   "
   (:refer-clojure :exclude [get])
   (:require
-    [sixsq.slipstream.client.impl.utils.http-utils :as hu]
-    [kvlt.core :as kvlt]))
+    [kvlt.core :as kvlt]
+    [sixsq.slipstream.client.impl.utils.http-utils :as hu]))
 
 (defn- re-throw-ex-info
   [e]

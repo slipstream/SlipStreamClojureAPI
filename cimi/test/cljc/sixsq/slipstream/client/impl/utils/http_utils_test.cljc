@@ -1,7 +1,7 @@
 (ns sixsq.slipstream.client.impl.utils.http-utils-test
   (:require
-    [sixsq.slipstream.client.impl.utils.http-utils :as h]
-    [clojure.test :refer [deftest is are testing run-tests]]))
+    [clojure.test :refer [are deftest is run-tests testing]]
+    [sixsq.slipstream.client.impl.utils.http-utils :as h]))
 
 (deftest test-process-req
   (let [req (h/set-or-clear-insecure-flag {})]

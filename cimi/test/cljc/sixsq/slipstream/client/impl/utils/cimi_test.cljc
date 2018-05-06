@@ -1,12 +1,12 @@
 (ns sixsq.slipstream.client.impl.utils.cimi-test
   #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]]))
   (:require
-    [sixsq.slipstream.client.impl.utils.cimi :as t]
-    [sixsq.slipstream.client.impl.utils.error :as e]
-    [sixsq.slipstream.client.impl.utils.json :as json]
     [clojure.core.async :refer #?(:clj  [chan <! >! go <!!]
                                   :cljs [chan <! >!])]
-    [clojure.test :refer [deftest is are testing run-tests #?(:cljs async)]]))
+    [clojure.test :refer [#?(:cljs async) are deftest is run-tests testing]]
+    [sixsq.slipstream.client.impl.utils.cimi :as t]
+    [sixsq.slipstream.client.impl.utils.error :as e]
+    [sixsq.slipstream.client.impl.utils.json :as json]))
 
 (def test-cep {:id               "cloud-entry-point"
                :resourceURI      "http://schemas.dmtf.org/cimi/2/CloudEntryPoint"

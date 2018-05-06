@@ -1,7 +1,7 @@
 (ns sixsq.slipstream.client.impl.utils.error-test
   (:require
-    [sixsq.slipstream.client.impl.utils.error :as t]
-    [clojure.test :refer [deftest is are]]))
+    [clojure.test :refer [are deftest is]]
+    [sixsq.slipstream.client.impl.utils.error :as t]))
 
 (deftest test-error-predicate
   (are [x y] (= x (t/error? y))

@@ -99,8 +99,8 @@
 
       (r/get-run-info)"
   (:require
-    [sixsq.slipstream.client.run-impl.lib.run :as r]
     [sixsq.slipstream.client.api.deprecated-authn :as a]
+    [sixsq.slipstream.client.run-impl.lib.run :as r]
     [sixsq.slipstream.client.run-impl.utils.context :as c]))
 
 (def ^:dynamic *context* {})

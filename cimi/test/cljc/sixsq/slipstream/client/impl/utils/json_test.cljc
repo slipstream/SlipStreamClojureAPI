@@ -1,11 +1,11 @@
 (ns sixsq.slipstream.client.impl.utils.json-test
   #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]]))
   (:require
-    [sixsq.slipstream.client.impl.utils.json :as t]
-    [sixsq.slipstream.client.impl.utils.error :as e]
     [clojure.core.async :refer #?(:clj [chan <! >! go <!!]
                                   :cljs [chan <! >!])]
-    [clojure.test :refer [deftest is are testing run-tests #?(:cljs async)]]))
+    [clojure.test :refer [#?(:cljs async) are deftest is run-tests testing]]
+    [sixsq.slipstream.client.impl.utils.error :as e]
+    [sixsq.slipstream.client.impl.utils.json :as t]))
 
 (def body-example {:alpha 1
                    :beta  "2"

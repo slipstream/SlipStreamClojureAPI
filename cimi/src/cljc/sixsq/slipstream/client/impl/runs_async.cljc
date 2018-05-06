@@ -3,12 +3,12 @@
    These are details of the implementation and are not a part of the public
    API."
   (:require
-    [sixsq.slipstream.client.impl.utils.http-async :as http]
-    [sixsq.slipstream.client.impl.utils.common :as cu]
-    [sixsq.slipstream.client.impl.utils.json :as json]
-    [sixsq.slipstream.client.impl.utils.run-params :as rp-utils]
     [cemerick.url :as url]
-    [clojure.core.async :refer [chan]]))
+    [clojure.core.async :refer [chan]]
+    [sixsq.slipstream.client.impl.utils.common :as cu]
+    [sixsq.slipstream.client.impl.utils.http-async :as http]
+    [sixsq.slipstream.client.impl.utils.json :as json]
+    [sixsq.slipstream.client.impl.utils.run-params :as rp-utils]))
 
 
 (defn- create-chan

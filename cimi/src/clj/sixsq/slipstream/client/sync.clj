@@ -6,13 +6,13 @@
   (:refer-clojure :exclude [get])
   (:require
     [clojure.core.async]
-    [sixsq.slipstream.client.async :as async]
     [sixsq.slipstream.client.api.authn :as authn]
     [sixsq.slipstream.client.api.cimi :as cimi]
     [sixsq.slipstream.client.api.metrics :as metrics]
     [sixsq.slipstream.client.api.modules :as modules]
     [sixsq.slipstream.client.api.pricing :as pricing]
-    [sixsq.slipstream.client.api.runs :as runs]))
+    [sixsq.slipstream.client.api.runs :as runs]
+    [sixsq.slipstream.client.async :as async]))
 
 
 (defmacro ^{:no-doc true} <??

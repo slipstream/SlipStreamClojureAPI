@@ -3,9 +3,9 @@
    Although these functions are public, they are not part of the public
    API and may change without notice."
   (:require
-    [sixsq.slipstream.client.impl.utils.error :as e]
     #?(:clj
-    [clojure.data.json :as json])))
+    [clojure.data.json :as json])
+    [sixsq.slipstream.client.impl.utils.error :as e]))
 
 ;; The the :follow-redirects setting asks that redirects are handled
 ;; directly by the client rather than by the underlying HTTP library.

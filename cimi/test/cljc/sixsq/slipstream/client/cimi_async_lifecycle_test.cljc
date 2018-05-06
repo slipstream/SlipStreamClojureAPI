@@ -14,14 +14,14 @@
    "
   #?(:cljs (:require-macros [cljs.core.async.macros :refer [go]]))
   (:require
-    [kvlt.core]
-    [sixsq.slipstream.client.async :as i]
-    [sixsq.slipstream.client.api.cimi :as cimi]
-    [sixsq.slipstream.client.api.authn :as authn]
-
     [clojure.core.async :refer #?(:clj  [chan <! >! go <!!]
                                   :cljs [chan <! >!])]
-    [clojure.test :refer [deftest is are testing run-tests #?(:cljs async)]]))
+    [clojure.test :refer [#?(:cljs async) are deftest is run-tests testing]]
+    [kvlt.core]
+    [sixsq.slipstream.client.api.authn :as authn]
+
+    [sixsq.slipstream.client.api.cimi :as cimi]
+    [sixsq.slipstream.client.async :as i]))
 
 ;; silence the request/response debugging
 (kvlt.core/quiet!)

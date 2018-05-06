@@ -1,9 +1,9 @@
 (ns ^{:no-doc true} sixsq.slipstream.client.run-impl.crud
   (:refer-clojure :exclude [get])
   (:require
+    #?(:clj [clojure.data.json :as json])
     [sixsq.slipstream.client.impl.utils.http-sync :as http]
-    [sixsq.slipstream.client.impl.utils.utils :as u]
-    #?(:clj [clojure.data.json :as json])))
+    [sixsq.slipstream.client.impl.utils.utils :as u]))
 
 
 (def as-json {:accept "application/json"})
