@@ -11,15 +11,11 @@
             :distribution :repo}
 
   :plugins [[lein-parent "0.3.2"]
-            [lein-doo "0.1.8"]
-            [kirasystems/lein-codox "0.10.4"]
-            ;; FIXME update to lein-codox (remove kirasystems) after fix of
-            ;; https://github.com/sattvik/leinjacker/issues/14
-            ;; (leinjacker 0.4.3 is published and lein-codox update their leinjacker dependency to 0.4.3)
-            [lein-shell "0.5.0"]]
+            [lein-doo "0.1.8"]]
 
-  :parent-project {:coords  [sixsq/slipstream-parent "5.3.2"]
-                   :inherit [:min-lein-version
+  :parent-project {:coords  [sixsq/slipstream-parent "5.3.3"]
+                   :inherit [:plugins
+                             :min-lein-version
                              :managed-dependencies
                              :repositories
                              :deploy-repositories]}
