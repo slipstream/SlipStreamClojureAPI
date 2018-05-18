@@ -210,6 +210,14 @@
   (log/debug "Waiting for" state "state for" timeout "sec.")
   (wu/wait-for #(= state (get-state run-uuid)) timeout interval))
 
+(defn wait-provisioning
+  "Waits for Provisioning state on the run. Returns true on success."
+  ([run-uuid]
+   (wait-state run-uuid "Provisioning" :timeout wait-timeout-default :interval 5))
+  ([run-uuid timeout]
+   (wait-state run-uuid "Provisioning" :timeout timeout :interval 5)))
+
+
 (defn wait-ready
   "Waits for Ready state on the run. Returns true on success."
   ([run-uuid]

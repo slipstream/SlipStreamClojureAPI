@@ -222,6 +222,13 @@
   [comp ids]
   (r/scale-down (run-uuid) comp ids))
 
+(defn wait-provisioning
+  "Waits for Provisioning state on the run. Returns true on success."
+  ([]
+   (r/wait-provisioning (run-uuid)))
+  ([timeout]
+   (r/wait-provisioning (run-uuid) timeout)))
+
 (defn wait-ready
   "Waits for Ready state on the run. Returns true on success."
   ([]
