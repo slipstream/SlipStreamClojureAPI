@@ -39,7 +39,7 @@
   (-> ex
       :body
       #?(:clj  (json/read-str)
-         :cljs (JSON.parse))
+         :cljs (js/JSON.parse))
       u/keywordize-keys
       reason-from-error))
 

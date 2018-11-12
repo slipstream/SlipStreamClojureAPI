@@ -7,11 +7,11 @@
 
 (defn str->json [s]
   #?(:clj  (json/read-str s :key-fn keyword)
-     :cljs (js->clj (JSON.parse s) :keywordize-keys true)))
+     :cljs (js->clj (js/JSON.parse s) :keywordize-keys true)))
 
 (defn edn->json [json]
   #?(:clj  (json/write-str json)
-     :cljs (JSON.stringify (clj->js json))))
+     :cljs (js/JSON.stringify (clj->js json))))
 
 (defn json->edn [s]
   (cond
