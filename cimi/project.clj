@@ -1,6 +1,6 @@
-(def +version+ "3.66")
+(def +version+ "3.67-SNAPSHOT")
 
-(defproject com.sixsq.slipstream/SlipStreamClojureAPI-cimi "3.66"
+(defproject com.sixsq.slipstream/SlipStreamClojureAPI-cimi "3.67-SNAPSHOT"
 
   :description "Clojure CIMI API"
 
